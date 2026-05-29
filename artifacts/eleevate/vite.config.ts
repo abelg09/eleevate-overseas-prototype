@@ -1,6 +1,7 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
+import fs from "node:fs/promises";
 import path from "path";
 import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal";
 
@@ -13,12 +14,23 @@ if (Number.isNaN(port) || port <= 0) {
 }
 
 const basePath = process.env.BASE_PATH ?? "/";
+const distDir = path.resolve(import.meta.dirname, "dist/public");
 
 export default defineConfig({
   base: basePath,
   plugins: [
     react(),
     tailwindcss({ optimize: false }),
+    {
+      name: "github-pages-spa-fallback",
+      apply: "build",
+      async closeBundle() {
+        await fs.copyFile(
+          path.join(distDir, "index.html"),
+          path.join(distDir, "404.html"),
+        );
+      },
+    },
     runtimeErrorOverlay(),
     ...(process.env.NODE_ENV !== "production" &&
     process.env.REPL_ID !== undefined
@@ -43,7 +55,7 @@ export default defineConfig({
   },
   root: path.resolve(import.meta.dirname),
   build: {
-    outDir: path.resolve(import.meta.dirname, "dist/public"),
+    outDir: distDir,
     emptyOutDir: true,
   },
   server: {
