@@ -1,0 +1,2792 @@
+openapi: 3.1.0
+info:
+  # Do not change the title, if the title changes, the import paths will be broken
+  title: Api
+  version: 0.1.0
+  description: EleevateOverseas Platform API
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: users
+    description: User management
+  - name: students
+    description: Student profiles
+  - name: consultants
+    description: Consultant profiles
+  - name: universities
+    description: University data
+  - name: programs
+    description: Academic programs
+  - name: countries
+    description: Country information
+  - name: applications
+    description: Student applications
+  - name: documents
+    description: Application documents
+  - name: dashboard
+    description: Dashboard summaries
+  - name: assessment
+    description: Psychometric assessment and sessions
+  - name: courses
+    description: LMS courses, chapters, and enrollments
+  - name: jobs
+    description: Job listings and applications
+  - name: careers
+    description: Career paths, mentors, internships, and mentorship requests
+
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  # ── Users ──────────────────────────────────────────────────────────────────
+  /users/me:
+    get:
+      operationId: getMe
+      tags: [users]
+      summary: Get current user
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+    put:
+      operationId: updateMe
+      tags: [users]
+      summary: Update current user
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateUserBody"
+      responses:
+        "200":
+          description: Updated user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+
+  /users/onboarding:
+    post:
+      operationId: completeOnboarding
+      tags: [users]
+      summary: Complete onboarding wizard
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OnboardingBody"
+      responses:
+        "200":
+          description: Onboarding complete
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+
+  /users:
+    get:
+      operationId: listUsers
+      tags: [users]
+      summary: List all users (admin)
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: role
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Users list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserListResponse"
+
+  /users/{id}:
+    get:
+      operationId: getUser
+      tags: [users]
+      summary: Get user by ID (admin)
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: User
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+    patch:
+      operationId: updateUser
+      tags: [users]
+      summary: Update user by ID (admin)
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminUpdateUserBody"
+      responses:
+        "200":
+          description: Updated user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+    delete:
+      operationId: deleteUser
+      tags: [users]
+      summary: Delete user by ID (admin)
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Deleted
+
+  # ── Students ───────────────────────────────────────────────────────────────
+  /students/me:
+    get:
+      operationId: getMyStudentProfile
+      tags: [students]
+      summary: Get my student profile
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: Student profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StudentProfile"
+    put:
+      operationId: updateMyStudentProfile
+      tags: [students]
+      summary: Update student profile
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateStudentProfileBody"
+      responses:
+        "200":
+          description: Updated student profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StudentProfile"
+
+  /students/me/dashboard-summary:
+    get:
+      operationId: getStudentDashboardSummary
+      tags: [dashboard]
+      summary: Student dashboard summary
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: Dashboard summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StudentDashboardSummary"
+
+  /students:
+    get:
+      operationId: listStudents
+      tags: [students]
+      summary: List all student profiles (admin or consultant)
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        "200":
+          description: Student profiles list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StudentListResponse"
+
+  /students/{id}:
+    get:
+      operationId: getStudent
+      tags: [students]
+      summary: Get student profile by ID (admin or consultant)
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Student profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StudentProfile"
+    delete:
+      operationId: deleteStudent
+      tags: [students]
+      summary: Delete student profile by ID (admin)
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Deleted
+
+  # ── Consultants ────────────────────────────────────────────────────────────
+  /consultants/me:
+    get:
+      operationId: getMyConsultantProfile
+      tags: [consultants]
+      summary: Get my consultant profile
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: Consultant profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConsultantProfile"
+    put:
+      operationId: updateMyConsultantProfile
+      tags: [consultants]
+      summary: Update consultant profile
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateConsultantProfileBody"
+      responses:
+        "200":
+          description: Updated consultant profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConsultantProfile"
+
+  /consultants/me/pipeline-summary:
+    get:
+      operationId: getConsultantPipelineSummary
+      tags: [dashboard]
+      summary: Consultant pipeline summary
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: Pipeline summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConsultantPipelineSummary"
+
+  /consultants:
+    get:
+      operationId: listConsultants
+      tags: [consultants]
+      summary: List consultants
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: country
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of consultants
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConsultantListResponse"
+
+  /consultants/{id}:
+    get:
+      operationId: getConsultant
+      tags: [consultants]
+      summary: Get consultant by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Consultant profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConsultantProfile"
+    patch:
+      operationId: updateConsultant
+      tags: [consultants]
+      summary: Update consultant by ID (admin or self)
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateConsultantProfileBody"
+      responses:
+        "200":
+          description: Updated consultant profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConsultantProfile"
+    delete:
+      operationId: deleteConsultant
+      tags: [consultants]
+      summary: Delete consultant by ID (admin)
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Deleted
+
+  # ── Universities ───────────────────────────────────────────────────────────
+  /universities:
+    get:
+      operationId: listUniversities
+      tags: [universities]
+      summary: List universities
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: country
+          in: query
+          schema:
+            type: string
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: minRanking
+          in: query
+          schema:
+            type: integer
+        - name: maxRanking
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Universities list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UniversityListResponse"
+    post:
+      operationId: createUniversity
+      tags: [universities]
+      summary: Create university (admin)
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateUniversityBody"
+      responses:
+        "201":
+          description: Created university
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/University"
+
+  /universities/featured:
+    get:
+      operationId: getFeaturedUniversities
+      tags: [universities]
+      summary: Get featured universities
+      responses:
+        "200":
+          description: Featured universities
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/University"
+
+  /universities/{id}:
+    get:
+      operationId: getUniversity
+      tags: [universities]
+      summary: Get university by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: University
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/University"
+    patch:
+      operationId: updateUniversity
+      tags: [universities]
+      summary: Update university (admin)
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateUniversityBody"
+      responses:
+        "200":
+          description: Updated university
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/University"
+    delete:
+      operationId: deleteUniversity
+      tags: [universities]
+      summary: Delete university (admin)
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Deleted
+
+  # ── Programs ───────────────────────────────────────────────────────────────
+  /programs:
+    get:
+      operationId: listPrograms
+      tags: [programs]
+      summary: List programs
+      parameters:
+        - name: universityId
+          in: query
+          schema:
+            type: string
+        - name: degree
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        "200":
+          description: Programs list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProgramListResponse"
+    post:
+      operationId: createProgram
+      tags: [programs]
+      summary: Create program (admin)
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateProgramBody"
+      responses:
+        "201":
+          description: Created program
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Program"
+
+  /programs/{id}:
+    get:
+      operationId: getProgram
+      tags: [programs]
+      summary: Get program by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Program
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Program"
+    patch:
+      operationId: updateProgram
+      tags: [programs]
+      summary: Update program (admin)
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateProgramBody"
+      responses:
+        "200":
+          description: Updated program
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Program"
+    delete:
+      operationId: deleteProgram
+      tags: [programs]
+      summary: Delete program (admin)
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Deleted
+
+  # ── Countries ──────────────────────────────────────────────────────────────
+  /countries:
+    get:
+      operationId: listCountries
+      tags: [countries]
+      summary: List countries
+      responses:
+        "200":
+          description: Countries list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Country"
+    post:
+      operationId: createCountry
+      tags: [countries]
+      summary: Create country (admin)
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCountryBody"
+      responses:
+        "201":
+          description: Created country
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Country"
+
+  /countries/{code}:
+    get:
+      operationId: getCountry
+      tags: [countries]
+      summary: Get country by code
+      parameters:
+        - name: code
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Country
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Country"
+    patch:
+      operationId: updateCountry
+      tags: [countries]
+      summary: Update country (admin)
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: code
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateCountryBody"
+      responses:
+        "200":
+          description: Updated country
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Country"
+    delete:
+      operationId: deleteCountry
+      tags: [countries]
+      summary: Delete country (admin)
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: code
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Deleted
+
+  # ── Applications ───────────────────────────────────────────────────────────
+  /applications:
+    get:
+      operationId: listApplications
+      tags: [applications]
+      summary: List applications
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        "200":
+          description: Applications list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApplicationListResponse"
+    post:
+      operationId: createApplication
+      tags: [applications]
+      summary: Create application
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateApplicationBody"
+      responses:
+        "201":
+          description: Created application
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Application"
+
+  /applications/recent:
+    get:
+      operationId: getRecentApplications
+      tags: [dashboard]
+      summary: Get recent applications
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: Recent applications
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Application"
+
+  /applications/{id}:
+    get:
+      operationId: getApplication
+      tags: [applications]
+      summary: Get application by ID
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Application
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Application"
+    patch:
+      operationId: updateApplication
+      tags: [applications]
+      summary: Update application status
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateApplicationBody"
+      responses:
+        "200":
+          description: Updated application
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Application"
+    delete:
+      operationId: deleteApplication
+      tags: [applications]
+      summary: Delete application
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Deleted
+
+  # ── Documents ──────────────────────────────────────────────────────────────
+  /documents:
+    get:
+      operationId: listDocuments
+      tags: [documents]
+      summary: List documents
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: applicationId
+          in: query
+          schema:
+            type: string
+        - name: type
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Documents list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Document"
+    post:
+      operationId: createDocument
+      tags: [documents]
+      summary: Upload document
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateDocumentBody"
+      responses:
+        "201":
+          description: Created document
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Document"
+
+  /documents/{id}:
+    get:
+      operationId: getDocument
+      tags: [documents]
+      summary: Get document by ID
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Document
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Document"
+    patch:
+      operationId: updateDocument
+      tags: [documents]
+      summary: Update document status
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateDocumentBody"
+      responses:
+        "200":
+          description: Updated document
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Document"
+    delete:
+      operationId: deleteDocument
+      tags: [documents]
+      summary: Delete document
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Deleted
+
+  # ── Assessment ──────────────────────────────────────────────────────────────
+  /assessment/questions:
+    get:
+      operationId: listAssessmentQuestions
+      tags: [assessment]
+      summary: List all psychometric assessment questions
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: Questions list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AssessmentQuestion"
+
+  /assessment/sessions:
+    get:
+      operationId: listAssessmentSessions
+      tags: [assessment]
+      summary: Get current user's past assessment sessions
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: Sessions list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PsychometricSession"
+    post:
+      operationId: createAssessmentSession
+      tags: [assessment]
+      summary: Submit answers and create a scored assessment session
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                answers:
+                  type: object
+                  additionalProperties:
+                    type: integer
+              required: [answers]
+      responses:
+        "201":
+          description: Created session with AI-scored recommendations
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PsychometricSession"
+
+  # ── Courses / LMS ──────────────────────────────────────────────────────────
+  /courses:
+    get:
+      operationId: listCourses
+      tags: [courses]
+      summary: List published courses
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [student, consultant]
+      responses:
+        "200":
+          description: Courses list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Course"
+                  total:
+                    type: integer
+    post:
+      operationId: createCourse
+      tags: [courses]
+      summary: Create a course (consultant or admin)
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title: { type: string }
+                description: { type: string }
+                type: { type: string, enum: [student, consultant] }
+                level: { type: string, enum: [beginner, intermediate, advanced] }
+                durationMinutes: { type: integer }
+                thumbnailUrl: { type: string }
+                examType: { type: string }
+                category: { type: string }
+                certificateEnabled: { type: boolean }
+              required: [title, description, type, level]
+      responses:
+        "201":
+          description: Created course
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Course"
+
+  /courses/my-enrollments:
+    get:
+      operationId: getMyEnrollments
+      tags: [courses]
+      summary: Get current user's course enrollments with course details
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: Enrollments with courses
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  enrollments:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/CourseEnrollment"
+                  courses:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Course"
+                required: [enrollments, courses]
+
+  /courses/{id}:
+    get:
+      operationId: getCourse
+      tags: [courses]
+      summary: Get a course with chapters
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Course with chapters
+    patch:
+      operationId: updateCourse
+      tags: [courses]
+      summary: Update a course (owner, consultant, or admin)
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        "200":
+          description: Updated course
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Course"
+    delete:
+      operationId: deleteCourse
+      tags: [courses]
+      summary: Delete a course (owner or admin)
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "204":
+          description: Deleted
+
+  /courses/{id}/chapters:
+    post:
+      operationId: createCourseChapter
+      tags: [courses]
+      summary: Add a chapter to a course (owner, consultant, or admin)
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title: { type: string }
+                videoUrl: { type: string }
+                content: { type: string }
+                order: { type: integer }
+                durationMinutes: { type: integer }
+              required: [title, order]
+      responses:
+        "201":
+          description: Created chapter
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CourseChapter"
+
+  /courses/{id}/chapters/{chapterId}:
+    delete:
+      operationId: deleteCourseChapter
+      tags: [courses]
+      summary: Delete a chapter (course owner or admin)
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+        - name: chapterId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "204":
+          description: Deleted
+
+  /courses/{id}/enroll:
+    post:
+      operationId: enrollCourse
+      tags: [courses]
+      summary: Enroll in a course (idempotent)
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Enrollment (existing)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CourseEnrollment"
+        "201":
+          description: New enrollment
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CourseEnrollment"
+
+  /courses/{id}/enrollment:
+    patch:
+      operationId: updateCourseProgress
+      tags: [courses]
+      summary: Update chapter completion progress
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                completedChapterIds:
+                  type: array
+                  items: { type: string }
+              required: [completedChapterIds]
+      responses:
+        "200":
+          description: Updated enrollment
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CourseEnrollment"
+
+  # ── Jobs ────────────────────────────────────────────────────────────────────
+  /jobs:
+    get:
+      operationId: listJobs
+      tags: [jobs]
+      summary: List active job listings
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: type
+          in: query
+          schema: { type: string }
+        - name: country
+          in: query
+          schema: { type: string }
+        - name: search
+          in: query
+          schema: { type: string }
+      responses:
+        "200":
+          description: Job listings
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/JobListing"
+                  total:
+                    type: integer
+    post:
+      operationId: createJob
+      tags: [jobs]
+      summary: Create a job listing
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title: { type: string }
+                company: { type: string }
+                description: { type: string }
+                location: { type: string }
+                country: { type: string }
+                type: { type: string }
+                salary: { type: string }
+              required: [title, company, description]
+      responses:
+        "201":
+          description: Created job listing
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JobListing"
+
+  /my-job-applications:
+    get:
+      operationId: getMyJobApplications
+      tags: [jobs]
+      summary: Get current user's job applications
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: Applications list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/JobApplication"
+
+  /jobs/{id}:
+    get:
+      operationId: getJob
+      tags: [jobs]
+      summary: Get a single job listing by ID
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Job listing
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JobListing"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateJob
+      tags: [jobs]
+      summary: Update a job listing (owner or admin)
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        "200":
+          description: Updated job listing
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JobListing"
+    delete:
+      operationId: deleteJob
+      tags: [jobs]
+      summary: Delete a job listing (owner or admin)
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "204":
+          description: Deleted
+
+  /jobs/{id}/apply:
+    post:
+      operationId: applyToJob
+      tags: [jobs]
+      summary: Apply to a job listing
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                coverLetter: { type: string }
+                resumeUrl: { type: string }
+      responses:
+        "201":
+          description: Application submitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JobApplication"
+
+  /jobs/{id}/applications:
+    get:
+      operationId: getJobApplications
+      tags: [jobs]
+      summary: Get applications for a job (listing owner only)
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Applications list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/JobApplication"
+
+  /jobs/{id}/applications/{appId}:
+    patch:
+      operationId: updateJobApplicationStatus
+      tags: [jobs]
+      summary: Update application status (job listing owner only)
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+        - name: appId
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum: [applied, reviewing, shortlisted, rejected, hired]
+              required: [status]
+      responses:
+        "200":
+          description: Updated application
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JobApplication"
+
+  # ── Careers ─────────────────────────────────────────────────────────────────
+  /careers/paths:
+    get:
+      operationId: listCareerPaths
+      tags: [careers]
+      summary: List all career paths
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: Career paths
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: { type: object }
+                  total: { type: integer }
+
+  /careers/paths/{id}:
+    get:
+      operationId: getCareerPath
+      tags: [careers]
+      summary: Get a career path by ID
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Career path
+
+  /careers/internships:
+    get:
+      operationId: listInternships
+      tags: [careers]
+      summary: List internship listings
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: Internships
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: { type: object }
+                  total: { type: integer }
+
+  /careers/mentors:
+    get:
+      operationId: listMentors
+      tags: [careers]
+      summary: List alumni mentors
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: Mentors
+
+  /careers/mentorship-requests:
+    get:
+      operationId: getMyMentorshipRequests
+      tags: [careers]
+      summary: Get current user's mentorship requests
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: Mentorship requests
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MentorshipRequest"
+    post:
+      operationId: createMentorshipRequest
+      tags: [careers]
+      summary: Request mentorship from an alumni mentor
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                mentorName: { type: string }
+                mentorEmail: { type: string, format: email }
+                mentorField: { type: string }
+                message: { type: string, minLength: 10 }
+              required: [mentorName, mentorEmail, message]
+      responses:
+        "201":
+          description: Created mentorship request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MentorshipRequest"
+
+  /careers/mentorship-requests/{id}/cancel:
+    patch:
+      operationId: cancelMentorshipRequest
+      tags: [careers]
+      summary: Cancel own mentorship request (student only)
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Cancelled request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MentorshipRequest"
+
+  /careers/mentorship-requests/{id}/status:
+    patch:
+      operationId: updateMentorshipRequestStatus
+      tags: [careers]
+      summary: Accept or reject a mentorship request (consultant or admin only)
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum: [accepted, rejected]
+              required: [status]
+      responses:
+        "200":
+          description: Updated request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MentorshipRequest"
+
+  /students/me/shortlist:
+    get:
+      operationId: getShortlist
+      tags: [students]
+      summary: Get student's shortlisted universities
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: Shortlisted universities
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/University"
+
+  /students/me/shortlist/ids:
+    get:
+      operationId: getShortlistIds
+      tags: [students]
+      summary: Get IDs of shortlisted universities
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: Shortlisted university IDs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+
+  /students/me/shortlist/ai-recommend:
+    post:
+      operationId: aiRecommend
+      tags: [students]
+      summary: Get AI university recommendations based on student profile
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        "200":
+          description: AI recommendations
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  recommendations:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/AiRecommendation"
+
+  /students/me/shortlist/{universityId}:
+    post:
+      operationId: toggleShortlist
+      tags: [students]
+      summary: Toggle university bookmark (add if absent, remove if present)
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: universityId
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        "200":
+          description: Shortlist toggled
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  shortlisted: { type: boolean }
+
+  /students/me/test-scores:
+    get:
+      operationId: getTestScores
+      tags: [students]
+      summary: Get student's logged test scores
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: Test scores list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TestScore"
+    post:
+      operationId: addTestScore
+      tags: [students]
+      summary: Add a test score record
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                testType: { type: string, enum: [ielts, toefl, gre, gmat, sat, pte, duolingo] }
+                score: { type: number }
+                takenAt: { type: string, format: date }
+                notes: { type: string }
+              required: [testType, score]
+      responses:
+        "201":
+          description: Created test score
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TestScore"
+
+  /students/me/test-scores/{id}:
+    delete:
+      operationId: deleteTestScore
+      tags: [students]
+      summary: Delete a test score record
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "204":
+          description: Deleted
+
+  /students/me/loyalty:
+    get:
+      operationId: getLoyalty
+      tags: [students]
+      summary: Get student's loyalty points, tier, and ledger
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: Loyalty data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoyaltyData"
+    post:
+      operationId: addLoyaltyPoints
+      tags: [students]
+      summary: Award loyalty points for a whitelisted event
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                event: { type: string }
+                description: { type: string }
+              required: [event]
+      responses:
+        "201":
+          description: Updated loyalty data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoyaltyData"
+
+  /support/tickets:
+    get:
+      operationId: getSupportTickets
+      tags: [support]
+      summary: List current user's support tickets
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: Support tickets
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SupportTicket"
+    post:
+      operationId: createSupportTicket
+      tags: [support]
+      summary: Create a support ticket
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                subject: { type: string }
+                body: { type: string }
+              required: [subject, body]
+      responses:
+        "201":
+          description: Created ticket
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SupportTicket"
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required: [status]
+
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        clerkId:
+          type: string
+        email:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        role:
+          type: string
+          enum: [student, consultant, partner, admin]
+        avatarUrl:
+          type: string
+        onboardingComplete:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, clerkId, email, role, onboardingComplete, createdAt]
+
+    UserListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/User"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+      required: [data, total, page, limit]
+
+    UpdateUserBody:
+      type: object
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        avatarUrl:
+          type: string
+
+    AdminUpdateUserBody:
+      type: object
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        role:
+          type: string
+          enum: [student, consultant, partner, admin]
+        avatarUrl:
+          type: string
+
+    OnboardingBody:
+      type: object
+      properties:
+        role:
+          type: string
+          enum: [student, consultant, partner, admin]
+        firstName:
+          type: string
+        lastName:
+          type: string
+        targetCountries:
+          type: array
+          items:
+            type: string
+        studyLevel:
+          type: string
+        agencyName:
+          type: string
+        specializations:
+          type: array
+          items:
+            type: string
+      required: [role, firstName, lastName]
+
+    StudentListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/StudentProfile"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+      required: [data, total, page, limit]
+
+    StudentProfile:
+      type: object
+      properties:
+        id:
+          type: string
+        userId:
+          type: string
+        targetCountries:
+          type: array
+          items:
+            type: string
+        studyLevel:
+          type: string
+          enum: [undergraduate, postgraduate, phd, diploma, certificate]
+        budget:
+          type: number
+        gpa:
+          type: number
+        ieltsScore:
+          type: number
+        toeflScore:
+          type: number
+        greScore:
+          type: number
+        gmatScore:
+          type: number
+        preferredIntake:
+          type: string
+        workExperience:
+          type: integer
+        nationality:
+          type: string
+        updatedAt:
+          type: string
+          format: date-time
+      required: [id, userId]
+
+    UpdateStudentProfileBody:
+      type: object
+      properties:
+        targetCountries:
+          type: array
+          items:
+            type: string
+        studyLevel:
+          type: string
+        budget:
+          type: number
+        gpa:
+          type: number
+        ieltsScore:
+          type: number
+        toeflScore:
+          type: number
+        greScore:
+          type: number
+        gmatScore:
+          type: number
+        preferredIntake:
+          type: string
+        workExperience:
+          type: integer
+        nationality:
+          type: string
+
+    ConsultantProfile:
+      type: object
+      properties:
+        id:
+          type: string
+        userId:
+          type: string
+        agencyName:
+          type: string
+        licenseNumber:
+          type: string
+        specializations:
+          type: array
+          items:
+            type: string
+        countriesServed:
+          type: array
+          items:
+            type: string
+        yearsExperience:
+          type: integer
+        bio:
+          type: string
+        rating:
+          type: number
+        totalClients:
+          type: integer
+        updatedAt:
+          type: string
+          format: date-time
+      required: [id, userId]
+
+    UpdateConsultantProfileBody:
+      type: object
+      properties:
+        agencyName:
+          type: string
+        licenseNumber:
+          type: string
+        specializations:
+          type: array
+          items:
+            type: string
+        countriesServed:
+          type: array
+          items:
+            type: string
+        yearsExperience:
+          type: integer
+        bio:
+          type: string
+
+    StudentDashboardSummary:
+      type: object
+      properties:
+        totalApplications:
+          type: integer
+        shortlistedUniversities:
+          type: integer
+        documentsUploaded:
+          type: integer
+        upcomingDeadlines:
+          type: integer
+        applicationsByStatus:
+          type: array
+          items:
+            type: object
+            properties:
+              status:
+                type: string
+              count:
+                type: integer
+            required: [status, count]
+        recentActivity:
+          type: array
+          items:
+            $ref: "#/components/schemas/ActivityItem"
+      required: [totalApplications, shortlistedUniversities, documentsUploaded, upcomingDeadlines, applicationsByStatus, recentActivity]
+
+    ConsultantPipelineSummary:
+      type: object
+      properties:
+        totalClients:
+          type: integer
+        activeApplications:
+          type: integer
+        newLeadsToday:
+          type: integer
+        pendingDocumentReviews:
+          type: integer
+        offerReceived:
+          type: integer
+        enrolledThisYear:
+          type: integer
+        recentActivity:
+          type: array
+          items:
+            $ref: "#/components/schemas/ActivityItem"
+      required: [totalClients, activeApplications, newLeadsToday, pendingDocumentReviews, offerReceived, enrolledThisYear, recentActivity]
+
+    ActivityItem:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+        message:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+      required: [id, type, message, timestamp]
+
+    University:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        country:
+          type: string
+        city:
+          type: string
+        ranking:
+          type: integer
+        logoUrl:
+          type: string
+        imageUrl:
+          type: string
+        website:
+          type: string
+        description:
+          type: string
+        acceptanceRate:
+          type: number
+        avgTuitionUsd:
+          type: integer
+        featured:
+          type: boolean
+        programCount:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, name, country, city, createdAt]
+
+    UniversityListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/University"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+      required: [data, total, page, limit]
+
+    Program:
+      type: object
+      properties:
+        id:
+          type: string
+        universityId:
+          type: string
+        name:
+          type: string
+        degree:
+          type: string
+          enum: [bachelor, master, phd, diploma, certificate, mba]
+        field:
+          type: string
+        duration:
+          type: integer
+        durationUnit:
+          type: string
+          enum: [months, years]
+        tuitionUsd:
+          type: integer
+        applicationDeadline:
+          type: string
+          format: date
+        startDate:
+          type: string
+          format: date
+        ieltsRequirement:
+          type: number
+        toeflRequirement:
+          type: number
+        gpaRequirement:
+          type: number
+        description:
+          type: string
+        university:
+          $ref: "#/components/schemas/University"
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, universityId, name, degree, field, createdAt]
+
+    ProgramListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Program"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+      required: [data, total, page, limit]
+
+    Country:
+      type: object
+      properties:
+        code:
+          type: string
+        name:
+          type: string
+        flagEmoji:
+          type: string
+        continent:
+          type: string
+        currency:
+          type: string
+        visaInfo:
+          type: string
+        avgCostOfLivingUsd:
+          type: integer
+        popularCities:
+          type: array
+          items:
+            type: string
+        universityCount:
+          type: integer
+      required: [code, name, continent]
+
+    Application:
+      type: object
+      properties:
+        id:
+          type: string
+        studentId:
+          type: string
+        programId:
+          type: string
+        status:
+          type: string
+          enum: [researching, applied, under_review, conditional_offer, unconditional_offer, rejected, accepted, visa_applied, visa_approved, enrolled]
+        notes:
+          type: string
+        deadline:
+          type: string
+          format: date
+        appliedAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        program:
+          $ref: "#/components/schemas/Program"
+      required: [id, studentId, programId, status, updatedAt]
+
+    ApplicationListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Application"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+      required: [data, total, page, limit]
+
+    CreateApplicationBody:
+      type: object
+      properties:
+        programId:
+          type: string
+        notes:
+          type: string
+        deadline:
+          type: string
+          format: date
+      required: [programId]
+
+    UpdateApplicationBody:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [researching, applied, under_review, conditional_offer, unconditional_offer, rejected, accepted, visa_applied, visa_approved, enrolled]
+        notes:
+          type: string
+        deadline:
+          type: string
+          format: date
+
+    Document:
+      type: object
+      properties:
+        id:
+          type: string
+        userId:
+          type: string
+        applicationId:
+          type: string
+        type:
+          type: string
+          enum: [sop, lor, transcript, passport, financial_proof, resume, english_test, other]
+        name:
+          type: string
+        url:
+          type: string
+        status:
+          type: string
+          enum: [pending, approved, rejected, under_review]
+        notes:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, userId, type, name, url, status, createdAt]
+
+    CreateDocumentBody:
+      type: object
+      properties:
+        applicationId:
+          type: string
+        type:
+          type: string
+          enum: [sop, lor, transcript, passport, financial_proof, resume, english_test, other]
+        name:
+          type: string
+        url:
+          type: string
+        notes:
+          type: string
+      required: [type, name, url]
+
+    CreateUniversityBody:
+      type: object
+      properties:
+        name:
+          type: string
+        country:
+          type: string
+        city:
+          type: string
+        ranking:
+          type: integer
+        logoUrl:
+          type: string
+        imageUrl:
+          type: string
+        website:
+          type: string
+        description:
+          type: string
+        acceptanceRate:
+          type: number
+        avgTuitionUsd:
+          type: integer
+        featured:
+          type: boolean
+      required: [name, country, city]
+
+    UpdateUniversityBody:
+      type: object
+      properties:
+        name:
+          type: string
+        country:
+          type: string
+        city:
+          type: string
+        ranking:
+          type: integer
+        logoUrl:
+          type: string
+        imageUrl:
+          type: string
+        website:
+          type: string
+        description:
+          type: string
+        acceptanceRate:
+          type: number
+        avgTuitionUsd:
+          type: integer
+        featured:
+          type: boolean
+
+    CreateProgramBody:
+      type: object
+      properties:
+        universityId:
+          type: string
+        name:
+          type: string
+        degree:
+          type: string
+          enum: [bachelor, master, phd, diploma, certificate, mba]
+        field:
+          type: string
+        duration:
+          type: integer
+        durationUnit:
+          type: string
+          enum: [months, years]
+        tuitionUsd:
+          type: integer
+        applicationDeadline:
+          type: string
+          format: date
+        startDate:
+          type: string
+          format: date
+        ieltsRequirement:
+          type: number
+        toeflRequirement:
+          type: number
+        gpaRequirement:
+          type: number
+        description:
+          type: string
+      required: [universityId, name, degree, field]
+
+    UpdateProgramBody:
+      type: object
+      properties:
+        name:
+          type: string
+        degree:
+          type: string
+          enum: [bachelor, master, phd, diploma, certificate, mba]
+        field:
+          type: string
+        duration:
+          type: integer
+        durationUnit:
+          type: string
+          enum: [months, years]
+        tuitionUsd:
+          type: integer
+        applicationDeadline:
+          type: string
+          format: date
+        startDate:
+          type: string
+          format: date
+        ieltsRequirement:
+          type: number
+        toeflRequirement:
+          type: number
+        gpaRequirement:
+          type: number
+        description:
+          type: string
+
+    CreateCountryBody:
+      type: object
+      properties:
+        code:
+          type: string
+        name:
+          type: string
+        flagEmoji:
+          type: string
+        continent:
+          type: string
+        currency:
+          type: string
+        visaInfo:
+          type: string
+        avgCostOfLivingUsd:
+          type: integer
+        popularCities:
+          type: array
+          items:
+            type: string
+        universityCount:
+          type: integer
+      required: [code, name, continent]
+
+    UpdateCountryBody:
+      type: object
+      properties:
+        name:
+          type: string
+        flagEmoji:
+          type: string
+        continent:
+          type: string
+        currency:
+          type: string
+        visaInfo:
+          type: string
+        avgCostOfLivingUsd:
+          type: integer
+        popularCities:
+          type: array
+          items:
+            type: string
+        universityCount:
+          type: integer
+
+    UpdateDocumentBody:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [pending, approved, rejected, under_review]
+        notes:
+          type: string
+
+    ConsultantListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/ConsultantProfile"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+      required: [data, total, page, limit]
+
+    # ── Task #4 Schemas ─────────────────────────────────────────────────────
+
+    AssessmentQuestion:
+      type: object
+      properties:
+        id: { type: string }
+        category: { type: string }
+        question: { type: string }
+        options:
+          type: array
+          items: { type: string }
+      required: [id, category, question, options]
+
+    FieldRecommendation:
+      type: object
+      properties:
+        field: { type: string }
+        countries:
+          type: array
+          items: { type: string }
+        careers:
+          type: array
+          items: { type: string }
+        matchScore: { type: number }
+      required: [field, countries, careers, matchScore]
+
+    PsychometricSession:
+      type: object
+      properties:
+        id: { type: string }
+        userId: { type: string }
+        answers: { type: object }
+        scores: { type: object }
+        fieldRecommendations:
+          type: array
+          items: { $ref: "#/components/schemas/FieldRecommendation" }
+        careerRecommendations:
+          type: array
+          items: { type: object }
+        personalityInsights: { type: object }
+        completedAt: { type: string, format: date-time, nullable: true }
+        createdAt: { type: string, format: date-time }
+      required: [id, userId]
+
+    Course:
+      type: object
+      properties:
+        id: { type: string }
+        title: { type: string }
+        description: { type: string }
+        type: { type: string, enum: [student, consultant] }
+        level: { type: string, enum: [beginner, intermediate, advanced] }
+        durationMinutes: { type: integer }
+        thumbnailUrl: { type: string, nullable: true }
+        status: { type: string, enum: [draft, published] }
+        certificateEnabled: { type: boolean }
+        examType: { type: string, nullable: true }
+        category: { type: string, nullable: true }
+        createdById: { type: string }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+      required: [id, title, type, level, status, createdById, createdAt]
+
+    CourseChapter:
+      type: object
+      properties:
+        id: { type: string }
+        courseId: { type: string }
+        title: { type: string }
+        videoUrl: { type: string, nullable: true }
+        content: { type: string, nullable: true }
+        orderIndex: { type: integer }
+        durationMinutes: { type: integer, nullable: true }
+        quizQuestions: { type: array, items: { type: object }, nullable: true }
+      required: [id, courseId, title, orderIndex]
+
+    CourseEnrollment:
+      type: object
+      properties:
+        id: { type: string }
+        courseId: { type: string }
+        userId: { type: string }
+        completedChapterIds:
+          type: array
+          items: { type: string }
+        completedAt: { type: string, format: date-time, nullable: true }
+        certificateIssued: { type: boolean }
+        certificateUrl: { type: string, nullable: true }
+        createdAt: { type: string, format: date-time }
+      required: [id, courseId, userId, completedChapterIds, certificateIssued, createdAt]
+
+    JobListing:
+      type: object
+      properties:
+        id: { type: string }
+        title: { type: string }
+        company: { type: string }
+        description: { type: string }
+        location: { type: string, nullable: true }
+        country: { type: string, nullable: true }
+        type: { type: string, enum: [full-time, part-time, internship, contract] }
+        salary: { type: string, nullable: true }
+        skillsRequired: { type: array, items: { type: string } }
+        status: { type: string, enum: [active, closed, draft] }
+        logoUrl: { type: string, nullable: true }
+        companyWebsite: { type: string, nullable: true }
+        postedById: { type: string }
+        createdAt: { type: string, format: date-time }
+      required: [id, title, company, description, type, status, postedById, createdAt]
+
+    JobApplication:
+      type: object
+      properties:
+        id: { type: string }
+        jobId: { type: string }
+        userId: { type: string }
+        coverLetter: { type: string, nullable: true }
+        resumeUrl: { type: string, nullable: true }
+        status: { type: string, enum: [applied, reviewing, shortlisted, rejected, hired] }
+        createdAt: { type: string, format: date-time }
+      required: [id, jobId, userId, status, createdAt]
+
+    MentorshipRequest:
+      type: object
+      properties:
+        id: { type: string }
+        studentId: { type: string }
+        mentorName: { type: string }
+        mentorEmail: { type: string }
+        mentorField: { type: string, nullable: true }
+        message: { type: string }
+        status: { type: string, enum: [pending, accepted, rejected] }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+      required: [id, studentId, mentorName, mentorEmail, message, status, createdAt, updatedAt]
+
+    AiRecommendation:
+      type: object
+      properties:
+        universityId: { type: string }
+        matchScore: { type: number }
+        reasons:
+          type: array
+          items: { type: string }
+        concern: { type: string, nullable: true }
+        university:
+          $ref: "#/components/schemas/University"
+      required: [universityId, matchScore, reasons]
+
+    TestScore:
+      type: object
+      properties:
+        id: { type: string }
+        studentId: { type: string }
+        testType: { type: string, enum: [ielts, toefl, gre, gmat, sat, pte, duolingo] }
+        score: { type: number }
+        takenAt: { type: string, format: date-time, nullable: true }
+        notes: { type: string, nullable: true }
+        createdAt: { type: string, format: date-time }
+      required: [id, studentId, testType, score, createdAt]
+
+    LoyaltyLedgerEntry:
+      type: object
+      properties:
+        id: { type: string }
+        userId: { type: string }
+        event: { type: string }
+        points: { type: integer }
+        description: { type: string, nullable: true }
+        createdAt: { type: string, format: date-time }
+      required: [id, userId, event, points, createdAt]
+
+    LoyaltyTier:
+      type: object
+      properties:
+        name: { type: string }
+        minPoints: { type: integer }
+        color: { type: string }
+      required: [name, minPoints, color]
+
+    LoyaltyData:
+      type: object
+      properties:
+        total: { type: integer }
+        tier: { type: string }
+        tiers:
+          type: array
+          items:
+            $ref: "#/components/schemas/LoyaltyTier"
+        ledger:
+          type: array
+          items:
+            $ref: "#/components/schemas/LoyaltyLedgerEntry"
+      required: [total, tier, tiers, ledger]
+
+    SupportTicket:
+      type: object
+      properties:
+        id: { type: string }
+        userId: { type: string }
+        subject: { type: string }
+        body: { type: string }
+        status: { type: string, enum: [open, in_progress, resolved, closed] }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time, nullable: true }
+      required: [id, userId, subject, body, status, createdAt]

@@ -1,0 +1,14 @@
+<svg width="134" height="60" viewBox="0 0 134 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <title>Eleevate Overseas</title>
+  <text x="0" y="20" fill="#1C2442" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="700" letter-spacing="2.4">ELEEVATE</text>
+  <text x="0" y="42" fill="#1C2442" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="700" letter-spacing="2.2">OVERSEAS</text>
+  <path d="M109.8 4L123.7 38H116.7L109.8 20.2L103 38H96L109.8 4Z" fill="url(#a)"/>
+  <path d="M124.8 31.2C126.3 31.2 127.5 32.4 127.5 33.9C127.5 35.4 126.3 36.6 124.8 36.6C123.3 36.6 122.1 35.4 122.1 33.9C122.1 32.4 123.3 31.2 124.8 31.2Z" fill="#3AAA35"/>
+  <text x="0" y="57" fill="#1C2442" font-family="Arial, Helvetica, sans-serif" font-size="6.2" font-weight="600" letter-spacing=".55">Write Your Future</text>
+  <defs>
+    <linearGradient id="a" x1="109.8" y1="4" x2="109.8" y2="38" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#009FE3"/>
+      <stop offset="1" stop-color="#3AAA35"/>
+    </linearGradient>
+  </defs>
+</svg>
