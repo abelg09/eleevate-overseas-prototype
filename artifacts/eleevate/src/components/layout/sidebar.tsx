@@ -9,8 +9,9 @@ import {
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
+import { assetUrl, cn } from "@/lib/utils";
 import { demoUser, isDemoMode } from "@/lib/demo-mode";
+import { clearDemoAuth } from "@/lib/demo-auth";
 
 interface NavItem {
   href: string;
@@ -28,7 +29,7 @@ const studentGroups: NavGroup[] = [
     items: [
       { href: "/dashboard", label: "Dashboard" },
       { href: "/profile", label: "Profile" },
-      { href: "/edge-report", label: "EDGE+ Report" },
+      { href: "/elle-report", label: "ELLE Report" },
       { href: "/assessment", label: "Psychometric Test" },
       { href: "/applications", label: "Applications" },
     ],
@@ -127,7 +128,7 @@ export function Sidebar() {
 }
 
 function DemoSidebar() {
-  const [location] = useLocation();
+  const [location, setLocation] = useLocation();
   const role = useDemoRole(location);
   const user = role === "consultant" ? demoUser.consultant : demoUser.student;
 
@@ -139,6 +140,10 @@ function DemoSidebar() {
       userImageUrl=""
       initials={`${user.firstName[0]}${user.lastName[0]}`}
       role={role}
+      onSignOut={() => {
+        clearDemoAuth();
+        setLocation("/");
+      }}
       demo
     />
   );
@@ -191,7 +196,7 @@ function SidebarShell({
       <div className="border-b border-sidebar-border bg-white p-4">
         <Link href={role === "consultant" ? "/consultant/dashboard" : "/dashboard"}>
           <div className="flex cursor-pointer items-center gap-3" data-testid="sidebar-logo">
-            <img src="/logo.svg" alt="EleevateOverseas" className="h-10 w-auto" />
+            <img src={assetUrl("logo.svg")} alt="EleevateOverseas" className="h-10 w-auto" />
           </div>
         </Link>
         <div className="mt-4 flex items-center gap-2">

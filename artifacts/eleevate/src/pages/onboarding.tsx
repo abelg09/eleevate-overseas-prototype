@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { GraduationCap, Briefcase, Building2, ShieldCheck, Check } from "lucide-react";
+import { assetUrl } from "@/lib/utils";
 
 const COUNTRIES = ["USA", "UK", "Canada", "Australia", "Germany", "Netherlands", "Singapore", "Ireland", "France", "Sweden"];
 const STUDY_LEVELS = ["undergraduate", "postgraduate", "phd", "diploma", "certificate"] as const;
@@ -60,7 +61,7 @@ export default function OnboardingPage() {
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/5 flex flex-col items-center justify-center px-4 py-12">
       {/* Logo */}
       <div className="flex items-center gap-2 mb-10">
-        <img src="/logo.svg" alt="EleevateOverseas" className="h-8 w-8" />
+        <img src={assetUrl("logo.svg")} alt="EleevateOverseas" className="h-8 w-8" />
         <span className="font-bold text-lg text-foreground">EleevateOverseas</span>
       </div>
 

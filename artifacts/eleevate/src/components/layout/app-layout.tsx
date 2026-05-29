@@ -37,10 +37,10 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                   {consultant ? "Student view" : "Consultant view"}
                 </Button>
               </Link>
-              <Link href="/edge-report">
+              <Link href="/elle-report">
                 <Button variant={consultant ? "outline" : "default"} size="sm">
                   <Sparkles className="h-3.5 w-3.5" />
-                  EDGE+
+                  ELLE
                 </Button>
               </Link>
             </div>

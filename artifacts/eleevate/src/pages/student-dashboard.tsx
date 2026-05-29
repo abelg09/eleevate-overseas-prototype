@@ -45,9 +45,9 @@ export default function StudentDashboardPage() {
           description="Your overseas journey is organized around readiness, applications, documents, visa risk, finance, upskilling, and the next best action."
           actions={
             <>
-              <Link href="/edge-report">
+              <Link href="/elle-report">
                 <Button variant="outline" className="rounded-full font-serif">
-                  View EDGE+ report
+                  View ELLE report
                 </Button>
               </Link>
               <Link href="/universities">
@@ -65,7 +65,7 @@ export default function StudentDashboardPage() {
             <div className="grid gap-0 lg:grid-cols-[minmax(0,1fr)_230px]">
               <div className="p-5 md:p-6">
               <div className="min-w-0">
-                <Badge className="mb-4 rounded-full border-primary/20 bg-primary/10 px-3 text-xs text-primary hover:bg-primary/10">EDGE+ readiness</Badge>
+                <Badge className="mb-4 rounded-full border-primary/20 bg-primary/10 px-3 text-xs text-primary hover:bg-primary/10">ELLE readiness</Badge>
                 <h2 className="max-w-xl font-serif text-3xl font-bold leading-tight text-foreground">{demoEdgeReport.readinessBand}</h2>
                 <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
                   Your profile is strong for Canada and the UK. The fastest way to raise confidence is to close finance evidence, finish the SOP review, and confirm upcoming application deadlines.
@@ -120,7 +120,7 @@ export default function StudentDashboardPage() {
                 <h2 className="font-serif text-lg font-bold text-foreground">Next best actions</h2>
                 <p className="mt-1 text-xs leading-5 text-muted-foreground">Ranked by what unlocks the most progress this week.</p>
               </div>
-              <Link href="/edge-report">
+              <Link href="/elle-report">
                 <Button variant="outline" size="sm" className="rounded-full">Review</Button>
               </Link>
             </div>

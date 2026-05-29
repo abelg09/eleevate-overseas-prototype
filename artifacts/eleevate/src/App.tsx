@@ -13,6 +13,7 @@ import type { User } from "@workspace/api-client-react";
 import { isDemoMode } from "@/lib/demo-mode";
 
 import LandingPage from "@/pages/landing";
+import LoginPage from "@/pages/login";
 import OnboardingPage from "@/pages/onboarding";
 import StudentDashboardPage from "@/pages/student-dashboard";
 import EdgeReportPage from "@/pages/edge-report";
@@ -56,6 +57,7 @@ import ForexPage from "@/pages/forex";
 import InsurancePage from "@/pages/insurance";
 import InvoicingPage from "@/pages/invoicing";
 import NotFound from "@/pages/not-found";
+import { useDemoAuthState } from "@/lib/demo-auth";
 
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 const demoMode = isDemoMode();
@@ -130,6 +132,8 @@ const clerkAppearance = {
 };
 
 function SignInPage() {
+  if (demoMode) return <LoginPage />;
+
   return (
     <div className="flex min-h-dvh items-center justify-center bg-gradient-to-br from-primary/5 via-background to-accent/5 px-4" data-testid="sign-in-page">
       <SignIn routing="path" path={`${basePath}/sign-in`} signUpUrl={`${basePath}/sign-up`} />
@@ -138,6 +142,8 @@ function SignInPage() {
 }
 
 function SignUpPage() {
+  if (demoMode) return <LoginPage />;
+
   return (
     <div className="flex min-h-dvh items-center justify-center bg-gradient-to-br from-primary/5 via-background to-accent/5 px-4" data-testid="sign-up-page">
       <SignUp routing="path" path={`${basePath}/sign-up`} signInUrl={`${basePath}/sign-in`} />
@@ -190,7 +196,13 @@ function SignedInHomeRedirect() {
 }
 
 function ProtectedRoute({ component: Component }: { component: React.ComponentType }) {
-  if (demoMode) return <Component />;
+  const [location] = useLocation();
+  const demoSession = useDemoAuthState();
+
+  if (demoMode) {
+    if (!demoSession) return <Redirect to={`/login?redirect=${encodeURIComponent(location)}`} />;
+    return <Component />;
+  }
 
   return (
     <>
@@ -205,7 +217,13 @@ function ProtectedRoute({ component: Component }: { component: React.ComponentTy
 }
 
 function ConsultantRoute({ component: Component }: { component: React.ComponentType }) {
-  if (demoMode) return <Component />;
+  const [location] = useLocation();
+  const demoSession = useDemoAuthState();
+
+  if (demoMode) {
+    if (!demoSession) return <Redirect to={`/login?redirect=${encodeURIComponent(location)}`} />;
+    return <Component />;
+  }
 
   const { data: me } = useGetMe({ query: { queryKey: getGetMeQueryKey() } });
   const user: User | undefined = me;
@@ -224,7 +242,13 @@ function ConsultantRoute({ component: Component }: { component: React.ComponentT
 }
 
 function StudentRoute({ component: Component }: { component: React.ComponentType }) {
-  if (demoMode) return <Component />;
+  const [location] = useLocation();
+  const demoSession = useDemoAuthState();
+
+  if (demoMode) {
+    if (!demoSession) return <Redirect to={`/login?redirect=${encodeURIComponent(location)}`} />;
+    return <Component />;
+  }
 
   const { data: me } = useGetMe({ query: { queryKey: getGetMeQueryKey() } });
   const user: User | undefined = me;
@@ -254,11 +278,13 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={HomeRedirect} />
+      <Route path="/login" component={() => demoMode ? <LoginPage /> : <Redirect to="/sign-in" />} />
       <Route path="/sign-in/*?" component={SignInPage} />
       <Route path="/sign-up/*?" component={SignUpPage} />
       <Route path="/onboarding" component={() => <ProtectedRoute component={OnboardingPage} />} />
       <Route path="/dashboard" component={() => <StudentRoute component={StudentDashboardPage} />} />
-      <Route path="/edge-report" component={() => <StudentRoute component={EdgeReportPage} />} />
+      <Route path="/elle-report" component={() => <StudentRoute component={EdgeReportPage} />} />
+      <Route path="/edge-report" component={() => <Redirect to="/elle-report" />} />
       <Route path="/universities" component={() => <ProtectedRoute component={UniversitiesPage} />} />
       <Route path="/universities/:id" component={() => <ProtectedRoute component={UniversityDetailPage} />} />
       <Route path="/applications" component={() => <StudentRoute component={ApplicationsPage} />} />

@@ -38,7 +38,7 @@ const DEMO_PLANS: SubscriptionPlan[] = [
     currency: "USD",
     interval: "month",
     description: "For early exploration and basic planning.",
-    features: ["University discovery", "Basic shortlist", "EDGE+ preview", "Community access"],
+    features: ["University discovery", "Basic shortlist", "ELLE preview", "Community access"],
     limits: { shortlists: 5, applications: 1, aiRecommendations: 2 },
   },
   {

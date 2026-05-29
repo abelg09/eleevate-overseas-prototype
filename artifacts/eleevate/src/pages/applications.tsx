@@ -17,6 +17,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { isDemoMode } from "@/lib/demo-mode";
 import { DEMO_APPLICATION_STORAGE_KEY, DEMO_UNIVERSITIES } from "@/lib/demo-catalog";
+import { getDemoApplicationsFromShortlist } from "@/lib/demo-flow";
 
 const ALL_STATUSES: UpdateApplicationBodyStatus[] = [
   "researching", "applied", "under_review", "conditional_offer",
@@ -144,10 +145,18 @@ const DEMO_APPLICATIONS: Application[] = [
 function getInitialDemoApplications() {
   try {
     const stored = JSON.parse(localStorage.getItem(DEMO_APPLICATION_STORAGE_KEY) ?? "[]") as Application[];
-    const storedProgramIds = new Set(stored.map((app) => app.programId));
-    return [...stored, ...DEMO_APPLICATIONS.filter((app) => !storedProgramIds.has(app.programId))];
+    const merged: Application[] = [];
+    const seenProgramIds = new Set<string>();
+
+    for (const app of [...stored, ...getDemoApplicationsFromShortlist(), ...DEMO_APPLICATIONS]) {
+      if (seenProgramIds.has(app.programId)) continue;
+      seenProgramIds.add(app.programId);
+      merged.push(app);
+    }
+
+    return merged;
   } catch {
-    return DEMO_APPLICATIONS;
+    return [...getDemoApplicationsFromShortlist(), ...DEMO_APPLICATIONS];
   }
 }
 

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { AppLayout } from "@/components/layout/app-layout";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -20,10 +20,7 @@ import {
 } from "lucide-react";
 import { isDemoMode, listFromApi } from "@/lib/demo-mode";
 import { DEMO_UNIVERSITIES, getDemoProgramsForUniversity, getDemoUniversity } from "@/lib/demo-catalog";
-
-const DEMO_SHORTLIST_UNIVERSITIES: University[] = DEMO_UNIVERSITIES.filter((uni) =>
-  ["demo-uoft", "demo-manchester", "demo-tum", "demo-melbourne"].includes(uni.id)
-);
+import { ensureDemoApplicationForUniversity, readDemoShortlistIds, writeDemoShortlistIds } from "@/lib/demo-flow";
 
 const DEMO_AI_RECOMMENDATIONS: AiRecommendation[] = [
   {
@@ -45,9 +42,10 @@ const DEMO_AI_RECOMMENDATIONS: AiRecommendation[] = [
 export default function ShortlistPage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [, setLocation] = useLocation();
   const [recommendations, setRecommendations] = useState<AiRecommendation[]>([]);
   const [aiLoading, setAiLoading] = useState(false);
-  const [removedDemoIds, setRemovedDemoIds] = useState<Set<string>>(new Set());
+  const [demoShortlistIds, setDemoShortlistIds] = useState<Set<string>>(() => new Set(readDemoShortlistIds()));
   const demoMode = isDemoMode();
 
   const { data: shortlist, isLoading } = useGetShortlist({
@@ -57,8 +55,9 @@ export default function ShortlistPage() {
   const toggle = useToggleShortlist();
   const aiRecommend = useAiRecommend();
 
-  const universities = (demoMode ? DEMO_SHORTLIST_UNIVERSITIES : listFromApi<University>(shortlist))
-    .filter((uni) => !removedDemoIds.has(uni.id));
+  const universities = demoMode
+    ? DEMO_UNIVERSITIES.filter((uni) => demoShortlistIds.has(uni.id))
+    : listFromApi<University>(shortlist);
   const shortlistPrograms = demoMode
     ? universities.flatMap((uni) => getDemoProgramsForUniversity(uni.id))
     : [];
@@ -68,7 +67,11 @@ export default function ShortlistPage() {
 
   const handleRemove = async (id: string) => {
     if (demoMode) {
-      setRemovedDemoIds((current) => new Set(current).add(id));
+      setDemoShortlistIds((current) => {
+        const next = new Set(current);
+        next.delete(id);
+        return new Set(writeDemoShortlistIds(next));
+      });
       toast({ title: "Removed from shortlist" });
       return;
     }
@@ -78,12 +81,22 @@ export default function ShortlistPage() {
     toast({ title: "Removed from shortlist" });
   };
 
+  const handleStartApplication = (id: string) => {
+    const application = ensureDemoApplicationForUniversity(id, "shortlist");
+    toast({
+      title: application ? "Application ready" : "No program found",
+      description: application ? "Open Applications to continue the workflow." : "Review the university detail page for available programs.",
+      variant: application ? undefined : "destructive",
+    });
+    if (application) setLocation("/applications");
+  };
+
   const handleAiRecommend = async () => {
     setAiLoading(true);
     try {
       if (demoMode) {
         setRecommendations(DEMO_AI_RECOMMENDATIONS);
-        toast({ title: "AI recommendations ready", description: "Demo matches are based on the EDGE+ profile." });
+        toast({ title: "AI recommendations ready", description: "Demo matches are based on the ELLE profile." });
         return;
       }
 
@@ -253,6 +266,16 @@ export default function ShortlistPage() {
                       <Link href={`/universities/${uni.id}`}>
                         <Button size="sm" variant="outline" className="rounded-full text-xs">View programs</Button>
                       </Link>
+                      {demoMode && (
+                        <Button
+                          size="sm"
+                          className="rounded-full text-xs"
+                          onClick={() => handleStartApplication(uni.id)}
+                          data-testid={`btn-start-application-${uni.id}`}
+                        >
+                          Open application
+                        </Button>
+                      )}
                       <Button
                         size="sm"
                         variant="ghost"

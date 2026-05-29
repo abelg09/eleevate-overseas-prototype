@@ -43,7 +43,7 @@ export default function EdgeReportPage() {
     <AppLayout>
       <div data-testid="edge-report-page">
         <PageHeader
-          eyebrow="EDGE+ Clarity Report"
+          eyebrow="ELLE Clarity Report"
           title={`${report.studentName}'s overseas readiness snapshot`}
           description="A practical decision report for students, families, and consultants: country fit, document readiness, funding clarity, and the next actions that unblock the journey."
           actions={
@@ -73,7 +73,7 @@ export default function EdgeReportPage() {
               </div>
               <div className="mx-auto flex h-32 w-32 flex-shrink-0 flex-col items-center justify-center rounded-full border-[8px] border-primary/20 bg-muted text-center md:mx-0">
                 <div className="font-serif text-4xl font-bold leading-none text-primary">{report.clarityScore}</div>
-                <div className="mt-1 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">EDGE+ Score</div>
+                <div className="mt-1 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">ELLE Score</div>
               </div>
             </div>
           </Card>
@@ -178,7 +178,7 @@ export default function EdgeReportPage() {
           </Card>
 
           <Card className="app-card p-4">
-            <SectionHeader title="Action plan" description="The next work items that improve the EDGE+ score fastest." />
+            <SectionHeader title="Action plan" description="The next work items that improve the ELLE score fastest." />
             <TaskQueue tasks={report.actionPlan} />
           </Card>
         </div>
@@ -203,7 +203,7 @@ export default function EdgeReportPage() {
               <div>
                 <div className="font-semibold text-foreground">Recommended next step</div>
                 <p className="mt-1 text-sm leading-6 text-muted-foreground">
-                  Close the finance evidence gap first, then rerun the EDGE+ report to refresh visa risk and country priority.
+                  Close the finance evidence gap first, then rerun the ELLE report to refresh visa risk and country priority.
                 </p>
               </div>
             </div>

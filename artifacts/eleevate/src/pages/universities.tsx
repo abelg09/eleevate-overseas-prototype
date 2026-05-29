@@ -20,6 +20,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { isDemoMode, listFromApi } from "@/lib/demo-mode";
 import { DEMO_UNIVERSITIES } from "@/lib/demo-catalog";
+import { ensureDemoApplicationForUniversity, readDemoShortlistIds, writeDemoShortlistIds } from "@/lib/demo-flow";
 import { cn } from "@/lib/utils";
 
 const COUNTRIES = ["All", "GB", "US", "CA", "AU", "DE", "NL", "SG", "IE"];
@@ -57,7 +58,7 @@ export default function UniversitiesPage() {
   const [page, setPage] = useState(1);
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS);
-  const [demoSavedIds, setDemoSavedIds] = useState<Set<string>>(new Set(["demo-uoft", "demo-leeds"]));
+  const [demoSavedIds, setDemoSavedIds] = useState<Set<string>>(() => new Set(readDemoShortlistIds()));
 
   const params = {
     search: search || undefined,
@@ -132,10 +133,16 @@ export default function UniversitiesPage() {
       setDemoSavedIds((current) => {
         const next = new Set(current);
         if (next.has(uniId)) next.delete(uniId);
-        else next.add(uniId);
-        return next;
+        else {
+          next.add(uniId);
+          ensureDemoApplicationForUniversity(uniId, "shortlist");
+        }
+        return new Set(writeDemoShortlistIds(next));
       });
-      toast({ title: wasShortlisted ? "Removed from shortlist" : "Added to shortlist" });
+      toast({
+        title: wasShortlisted ? "Removed from shortlist" : "Added to shortlist and Applications",
+        description: wasShortlisted ? undefined : "A research-stage application has been started for this university.",
+      });
       return;
     }
 

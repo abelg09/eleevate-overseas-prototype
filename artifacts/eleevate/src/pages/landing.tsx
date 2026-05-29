@@ -26,10 +26,10 @@ import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { isDemoMode, listFromApi } from "@/lib/demo-mode";
 import { DEMO_COUNTRIES, DEMO_UNIVERSITIES } from "@/lib/demo-catalog";
-import { cn } from "@/lib/utils";
+import { assetUrl, cn } from "@/lib/utils";
 
 const STEPS = [
-  { icon: Sparkles, title: "Clarity", desc: "EDGE+ turns profile, family, finance, and goals into one readiness snapshot." },
+  { icon: Sparkles, title: "Clarity", desc: "ELLE turns profile, family, finance, and goals into one readiness snapshot." },
   { icon: GraduationCap, title: "Shortlist", desc: "Compare countries, universities, courses, costs, and career outcomes with confidence." },
   { icon: FileText, title: "Apply", desc: "Move documents, SOPs, LORs, applications, visa, payments, and services through one journey OS." },
 ];
@@ -74,7 +74,8 @@ export default function LandingPage() {
   const apiCountries = listFromApi<Country>(countries);
   const unis = demoMode || apiUnis.length === 0 ? DEMO_UNIVERSITIES.slice(0, 4) : apiUnis.slice(0, 4);
   const countriesList = demoMode || apiCountries.length === 0 ? DEMO_COUNTRIES.slice(0, 6) : apiCountries.slice(0, 6);
-  const primaryCtaHref = demoMode ? "/dashboard" : "/sign-up";
+  const primaryCtaHref = demoMode ? "/login" : "/sign-up";
+  const elleCtaHref = demoMode ? "/login?redirect=/elle-report" : "/universities";
   const showUniversitySkeletons = !demoMode && unisLoading;
   const showCountries = demoMode || (!countriesLoading && countriesList.length > 0);
 
@@ -83,13 +84,13 @@ export default function LandingPage() {
       <nav className="sticky top-0 z-50 border-b border-border bg-white/90 backdrop-blur-xl" data-testid="nav-bar">
         <div className="mx-auto flex h-[86px] max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <Link href="/" data-testid="nav-logo">
-            <img src="/logo.svg" alt="EleevateOverseas" className="h-[60px] w-auto" />
+            <img src={assetUrl("logo.svg")} alt="EleevateOverseas" className="h-[60px] w-auto" />
           </Link>
           <div className="hidden items-center gap-8 font-serif text-sm font-bold text-[#8193c6] lg:flex">
             <Link href="/universities" className="transition-colors hover:text-foreground">Study Abroad</Link>
             <Link href="/test-prep" className="transition-colors hover:text-foreground">Exam Prep</Link>
             <Link href="/services" className="transition-colors hover:text-foreground">Services</Link>
-            <Link href="/edge-report" className="transition-colors hover:text-foreground">EDGE+</Link>
+            <Link href="/elle-report" className="transition-colors hover:text-foreground">ELLE</Link>
             <Link href="/consultant/dashboard" className="transition-colors hover:text-foreground">Consultants</Link>
           </div>
           <Link href={primaryCtaHref} data-testid="nav-get-started">
@@ -138,8 +139,8 @@ export default function LandingPage() {
               <Link href={primaryCtaHref} data-testid="hero-cta-primary">
                 <Button size="lg" className="rounded-full px-8 font-serif">Start Your Journey <ArrowRight className="h-4 w-4" /></Button>
               </Link>
-              <Link href={demoMode ? "/edge-report" : "/universities"} data-testid="hero-cta-secondary">
-                <Button variant="outline" size="lg" className="rounded-full border-secondary px-8 font-serif text-secondary">{demoMode ? "View EDGE+ Report" : "Explore Top Countries"}</Button>
+              <Link href={elleCtaHref} data-testid="hero-cta-secondary">
+                <Button variant="outline" size="lg" className="rounded-full border-secondary px-8 font-serif text-secondary">{demoMode ? "View ELLE Report" : "Explore Top Countries"}</Button>
               </Link>
             </div>
           </div>
@@ -200,9 +201,9 @@ export default function LandingPage() {
                 <div className="flex items-center justify-between gap-4">
                   <div>
                     <div className="font-serif text-xl font-bold">Student Journey OS</div>
-                    <div className="mt-1 text-sm text-white/80">EDGE+ score, timeline, tasks, documents, finance, visa</div>
+                    <div className="mt-1 text-sm text-white/80">ELLE score, timeline, tasks, documents, finance, visa</div>
                   </div>
-                  <Badge className="bg-white text-secondary hover:bg-white">82 EDGE+</Badge>
+                  <Badge className="bg-white text-secondary hover:bg-white">82 ELLE</Badge>
                 </div>
               </div>
               <div className="grid gap-4 p-5 md:grid-cols-2">
@@ -302,10 +303,10 @@ export default function LandingPage() {
 
       <footer className="border-t border-border bg-white px-4 py-10 sm:px-6 lg:px-8" data-testid="footer">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 md:flex-row">
-          <img src="/logo.svg" alt="EleevateOverseas" className="h-12 w-auto" />
+          <img src={assetUrl("logo.svg")} alt="EleevateOverseas" className="h-12 w-auto" />
           <div className="flex flex-wrap items-center justify-center gap-6 font-serif text-sm font-bold text-[#8193c6]">
             <Link href="/universities" className="hover:text-foreground">Universities</Link>
-            <Link href="/edge-report" className="hover:text-foreground">EDGE+</Link>
+            <Link href="/elle-report" className="hover:text-foreground">ELLE</Link>
             <Link href="/services" className="hover:text-foreground">Services</Link>
             <Link href="/consultant/dashboard" className="hover:text-foreground">Consultant OS</Link>
           </div>

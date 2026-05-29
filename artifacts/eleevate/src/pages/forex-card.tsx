@@ -41,7 +41,7 @@ const readinessSteps = [
 ];
 
 const usageControls = [
-  "Country-specific load recommendation from EDGE+ budget",
+  "Country-specific load recommendation from ELLE budget",
   "Parent and student alerts for large transactions",
   "Receipt sync for visa and finance evidence",
   "Emergency reload workflow through consultant desk",
