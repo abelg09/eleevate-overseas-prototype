@@ -26,6 +26,7 @@ import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { isDemoMode, listFromApi } from "@/lib/demo-mode";
 import { DEMO_COUNTRIES, DEMO_UNIVERSITIES } from "@/lib/demo-catalog";
+import { demystifiedJourneyStages } from "@/lib/demo-data";
 import { assetUrl, cn } from "@/lib/utils";
 
 const STEPS = [
@@ -76,6 +77,7 @@ export default function LandingPage() {
   const countriesList = demoMode || apiCountries.length === 0 ? DEMO_COUNTRIES.slice(0, 6) : apiCountries.slice(0, 6);
   const primaryCtaHref = demoMode ? "/login" : "/sign-up";
   const elleCtaHref = demoMode ? "/login?redirect=/elle-report" : "/universities";
+  const journeyMapHref = demoMode ? "/login?redirect=/journey-map" : "/sign-up";
   const showUniversitySkeletons = !demoMode && unisLoading;
   const showCountries = demoMode || (!countriesLoading && countriesList.length > 0);
 
@@ -90,6 +92,7 @@ export default function LandingPage() {
             <Link href="/universities" className="transition-colors hover:text-foreground">Study Abroad</Link>
             <Link href="/test-prep" className="transition-colors hover:text-foreground">Exam Prep</Link>
             <Link href="/services" className="transition-colors hover:text-foreground">Services</Link>
+            <Link href={journeyMapHref} className="transition-colors hover:text-foreground">Journey Map</Link>
             <Link href="/elle-report" className="transition-colors hover:text-foreground">ELLE</Link>
             <Link href="/consultant/dashboard" className="transition-colors hover:text-foreground">Consultants</Link>
           </div>
@@ -221,6 +224,46 @@ export default function LandingPage() {
                 ))}
               </div>
             </Card>
+          </div>
+        </section>
+
+        <section className="px-4 py-16 sm:px-6 lg:px-8" data-testid="demystified-section">
+          <div className="mx-auto max-w-7xl">
+            <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+              <div className="max-w-3xl">
+                <div className="eyebrow">Study Abroad, Demystified</div>
+                <h2 className="mt-3 font-serif text-3xl font-bold leading-tight text-foreground md:text-5xl">
+                  Your biggest dream, turned into a clear operating checklist.
+                </h2>
+                <p className="mt-4 text-base leading-8 text-muted-foreground">
+                  Every stage has a student action, an automation layer, and a consultant approval point, so families know what is done, what is blocked, and what comes next.
+                </p>
+              </div>
+              <Link href={journeyMapHref}>
+                <Button variant="outline" className="rounded-full border-secondary px-6 font-serif text-secondary">
+                  Open journey map <ArrowRight className="h-3.5 w-3.5" />
+                </Button>
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+              {demystifiedJourneyStages.map((stage, index) => (
+                <Card key={stage.id} className="app-card h-full p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="brand-gradient-bg flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg font-serif text-sm font-bold text-white">
+                      {String(index + 1).padStart(2, "0")}
+                    </div>
+                    <Badge variant="outline" className="rounded-full capitalize">{stage.status}</Badge>
+                  </div>
+                  <div className="mt-4 font-serif text-lg font-bold leading-tight text-foreground">{stage.stage}</div>
+                  <p className="mt-2 text-sm leading-6 text-muted-foreground">{stage.promise}</p>
+                  <div className="mt-4 rounded-lg border border-border bg-muted/35 p-3">
+                    <div className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">What happens</div>
+                    <div className="mt-1 line-clamp-3 text-xs leading-5 text-foreground">{stage.automation}</div>
+                  </div>
+                </Card>
+              ))}
+            </div>
           </div>
         </section>
 

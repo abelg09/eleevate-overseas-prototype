@@ -28,6 +28,7 @@ const studentGroups: NavGroup[] = [
     label: "Journey",
     items: [
       { href: "/dashboard", label: "Dashboard" },
+      { href: "/journey-map", label: "Journey Map" },
       { href: "/profile", label: "Profile" },
       { href: "/elle-report", label: "ELLE Report" },
       { href: "/assessment", label: "Psychometric Test" },

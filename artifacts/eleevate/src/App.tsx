@@ -16,6 +16,7 @@ import LandingPage from "@/pages/landing";
 import LoginPage from "@/pages/login";
 import OnboardingPage from "@/pages/onboarding";
 import StudentDashboardPage from "@/pages/student-dashboard";
+import JourneyMapPage from "@/pages/journey-map";
 import EdgeReportPage from "@/pages/edge-report";
 import UniversitiesPage from "@/pages/universities";
 import UniversityDetailPage from "@/pages/university-detail";
@@ -283,6 +284,7 @@ function Router() {
       <Route path="/sign-up/*?" component={SignUpPage} />
       <Route path="/onboarding" component={() => <ProtectedRoute component={OnboardingPage} />} />
       <Route path="/dashboard" component={() => <StudentRoute component={StudentDashboardPage} />} />
+      <Route path="/journey-map" component={() => <StudentRoute component={JourneyMapPage} />} />
       <Route path="/elle-report" component={() => <StudentRoute component={EdgeReportPage} />} />
       <Route path="/edge-report" component={() => <Redirect to="/elle-report" />} />
       <Route path="/universities" component={() => <ProtectedRoute component={UniversitiesPage} />} />

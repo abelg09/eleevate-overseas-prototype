@@ -89,6 +89,18 @@ export interface ConsultantWorkflowStage {
   icon: LucideIcon;
 }
 
+export interface DemystifiedJourneyStage {
+  id: string;
+  stage: string;
+  promise: string;
+  automation: string;
+  teamAction: string;
+  studentAction: string;
+  progress: number;
+  status: ModuleStatus;
+  href: string;
+}
+
 export interface ServiceOrder {
   id: string;
   service: string;
@@ -356,6 +368,97 @@ export const consultantStages: ConsultantWorkflowStage[] = [
     teamImpact: "Captures insights and creates referral loops.",
     status: "preview",
     icon: Trophy,
+  },
+];
+
+export const demystifiedJourneyStages: DemystifiedJourneyStage[] = [
+  {
+    id: "smart-start",
+    stage: "Smart Start",
+    promise: "The student sees the country, test, costing, intake, and package path immediately.",
+    automation: "Profile, test-prep route, package recommendation, costing, mock-test link, and first checklist are generated from registration details.",
+    teamAction: "Counsellor reviews fit and handles nuanced questions instead of repeating first-response information.",
+    studentAction: "Register, choose target country/course, and book the first test or counselling slot.",
+    progress: 100,
+    status: "live",
+    href: "/profile",
+  },
+  {
+    id: "document-validation",
+    stage: "Document Validation",
+    promise: "No more guessing which documents are needed or whether uploads are correct.",
+    automation: "Country and university-specific checklists, sample formats, missing-field checks, and first-pass validation.",
+    teamAction: "Consultant performs final verification only after AI flags the packet as review-ready.",
+    studentAction: "Upload passport, transcripts, finance proof, resume, and required templates into the vault.",
+    progress: 67,
+    status: "live",
+    href: "/documents",
+  },
+  {
+    id: "narrative-studio",
+    stage: "SOP, LOR & Resume Studio",
+    promise: "The application story becomes structured, specific, and ready for expert refinement.",
+    automation: "SOP drafts, LOR checks, resume enhancement, plagiarism-safe structure, and course-aligned narrative prompts.",
+    teamAction: "Consultant sharpens strategy, motivation, course fit, and final submission tone.",
+    studentAction: "Add project outcomes, target course links, recommender details, and work evidence.",
+    progress: 58,
+    status: "demo",
+    href: "/consultant/sop",
+  },
+  {
+    id: "university-inbox",
+    stage: "University Communication",
+    promise: "Offer letters, queries, missing-document requests, and updates never get lost.",
+    automation: "Email classification, attachment download, CRM update, student/team notification, and task creation.",
+    teamAction: "Team acts only when judgement, approval, or university response is required.",
+    studentAction: "Track every university message and respond to outstanding requests on time.",
+    progress: 44,
+    status: "preview",
+    href: "/applications",
+  },
+  {
+    id: "interview-coach",
+    stage: "Interview Coach",
+    promise: "Students rehearse with country, course, finance, and university-specific questions before the final mock.",
+    automation: "Voice mock interviews, confidence scoring, weak-answer detection, and financial clarity feedback.",
+    teamAction: "Counsellor focuses the final mock on polish, risk, and visa confidence.",
+    studentAction: "Complete practice rounds and fix weak answers before the consultant interview.",
+    progress: 36,
+    status: "demo",
+    href: "/mock-test",
+  },
+  {
+    id: "offer-tracking",
+    stage: "Offer Letter Control",
+    promise: "The student understands conditions, deposits, refund rules, and acceptance deadlines.",
+    automation: "Offer parsing, condition extraction, deposit tracking, refund-rule summary, and approval workflow.",
+    teamAction: "Consultant approves the verified summary before it is shared with the student.",
+    studentAction: "Accept the right offer, pay safely, and store proof in the application timeline.",
+    progress: 41,
+    status: "preview",
+    href: "/applications",
+  },
+  {
+    id: "visa-strategy",
+    stage: "Visa Strategy Engine",
+    promise: "Visa preparation becomes a proof-led file strategy, not a stressful last-minute checklist.",
+    automation: "Dynamic country checklist, sponsor rules, fund-type checks, finance validation, and file-preparation order.",
+    teamAction: "Visa specialist uses AI guidance to build the strongest country-specific file.",
+    studentAction: "Upload sponsor evidence, loan approval, remittance proof, and required visa forms.",
+    progress: 48,
+    status: "demo",
+    href: "/visa-center",
+  },
+  {
+    id: "arrival-advocacy",
+    stage: "Acceptance to Arrival",
+    promise: "The journey continues through pre-departure, alumni support, reviews, referrals, and success insights.",
+    automation: "Pre-departure checklists, review prompts, referral loops, birthday/milestone follow-ups, and insight capture.",
+    teamAction: "Relationship team turns successful students into advocates and future guidance data.",
+    studentAction: "Prepare arrival tasks, connect with alumni, and share feedback after visa success.",
+    progress: 34,
+    status: "preview",
+    href: "/alumni",
   },
 ];
 
