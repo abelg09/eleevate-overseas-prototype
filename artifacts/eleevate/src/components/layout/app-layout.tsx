@@ -11,6 +11,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const consultant = location.startsWith("/consultant");
   const user = consultant ? demoUser.consultant : demoUser.student;
   const section = consultant ? "Consultant workbench" : "Student journey";
+  const userName = [user.firstName, user.lastName].filter(Boolean).join(" ");
 
   return (
     <div className="app-shell-bg flex min-h-screen">
@@ -21,7 +22,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             <div className="min-w-0 flex-1">
               <div className="eyebrow">{section}</div>
               <div className="mt-0.5 truncate font-serif text-sm font-bold text-foreground">
-                {isDemoMode() ? `${user.firstName} ${user.lastName}` : "EleevateOverseas"}
+                {isDemoMode() ? userName : "EleevateOverseas"}
               </div>
             </div>
 

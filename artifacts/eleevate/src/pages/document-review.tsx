@@ -53,7 +53,7 @@ const DEMO_REVIEW_DOCS: Document[] = [
     id: "demo-review-sop",
     userId: "demo-student",
     type: "sop",
-    name: "Aarav Mehta - SOP v2",
+    name: "Jehan - SOP v2",
     url: "#",
     status: "under_review",
     notes: "Needs a stronger career-goal paragraph and one measurable project outcome.",

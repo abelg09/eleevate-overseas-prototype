@@ -111,7 +111,7 @@ export interface ServiceOrder {
 }
 
 export const demoEdgeReport: EdgeReport = {
-  studentName: "Aarav Mehta",
+  studentName: "Jehan",
   generatedAt: "21 May 2026",
   clarityScore: 82,
   readinessBand: "Strong fit with targeted cleanup",
@@ -307,7 +307,7 @@ export const studentModules: ModuleStatusItem[] = [
     description: "Edu loans, remittance, forex card, insurance, subscriptions, and rewards.",
     status: "demo",
     progress: 64,
-    href: "/loans",
+    href: "/financial-hub",
     icon: Landmark,
   },
 ];
@@ -465,7 +465,7 @@ export const demystifiedJourneyStages: DemystifiedJourneyStage[] = [
 export const consultantTasks: JourneyTask[] = [
   {
     id: "c-task-1",
-    title: "Verify Aarav's financial documents",
+    title: "Verify Jehan's financial documents",
     owner: "consultant",
     priority: "high",
     status: "due",
@@ -505,7 +505,7 @@ export const serviceOrders: ServiceOrder[] = [
   {
     id: "SO-1024",
     service: "IELTS premium prep",
-    student: "Aarav Mehta",
+    student: "Jehan",
     amount: "$280",
     status: "active",
     owner: "Upskilling Hub",
@@ -553,7 +553,7 @@ export const architectureModules: ModuleStatusItem[] = [
     description: "Edu loans, remittance, forex card, forex, insurance, subscriptions, rewards, and ledger.",
     status: "demo",
     progress: 53,
-    href: "/loans",
+    href: "/financial-hub",
     icon: Banknote,
   },
   {

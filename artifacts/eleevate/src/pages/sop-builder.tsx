@@ -65,7 +65,7 @@ const DEMO_SOP_DOCS: SopDocument[] = [
     title: "Graduate Resume - Data/Product Track",
     targetUniversity: "University of Leeds",
     targetProgram: "MSc International Business",
-    content: "Aarav Mehta\nData Analyst and Product Intern\n\nEducation\nBSc Computer Science, GPA 3.72\n\nExperience\nProduct Analytics Intern - built dashboards, improved onboarding funnel insights, and documented weekly product metrics.\n\nProjects\nAI course recommender, finance readiness calculator, and student document tracker.\n\nSkills\nPython, SQL, Power BI, React, stakeholder communication.",
+    content: "Jehan\nData Analyst and Product Intern\n\nEducation\nBSc Computer Science, GPA 3.72\n\nExperience\nProduct Analytics Intern - built dashboards, improved onboarding funnel insights, and documented weekly product metrics.\n\nProjects\nAI course recommender, finance readiness calculator, and student document tracker.\n\nSkills\nPython, SQL, Power BI, React, stakeholder communication.",
     version: 1,
     status: "final",
     createdAt: "2026-05-17T10:00:00.000Z",

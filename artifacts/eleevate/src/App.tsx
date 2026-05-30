@@ -51,6 +51,7 @@ import LmsPage from "@/pages/lms";
 import SubscriptionPage from "@/pages/subscription";
 import MarketplacePage from "@/pages/marketplace";
 import TuitionPaymentPage from "@/pages/tuition-payment";
+import FinancialHubPage from "@/pages/financial-hub";
 import LoansPage from "@/pages/loans";
 import RemittancePage from "@/pages/remittance";
 import ForexCardPage from "@/pages/forex-card";
@@ -322,6 +323,7 @@ function Router() {
       <Route path="/marketplace" component={() => <StudentRoute component={() => <WithAppLayout component={MarketplacePage} />} />} />
       <Route path="/services" component={() => <StudentRoute component={() => <WithAppLayout component={MarketplacePage} />} />} />
       <Route path="/tuition-payment" component={() => <StudentRoute component={() => <WithAppLayout component={TuitionPaymentPage} />} />} />
+      <Route path="/financial-hub" component={() => <StudentRoute component={() => <WithAppLayout component={FinancialHubPage} />} />} />
       <Route path="/loans" component={() => <StudentRoute component={() => <WithAppLayout component={LoansPage} />} />} />
       <Route path="/remittance" component={() => <StudentRoute component={() => <WithAppLayout component={RemittancePage} />} />} />
       <Route path="/forex-card" component={() => <StudentRoute component={() => <WithAppLayout component={ForexCardPage} />} />} />

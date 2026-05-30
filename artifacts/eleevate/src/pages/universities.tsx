@@ -40,6 +40,25 @@ const COUNTRY_MATCHES: Record<string, string[]> = {
 };
 const PAGE_SIZE = 12;
 
+function getElleMatchScore(uni: University): number {
+  const countryBase: Record<string, number> = {
+    Canada: 92,
+    "United Kingdom": 89,
+    UK: 89,
+    Germany: 84,
+    Australia: 82,
+    Netherlands: 79,
+    Singapore: 76,
+    Ireland: 74,
+    "United States": 72,
+    USA: 72,
+  };
+  const base = countryBase[uni.country] ?? 70;
+  const rankLift = uni.ranking != null ? Math.max(0, 8 - Math.floor(uni.ranking / 40)) : 2;
+  const affordabilityLift = uni.avgTuitionUsd != null && uni.avgTuitionUsd <= 40000 ? 3 : 0;
+  return Math.min(96, base + rankLift + affordabilityLift);
+}
+
 interface Filters {
   minRanking: string;
   maxRanking: string;
@@ -118,9 +137,7 @@ export default function UniversitiesPage() {
 
   const activeFiltersCount = Object.values(filters).filter(Boolean).length;
   const catalogue = demoMode ? filteredDemoUnis : filteredApiUnis;
-  const topRanked = catalogue
-    .filter((uni) => uni.ranking != null)
-    .sort((a, b) => (a.ranking ?? 9999) - (b.ranking ?? 9999))[0];
+  const topMatch = [...catalogue].sort((a, b) => getElleMatchScore(b) - getElleMatchScore(a))[0];
   const affordableCount = catalogue.filter((uni) => (uni.avgTuitionUsd ?? 0) > 0 && (uni.avgTuitionUsd ?? 0) <= 35000).length;
   const countryCount = new Set(catalogue.map((uni) => uni.country)).size;
   const savedCount = savedIds.size;
@@ -237,11 +254,11 @@ export default function UniversitiesPage() {
                   <div className="mt-1 font-serif text-xl font-bold text-foreground">{affordableCount}</div>
                 </div>
               </div>
-              {topRanked && (
+              {topMatch && (
                 <div className="mt-3 rounded-lg border border-primary/20 bg-primary/5 p-3">
-                  <div className="text-[10px] font-semibold uppercase tracking-wide text-primary">Best rank in view</div>
-                  <div className="mt-1 text-sm font-semibold leading-5 text-foreground">{topRanked.name}</div>
-                  <div className="mt-1 text-xs text-muted-foreground">#{topRanked.ranking} · {topRanked.city}</div>
+                  <div className="text-[10px] font-semibold uppercase tracking-wide text-primary">Best ELLE match in view</div>
+                  <div className="mt-1 text-sm font-semibold leading-5 text-foreground">{topMatch.name}</div>
+                  <div className="mt-1 text-xs text-muted-foreground">{getElleMatchScore(topMatch)}% profile fit · {topMatch.city}</div>
                 </div>
               )}
             </aside>
@@ -321,6 +338,7 @@ export default function UniversitiesPage() {
             ))
             : unis.map((uni: University) => {
               const isBookmarked = savedIds.has(uni.id);
+              const matchScore = getElleMatchScore(uni);
               return (
                 <Link href={`/universities/${uni.id}`} key={uni.id}>
                   <Card className="group relative h-full cursor-pointer overflow-hidden border border-border bg-white p-0 transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md" data-testid={`uni-card-${uni.id}`}>
@@ -343,7 +361,8 @@ export default function UniversitiesPage() {
                         <UniversityLogo name={uni.name} website={uni.website} className="h-12 w-12" imageClassName="h-8 w-8" />
                         <div className="min-w-0 flex-1">
                           <div className="flex flex-wrap items-center gap-2">
-                            {uni.ranking != null && <Badge variant="secondary" className="rounded-full text-xs">Rank #{uni.ranking}</Badge>}
+                            <Badge className="rounded-full bg-secondary text-white hover:bg-secondary text-xs">{matchScore}% ELLE Match</Badge>
+                            {uni.ranking != null && <Badge variant="outline" className="rounded-full text-xs">Rank #{uni.ranking}</Badge>}
                             <Badge variant="outline" className="rounded-full text-xs">{uni.country}</Badge>
                           </div>
                           <p className="mt-1 truncate text-xs font-medium text-muted-foreground">{uni.city}</p>

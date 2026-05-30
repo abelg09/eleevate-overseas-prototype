@@ -208,7 +208,7 @@ export default function StudentDashboardPage() {
               </Card>
 
               <Card className="app-card p-4">
-                <SectionHeader title="Finance and visa" href="/loans" />
+                <SectionHeader title="Finance and visa" href="/financial-hub" />
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                   {financeSignals.map((signal) => (
                     <div key={signal.label} className="rounded-lg border border-border bg-muted/30 p-3">

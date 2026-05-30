@@ -14,7 +14,7 @@ import { isDemoMode } from "@/lib/demo-mode";
 
 interface LineItem { description: string; quantity: number; unitPrice: number; }
 type Invoice = { id: string; clientName: string; clientEmail: string | null; lineItems: LineItem[]; subtotal: number; taxAmount: number; total: number; currency: string; status: string; notes: string | null; dueDate: string | null; createdAt: string };
-type Commission = { id: string; source: string; description: string | null; amount: number; currency: string; status: string; paidAt: string | null; createdAt: string };
+type Commission = { id: string; source: string; description: string | null; amount: number; currency: string; status: string; paidAt: string | null; createdAt: string; revenueStream?: string };
 
 const STATUS_COLORS: Record<string, string> = {
   draft: "bg-slate-100 text-slate-700",
@@ -33,8 +33,8 @@ const COMMISSION_COLORS: Record<string, string> = {
 const DEMO_INVOICES: Invoice[] = [
   {
     id: "demo-invoice-1",
-    clientName: "Aarav Mehta",
-    clientEmail: "aarav.mehta@example.com",
+    clientName: "Jehan",
+    clientEmail: "jehan@example.com",
     lineItems: [{ description: "SOP and application review", quantity: 1, unitPrice: 14900 }],
     subtotal: 14900,
     taxAmount: 2682,
@@ -50,6 +50,8 @@ const DEMO_INVOICES: Invoice[] = [
 const DEMO_COMMISSIONS: Commission[] = [
   { id: "demo-commission-1", source: "university_partner", description: "University of Leeds enrolment commission", amount: 42000, currency: "USD", status: "earned", paidAt: null, createdAt: "2026-05-18T10:00:00.000Z" },
   { id: "demo-commission-2", source: "service_order", description: "Visa strategy session", amount: 9900, currency: "USD", status: "paid", paidAt: "2026-05-20", createdAt: "2026-05-12T10:00:00.000Z" },
+  { id: "demo-commission-3", source: "nbfc_partner", description: "HDFC Credila NBFC Commission - Processing", amount: 62000, currency: "USD", status: "pending", paidAt: null, createdAt: "2026-05-30T10:00:00.000Z", revenueStream: "NBFC Commission" },
+  { id: "demo-commission-4", source: "forex_partner", description: "Tuition remittance spread - University of Toronto", amount: 8400, currency: "USD", status: "earned", paidAt: null, createdAt: "2026-05-30T10:05:00.000Z", revenueStream: "Forex Margin" },
 ];
 
 export default function InvoicingPage() {
@@ -271,6 +273,7 @@ export default function InvoicingPage() {
                   <div>
                     <div className="font-medium text-sm">{c.description ?? c.source}</div>
                     <div className="text-xs text-muted-foreground capitalize">{c.source.replace("_", " ")} · {new Date(c.createdAt).toLocaleDateString()}</div>
+                    <div className="mt-1 text-xs font-semibold text-primary">Revenue stream: {c.revenueStream ?? c.source.replace("_", " ")}</div>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="font-semibold">{fmt(c.amount)}</span>

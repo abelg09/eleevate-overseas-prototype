@@ -23,9 +23,9 @@ export function listFromApi<T>(value: unknown): T[] {
 
 export const demoUser = {
   student: {
-    firstName: "Aarav",
-    lastName: "Mehta",
-    email: "aarav.mehta@example.com",
+    firstName: "Jehan",
+    lastName: "",
+    email: "jehan@student.example",
   },
   consultant: {
     firstName: "Maya",

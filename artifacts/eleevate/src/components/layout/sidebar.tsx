@@ -67,6 +67,7 @@ const studentGroups: NavGroup[] = [
   {
     label: "Finance",
     items: [
+      { href: "/financial-hub", label: "Financial Hub" },
       { href: "/loans", label: "Edu Loans" },
       { href: "/remittance", label: "Remittance" },
       { href: "/forex-card", label: "Forex Card" },
@@ -132,14 +133,16 @@ function DemoSidebar() {
   const [location, setLocation] = useLocation();
   const role = useDemoRole(location);
   const user = role === "consultant" ? demoUser.consultant : demoUser.student;
+  const userName = [user.firstName, user.lastName].filter(Boolean).join(" ");
+  const initials = [user.firstName, user.lastName].filter(Boolean).map((name) => name[0]).join("") || "U";
 
   return (
     <SidebarShell
       location={location}
       groups={role === "consultant" ? consultantGroups : studentGroups}
-      userName={`${user.firstName} ${user.lastName}`}
+      userName={userName}
       userImageUrl=""
-      initials={`${user.firstName[0]}${user.lastName[0]}`}
+      initials={initials}
       role={role}
       onSignOut={() => {
         clearDemoAuth();

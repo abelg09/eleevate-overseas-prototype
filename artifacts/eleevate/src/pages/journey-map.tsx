@@ -47,7 +47,7 @@ export default function JourneyMapPage() {
           }
         />
 
-        <section className="mb-5 overflow-hidden rounded-lg border border-border bg-white shadow-sm">
+        <section className="route-ribbon-bg mb-5 rounded-lg border border-border shadow-sm">
           <div className="brand-gradient-bg h-1.5" />
           <div className="grid gap-0 xl:grid-cols-[minmax(0,1fr)_360px]">
             <div className="p-5 md:p-6">

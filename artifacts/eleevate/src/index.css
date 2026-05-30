@@ -283,6 +283,47 @@
     background: linear-gradient(90deg, #009FE3 0%, #3AAA35 100%);
   }
 
+  .route-ribbon-bg {
+    position: relative;
+    overflow: hidden;
+    background:
+      linear-gradient(135deg, rgba(0, 159, 227, 0.10), rgba(58, 170, 53, 0.08)),
+      hsl(var(--card));
+  }
+
+  .route-ribbon-bg::before,
+  .route-ribbon-bg::after {
+    content: "";
+    pointer-events: none;
+    position: absolute;
+    inset: auto -12% 12% -12%;
+    height: 82px;
+    border-radius: 999px;
+    transform: rotate(-8deg);
+  }
+
+  .route-ribbon-bg::before {
+    background:
+      repeating-linear-gradient(
+        90deg,
+        rgba(28, 45, 78, 0.88) 0 22px,
+        transparent 22px 30px
+      );
+    opacity: 0.14;
+  }
+
+  .route-ribbon-bg::after {
+    bottom: 34%;
+    height: 24px;
+    background: rgba(198, 116, 82, 0.35);
+    opacity: 0.8;
+  }
+
+  .route-ribbon-bg > * {
+    position: relative;
+    z-index: 1;
+  }
+
   .brand-rule {
     height: 2px;
     background: linear-gradient(90deg, #3AAA35 0%, #009FE3 100%);

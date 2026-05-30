@@ -8,16 +8,16 @@ import { cn } from "@/lib/utils";
 import type { JourneyTask, ModuleStatus, ModuleStatusItem } from "@/lib/demo-data";
 
 const statusStyles: Record<ModuleStatus, string> = {
-  live: "bg-emerald-100 text-emerald-700 border-emerald-200",
-  demo: "bg-blue-100 text-blue-700 border-blue-200",
-  preview: "bg-amber-100 text-amber-700 border-amber-200",
-  deferred: "bg-muted text-muted-foreground border-border",
+  live: "bg-emerald-700 text-white border-emerald-700",
+  demo: "bg-primary text-white border-primary",
+  preview: "bg-[#7A5200] text-white border-[#7A5200]",
+  deferred: "bg-slate-700 text-white border-slate-700",
 };
 
 const priorityStyles = {
-  high: "bg-red-100 text-red-700",
-  medium: "bg-amber-100 text-amber-700",
-  low: "bg-slate-100 text-slate-700",
+  high: "bg-red-700 text-white",
+  medium: "bg-[#7A5200] text-white",
+  low: "bg-slate-700 text-white",
 };
 
 const toneBars = {

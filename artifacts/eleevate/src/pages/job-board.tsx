@@ -45,6 +45,22 @@ interface Application {
   createdAt: string;
 }
 
+const jobMatchScores: Record<string, number> = {
+  j1: 95,
+  j2: 93,
+  j3: 62,
+  j4: 81,
+  j5: 68,
+  j6: 90,
+};
+
+function getJobMatchScore(job: Job): number {
+  if (jobMatchScores[job.id]) return jobMatchScores[job.id];
+  const skills = job.skillsRequired.join(" ").toLowerCase();
+  if (skills.includes("python") || skills.includes("react") || skills.includes("ml")) return 86;
+  return 72;
+}
+
 export default function JobBoardPage() {
   const { getToken } = useAuth();
   const qc = useQueryClient();
@@ -166,7 +182,13 @@ export default function JobBoardPage() {
                         <Building className="h-3.5 w-3.5" />{job.company}
                       </div>
                     </div>
-                    <Badge className={`${typeColors[job.type] ?? ""} border-0 text-xs flex-shrink-0`}>{job.type}</Badge>
+                    <div className="flex flex-col items-end gap-1.5">
+                      <Badge className="border-0 bg-secondary text-white text-xs flex-shrink-0">{getJobMatchScore(job)}% ELLE Match</Badge>
+                      <Badge className={`${typeColors[job.type] ?? ""} border-0 text-xs flex-shrink-0`}>{job.type}</Badge>
+                    </div>
+                  </div>
+                  <div className="rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-xs font-semibold text-primary">
+                    Match with Jehan&apos;s MSc Computer Science profile and AI product career direction.
                   </div>
                   <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
                     {job.location && <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{job.location}</span>}
@@ -332,6 +354,7 @@ export default function JobBoardPage() {
               </DialogHeader>
               <div className="space-y-4">
                 <div className="flex flex-wrap gap-2">
+                  <Badge className="border-0 bg-secondary text-white">{getJobMatchScore(selectedJob)}% Match with MSc Computer Science profile</Badge>
                   <Badge className={`${typeColors[selectedJob.type] ?? ""} border-0`}>{selectedJob.type}</Badge>
                   {selectedJob.location && <Badge variant="outline" className="gap-1"><MapPin className="h-3 w-3" />{selectedJob.location}</Badge>}
                   {selectedJob.salary && <Badge variant="secondary">{selectedJob.salary}</Badge>}

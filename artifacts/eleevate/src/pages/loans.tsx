@@ -24,7 +24,7 @@ const DEMO_LOAN_PRODUCTS = [
     id: "loan-demo-1",
     lenderName: "HDFC Credila",
     type: "Secured / unsecured",
-    minAmount: 1000000,
+    minAmount: 500000,
     maxAmount: 7500000,
     interestRate: "10.5-12.5%",
     tenure: "Up to 15 years",
@@ -69,7 +69,7 @@ const DEMO_LOAN_APPLICATIONS = [
   {
     id: "loan-app-demo-1",
     lenderName: "HDFC Credila",
-    amount: 3800000,
+    amount: 800000,
     currency: "INR",
     interestRate: "11.2%",
     tenureMonths: 120,
@@ -83,12 +83,12 @@ export default function LoansPage() {
   const { getToken } = useAuth();
   const qc = useQueryClient();
   const demoMode = isDemoMode();
-  const [loanAmount, setLoanAmount] = useState("");
+  const [loanAmount, setLoanAmount] = useState(demoMode ? "8000" : "");
   const [tenure, setTenure] = useState("120");
-  const [universityName, setUniversityName] = useState("");
-  const [country, setCountry] = useState("");
+  const [universityName, setUniversityName] = useState(demoMode ? "University of Toronto" : "");
+  const [country, setCountry] = useState(demoMode ? "Canada" : "");
   const [selectedLender, setSelectedLender] = useState<string | null>(null);
-  const [searched, setSearched] = useState(false);
+  const [searched, setSearched] = useState(demoMode);
 
   const { data: products } = useQuery({
     queryKey: ["loan-products"],
@@ -151,7 +151,7 @@ export default function LoansPage() {
     <div className="p-6 max-w-5xl mx-auto space-y-6">
       <div>
         <h1 className="font-serif text-2xl font-bold text-foreground">Edu Loans</h1>
-        <p className="text-muted-foreground mt-1">Compare and apply to leading education loan providers</p>
+        <p className="text-muted-foreground mt-1">Compare and apply to leading education loan providers with ELLE funding data already synced.</p>
       </div>
 
       <Tabs defaultValue="marketplace">
@@ -161,9 +161,15 @@ export default function LoansPage() {
         </TabsList>
 
         <TabsContent value="marketplace" className="mt-4 space-y-4">
-          <Card>
+          <Card className="route-ribbon-bg overflow-hidden border-primary/20">
             <CardHeader><CardTitle className="text-base">Find Your Best Loan Match</CardTitle><CardDescription>Enter your requirements to see eligible loan products</CardDescription></CardHeader>
             <CardContent>
+              {demoMode && (
+                <div className="mb-4 rounded-lg border border-primary/20 bg-white/90 p-3 text-sm leading-6 text-foreground">
+                  <span className="mr-2 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">Unified Ledger</span>
+                  Pre-filled based on Jehan&apos;s current ELLE Funding Gap for University of Toronto.
+                </div>
+              )}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                 <div>
                   <label className="text-sm font-medium">Loan Amount (USD) *</label>
@@ -277,6 +283,7 @@ export default function LoansPage() {
                         {app.universityName ? ` · ${app.universityName}` : ""}
                         · Applied {new Date(app.createdAt).toLocaleDateString()}
                       </div>
+                      <div className="mt-2 text-xs font-semibold text-primary">Ledger sync: HDFC Credila NBFC Commission - Processing</div>
                     </div>
                     <Badge className={`${STATUS_COLORS[app.status] ?? ""} border-0 text-xs capitalize`}>{app.status.replace("_", " ")}</Badge>
                   </CardContent>
