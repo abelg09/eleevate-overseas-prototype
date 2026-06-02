@@ -103,7 +103,7 @@ const clerkAppearance = {
   options: {
     logoPlacement: "inside" as const,
     logoLinkUrl: basePath || "/",
-    logoImageUrl: `${window.location.origin}${basePath}/logo.svg`,
+    logoImageUrl: `${window.location.origin}${basePath}/logo.webp`,
     socialButtonsPlacement: "bottom" as const,
     socialButtonsVariant: "blockButton" as const,
   },
@@ -135,7 +135,7 @@ const clerkAppearance = {
     formFieldSuccessText: "text-green-600",
     alertText: "text-foreground",
     logoBox: "flex items-center justify-center",
-    logoImage: "h-auto w-[150px]",
+    logoImage: "h-24 w-24 rounded-full object-cover",
     socialButtonsBlockButton: "border border-border bg-background hover:bg-muted",
     formButtonPrimary: "bg-primary hover:bg-primary/90 text-primary-foreground font-semibold",
     formFieldInput: "bg-input border-border text-foreground",

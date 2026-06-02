@@ -48,7 +48,7 @@ export default function LoginPage() {
     <div className="min-h-screen bg-[linear-gradient(180deg,#ffffff_0%,#f3f8fc_52%,#eef7f1_100%)] text-foreground" data-testid="login-page">
       <header className="mx-auto flex h-24 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <Link href="/">
-          <img src={assetUrl("logo.svg")} alt="EleevateOverseas" className="h-auto w-[156px]" />
+          <img src={assetUrl("logo.webp")} alt="EleevateOverseas" className="h-24 w-24 rounded-full object-cover shadow-sm ring-1 ring-border" />
         </Link>
         <Link href="/">
           <Button variant="outline" className="rounded-full border-secondary px-5 font-serif text-secondary">

@@ -264,9 +264,9 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-white text-foreground">
       <nav className="sticky top-0 z-50 border-b border-border bg-white/95 backdrop-blur-xl" data-testid="nav-bar">
-        <div className="mx-auto flex h-[86px] max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto flex h-[132px] max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <Link href="/product" data-testid="nav-logo" aria-label="EleevateOverseas product landing">
-            <img src={assetUrl("logo.svg")} alt="EleevateOverseas" className="h-auto w-[154px] sm:w-[168px]" />
+            <img src={assetUrl("logo.webp")} alt="EleevateOverseas" className="h-28 w-28 rounded-full object-cover shadow-sm ring-1 ring-border" />
           </Link>
           <div className="hidden items-center gap-7 font-serif text-sm font-bold text-[#637199] lg:flex">
             <a href="#product-modules" className="transition-colors hover:text-foreground">Product</a>
@@ -829,7 +829,7 @@ export default function LandingPage() {
 
       <footer className="border-t border-border bg-white px-4 py-10 sm:px-6 lg:px-8" data-testid="footer">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 md:flex-row">
-          <img src={assetUrl("logo.svg")} alt="EleevateOverseas" className="h-auto w-[140px]" />
+          <img src={assetUrl("logo.webp")} alt="EleevateOverseas" className="h-24 w-24 rounded-full object-cover shadow-sm ring-1 ring-border" />
           <div className="flex flex-wrap items-center justify-center gap-6 font-serif text-sm font-bold text-[#637199]">
             <Link href="/universities" className="hover:text-foreground">Universities</Link>
             <Link href="/elee-report" className="hover:text-foreground">ELEE Report</Link>

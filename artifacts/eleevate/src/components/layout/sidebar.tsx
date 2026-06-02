@@ -203,7 +203,7 @@ function SidebarShell({
       <div className="border-b border-sidebar-border bg-white p-4">
         <Link href={role === "consultant" ? "/consultant/dashboard" : "/dashboard"}>
           <div className="flex cursor-pointer items-center gap-3" data-testid="sidebar-logo">
-            <img src={assetUrl("logo.svg")} alt="EleevateOverseas" className="h-auto w-[132px]" />
+            <img src={assetUrl("logo.webp")} alt="EleevateOverseas" className="h-32 w-32 rounded-full object-cover shadow-sm ring-1 ring-border" />
           </div>
         </Link>
         <div className="mt-4 flex items-center gap-2">

@@ -61,7 +61,7 @@ export default function OnboardingPage() {
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/5 flex flex-col items-center justify-center px-4 py-12">
       {/* Logo */}
       <div className="mb-10">
-        <img src={assetUrl("logo.svg")} alt="EleevateOverseas" className="h-auto w-[150px]" />
+        <img src={assetUrl("logo.webp")} alt="EleevateOverseas" className="h-28 w-28 rounded-full object-cover shadow-sm ring-1 ring-border" />
       </div>
 
       {/* Step indicator */}
