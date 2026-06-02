@@ -183,7 +183,7 @@ export default function JobBoardPage() {
                       </div>
                     </div>
                     <div className="flex flex-col items-end gap-1.5">
-                      <Badge className="border-0 bg-secondary text-white text-xs flex-shrink-0">{getJobMatchScore(job)}% ELLE Match</Badge>
+                      <Badge className="border-0 bg-secondary text-white text-xs flex-shrink-0">{getJobMatchScore(job)}% ELEE Match</Badge>
                       <Badge className={`${typeColors[job.type] ?? ""} border-0 text-xs flex-shrink-0`}>{job.type}</Badge>
                     </div>
                   </div>

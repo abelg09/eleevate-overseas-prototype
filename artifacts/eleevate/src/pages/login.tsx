@@ -8,11 +8,12 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { assetUrl, cn } from "@/lib/utils";
 import { type DemoRole, writeDemoAuth } from "@/lib/demo-auth";
+import { useDemoJourneyState } from "@/lib/demo-journey";
 
 const roleCopy: Record<DemoRole, { title: string; description: string; redirect: string }> = {
   student: {
     title: "Student Journey OS",
-    description: "Dashboard, profile, ELLE report, university discovery, applications, documents, visa, finance, and upskilling.",
+    description: "Dashboard, profile, ELEE report, university discovery, applications, documents, visa, finance, and upskilling.",
     redirect: "/dashboard",
   },
   consultant: {
@@ -35,6 +36,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState("abel@metawareit.com");
   const activeCopy = roleCopy[role];
   const firstName = useMemo(() => email.split("@")[0]?.split(".")[0] || "there", [email]);
+  const demoJourney = useDemoJourneyState();
 
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault();
@@ -46,7 +48,7 @@ export default function LoginPage() {
     <div className="min-h-screen bg-[linear-gradient(180deg,#ffffff_0%,#f3f8fc_52%,#eef7f1_100%)] text-foreground" data-testid="login-page">
       <header className="mx-auto flex h-24 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <Link href="/">
-          <img src={assetUrl("logo.svg")} alt="EleevateOverseas" className="h-14 w-auto" />
+          <img src={assetUrl("logo.svg")} alt="EleevateOverseas" className="h-auto w-[156px]" />
         </Link>
         <Link href="/">
           <Button variant="outline" className="rounded-full border-secondary px-5 font-serif text-secondary">
@@ -57,12 +59,14 @@ export default function LoginPage() {
 
       <main className="mx-auto grid min-h-[calc(100vh-6rem)] max-w-7xl gap-8 px-4 pb-12 pt-4 sm:px-6 lg:grid-cols-[minmax(0,0.95fr)_460px] lg:items-center lg:px-8">
         <section>
-          <Badge className="brand-gradient-bg rounded-full px-5 py-2 font-serif text-white">Secure Demo Login</Badge>
+          <Badge className="brand-gradient-bg rounded-full px-5 py-2 font-serif text-white">
+            {demoJourney.mode === "canada_locked" ? "Canada Locked Demo" : "Secure Demo Login"}
+          </Badge>
           <h1 className="mt-6 max-w-3xl font-serif text-4xl font-bold leading-tight text-foreground md:text-6xl">
             Sign in before entering the EleevateOverseas program.
           </h1>
           <p className="mt-5 max-w-2xl text-base leading-8 text-muted-foreground md:text-lg">
-            This prototype now separates the public website from the working student and consultant portals, so the experience behaves like the real product before the final database is attached.
+            This prototype separates the public website from the working portal. {demoJourney.countryLock ? "This entry is locked to Canada, so every module speaks to the same selected route." : "This entry keeps broad discovery open before the student locks a country."}
           </p>
 
           <div className="mt-8 grid max-w-3xl gap-3 sm:grid-cols-3">
@@ -77,6 +81,13 @@ export default function LoginPage() {
               </div>
             ))}
           </div>
+
+          {demoJourney.countryLock && (
+            <div className="mt-5 max-w-3xl rounded-lg border border-primary/20 bg-white/80 p-4 shadow-sm">
+              <div className="font-serif text-sm font-bold text-foreground">{demoJourney.countryLock.routeLabel}</div>
+              <p className="mt-1 text-sm leading-6 text-muted-foreground">{demoJourney.countryLock.reason}</p>
+            </div>
+          )}
         </section>
 
         <Card className="overflow-hidden border border-border bg-white p-0 shadow-xl">

@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { isDemoMode } from "@/lib/demo-mode";
+import { addDemoLedgerEvent, useDemoJourneyState } from "@/lib/demo-journey";
 
 const CURRENCIES = ["INR", "USD", "GBP", "AUD", "CAD", "EUR", "SGD", "NZD"];
 
@@ -74,6 +75,9 @@ export default function ForexPage() {
   const [recipientBank, setRecipientBank] = useState("");
   const [recipientAccount, setRecipientAccount] = useState("");
   const [confirming, setConfirming] = useState(false);
+  const [demoTransactions, setDemoTransactions] = useState(DEMO_TRANSACTIONS);
+  const demoJourney = useDemoJourneyState();
+  const lockedCountry = demoJourney.countryLock;
 
   const { data: rateData, refetch: refetchRates } = useQuery({
     queryKey: ["forex-rates", fromCurrency, toCurrency],
@@ -117,7 +121,34 @@ export default function ForexPage() {
       return res.json();
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["my-forex-transactions"] });
+      if (demoMode) {
+        const nextToAmount = parseFloat(fromAmount || "0") * effectiveRateData.rate;
+        setDemoTransactions((items) => [
+          {
+            id: `fx-demo-${Date.now()}`,
+            fromCurrency,
+            toCurrency,
+            fromAmount: parseFloat(fromAmount || "0"),
+            toAmount: Number(nextToAmount.toFixed(2)),
+            rate: String(effectiveRateData.rate),
+            status: "processing",
+            purpose: purpose || "University tuition fee",
+            createdAt: new Date().toISOString(),
+          },
+          ...items,
+        ]);
+        addDemoLedgerEvent({
+          id: "ledger-forex-action",
+          source: "Forex",
+          event: `${fromCurrency} to ${toCurrency} transfer initiated`,
+          studentView: "Transfer receipt will sync to the finance and visa evidence packet.",
+          consultantView: "Forex margin event and receipt follow-up are created.",
+          revenue: "Forex Margin",
+          status: "Processing",
+        });
+      } else {
+        qc.invalidateQueries({ queryKey: ["my-forex-transactions"] });
+      }
       setFromAmount(""); setRecipientName(""); setRecipientBank(""); setRecipientAccount(""); setPurpose(""); setConfirming(false);
       toast.success("Remittance initiated! Funds will be transferred within 1–2 business days.");
     },
@@ -136,7 +167,7 @@ export default function ForexPage() {
     rates: fallbackRates,
     timestamp: new Date().toISOString(),
   };
-  const transactionList = demoMode ? DEMO_TRANSACTIONS : transactions ?? [];
+  const transactionList = demoMode ? demoTransactions : transactions ?? [];
 
   const toAmount = fromAmount && parseFloat(fromAmount) > 0
     ? (parseFloat(fromAmount) * effectiveRateData.rate).toFixed(2) : null;
@@ -145,7 +176,9 @@ export default function ForexPage() {
     <div className="p-6 max-w-5xl mx-auto space-y-6">
       <div>
         <h1 className="font-serif text-2xl font-bold text-foreground">Forex</h1>
-        <p className="text-muted-foreground mt-1">Live exchange rates and international money transfers for students</p>
+        <p className="text-muted-foreground mt-1">
+          Live exchange rates and international money transfers for students{lockedCountry ? `, tuned to ${lockedCountry.currency} for ${lockedCountry.countryName}` : ""}.
+        </p>
       </div>
 
       <Tabs defaultValue="convert">

@@ -18,6 +18,7 @@ import {
   serviceOrders,
 } from "@/lib/demo-data";
 import { demoUser } from "@/lib/demo-mode";
+import { useDemoJourneyState } from "@/lib/demo-journey";
 import { cn } from "@/lib/utils";
 
 const stageBarStyles = {
@@ -29,6 +30,8 @@ const stageBarStyles = {
 
 export default function ConsultantDashboardPage() {
   const user = demoUser.consultant;
+  const demoJourney = useDemoJourneyState();
+  const ledgerEvents = demoJourney.ledgerEvents.slice(0, 3);
 
   return (
     <AppLayout>
@@ -121,8 +124,23 @@ export default function ConsultantDashboardPage() {
           </Card>
 
           <Card className="app-card p-4">
-            <SectionHeader title="Revenue and services" href="/consultant/invoicing" />
+            <SectionHeader title="Revenue and services" description="Student actions routed into consultant follow-up and revenue lines." href="/consultant/invoicing" />
             <div className="space-y-3">
+              {ledgerEvents.map((event) => (
+                <div key={event.id} className="rounded-lg border border-primary/20 bg-primary/5 p-3">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <div className="text-sm font-semibold text-foreground">{event.event}</div>
+                      <div className="text-xs text-muted-foreground">{event.consultantView}</div>
+                    </div>
+                    <Badge variant="outline" className="capitalize">{event.status}</Badge>
+                  </div>
+                  <div className="mt-3 flex items-center justify-between text-sm">
+                    <span className="font-semibold text-foreground">{event.revenue}</span>
+                    <span className="text-xs text-muted-foreground">{event.source}</span>
+                  </div>
+                </div>
+              ))}
               {serviceOrders.map((order) => (
                 <div key={order.id} className="rounded-lg border border-border bg-white p-3">
                   <div className="flex items-start justify-between gap-3">

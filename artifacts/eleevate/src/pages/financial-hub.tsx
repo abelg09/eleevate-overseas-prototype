@@ -4,60 +4,18 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { PageHeader, SectionHeader } from "@/components/common/page-shell";
+import { useDemoJourneyState } from "@/lib/demo-journey";
 import { cn } from "@/lib/utils";
 
 const ledgerKpis = [
-  { label: "ELLE funding gap", value: "$8k", detail: "Synced to Edu Loans", tone: "border-l-primary" },
+  { label: "ELEE funding gap", value: "$8k", detail: "Synced to Edu Loans", tone: "border-l-primary" },
   { label: "Confirmed funds", value: "$38k", detail: "Sponsor + savings", tone: "border-l-emerald-500" },
   { label: "Pending payouts", value: "$620", detail: "NBFC + forex margin", tone: "border-l-[#C67452]" },
   { label: "Visa evidence", value: "76%", detail: "Receipts + fund proof", tone: "border-l-[#F8B133]" },
 ];
 
-const ledgerEvents = [
-  {
-    source: "ELLE Report",
-    event: "Funding gap detected",
-    studentView: "$8k gap shown on dashboard and ELLE report.",
-    consultantView: "Finance task created for Jehan with sponsor proof required.",
-    revenue: "Loan referral opportunity",
-    status: "Live sync",
-  },
-  {
-    source: "Edu Loans",
-    event: "HDFC Credila application started",
-    studentView: "Loan amount and university pre-filled from ELLE.",
-    consultantView: "Pending payout line item generated automatically.",
-    revenue: "NBFC Commission",
-    status: "Processing",
-  },
-  {
-    source: "Remittance",
-    event: "Tuition deposit planned",
-    studentView: "Payment milestone added to fee timeline.",
-    consultantView: "Receipt reminder routed to document vault.",
-    revenue: "Forex Margin",
-    status: "Ready",
-  },
-  {
-    source: "Forex Card",
-    event: "Initial load recommendation",
-    studentView: "Card load amount based on country budget.",
-    consultantView: "Family spending controls and alerts prepared.",
-    revenue: "Card Partner Fee",
-    status: "Queued",
-  },
-  {
-    source: "Insurance",
-    event: "Visa-stage insurance package",
-    studentView: "Insurance prompt appears after offer upload.",
-    consultantView: "Post-offer checklist updated without manual entry.",
-    revenue: "Insurance Commission",
-    status: "Next",
-  },
-];
-
 const financeModules = [
-  { label: "Edu Loans", href: "/loans", detail: "Pre-filled from ELLE funding gap" },
+  { label: "Edu Loans", href: "/loans", detail: "Pre-filled from ELEE funding gap" },
   { label: "Remittance", href: "/remittance", detail: "Fee timeline and receipt evidence" },
   { label: "Forex Card", href: "/forex-card", detail: "Country-specific load plan" },
   { label: "Forex", href: "/forex", detail: "Rates and margin visibility" },
@@ -65,12 +23,16 @@ const financeModules = [
 ];
 
 export default function FinancialHubPage() {
+  const demoJourney = useDemoJourneyState();
+  const ledgerEvents = demoJourney.ledgerEvents;
+  const lockedCountry = demoJourney.countryLock;
+
   return (
     <div data-testid="financial-hub-page">
       <PageHeader
         eyebrow="Unified Ledger"
-        title="Financial Hub"
-        description="A single ledger that connects ELLE funding gaps, education loans, remittance, forex card, insurance, receipts, visa evidence, and consultant revenue events."
+        title={lockedCountry ? "Canada Financial Hub" : "Financial Hub"}
+        description="A single ledger that connects ELEE funding gaps, education loans, remittance, forex card, insurance, receipts, visa evidence, and consultant revenue events."
         actions={
           <>
             <Link href="/loans">
@@ -91,6 +53,7 @@ export default function FinancialHubPage() {
           </h2>
           <p className="mt-3 text-sm leading-6 text-muted-foreground">
             This is the investor-facing proof of the Unified Ledger: Jehan&apos;s $8k funding gap flows into a loan application, a consultant task, a pending commission line, and visa evidence without duplicate data entry.
+            {lockedCountry ? ` Current route: ${lockedCountry.countryName}, ${lockedCountry.cities.join(" and ")}.` : ""}
           </p>
         </div>
       </section>

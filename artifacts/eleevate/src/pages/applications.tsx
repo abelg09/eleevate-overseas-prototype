@@ -18,6 +18,7 @@ import { useToast } from "@/hooks/use-toast";
 import { isDemoMode } from "@/lib/demo-mode";
 import { DEMO_APPLICATION_STORAGE_KEY, DEMO_UNIVERSITIES } from "@/lib/demo-catalog";
 import { getDemoApplicationsFromShortlist } from "@/lib/demo-flow";
+import { addDemoLedgerEvent, useDemoJourneyState } from "@/lib/demo-journey";
 
 const ALL_STATUSES: UpdateApplicationBodyStatus[] = [
   "researching", "applied", "under_review", "conditional_offer",
@@ -391,6 +392,8 @@ export default function ApplicationsPage() {
   const demoMode = isDemoMode();
   const [view, setView] = useState<"kanban" | "timeline">("kanban");
   const [demoApplications, setDemoApplications] = useState<Application[]>(getInitialDemoApplications);
+  const demoJourney = useDemoJourneyState();
+  const lockedCountry = demoJourney.countryLock;
 
   useEffect(() => {
     if (demoMode) {
@@ -404,7 +407,9 @@ export default function ApplicationsPage() {
   const updateApp = useUpdateApplication();
 
   const result: ApplicationListResponse | undefined = data;
-  const applications: Application[] = demoMode ? demoApplications : result?.data ?? [];
+  const applications: Application[] = demoMode
+    ? demoApplications.filter((app) => !lockedCountry || app.program?.university?.country === lockedCountry.countryName)
+    : result?.data ?? [];
   const activeApplications = applications.filter((app) => !["rejected", "enrolled"].includes(app.status));
   const offers = applications.filter((app) => ["conditional_offer", "unconditional_offer", "accepted"].includes(app.status));
   const visaReady = applications.filter((app) => ["accepted", "visa_applied", "visa_approved", "enrolled"].includes(app.status));
@@ -419,6 +424,15 @@ export default function ApplicationsPage() {
   const handleStatusChange = async (id: string, fromStatus: string, toStatus: UpdateApplicationBodyStatus) => {
     if (demoMode) {
       setDemoApplications((items) => items.map((item) => item.id === id ? { ...item, status: toStatus, updatedAt: new Date().toISOString() } : item));
+      addDemoLedgerEvent({
+        id: `ledger-application-${id}-${toStatus}`,
+        source: "Applications",
+        event: `Application moved to ${STATUS_LABELS[toStatus]}`,
+        studentView: "Application status updated and next document/visa task recalculated.",
+        consultantView: "Counsellor queue receives the new application stage automatically.",
+        revenue: "University partner pipeline",
+        status: toStatus === "applied" || toStatus === "under_review" ? "Processing" : "Ready",
+      });
       toast({ title: `Moved to ${STATUS_LABELS[toStatus]}` });
       return;
     }
@@ -437,8 +451,8 @@ export default function ApplicationsPage() {
       <div data-testid="applications-page">
         <PageHeader
           eyebrow="Application Journey"
-          title="Application Command Center"
-          description={`${applications.length} application${applications.length !== 1 ? "s" : ""} from research to offer, visa, and enrollment.`}
+          title={lockedCountry ? "Canada Application Command Center" : "Application Command Center"}
+          description={`${applications.length} ${lockedCountry ? "Canada " : ""}application${applications.length !== 1 ? "s" : ""} from research to offer, visa, and enrollment.`}
           actions={
             <>
               <Link href="/documents">
@@ -456,7 +470,9 @@ export default function ApplicationsPage() {
           <div className="grid gap-0 lg:grid-cols-[minmax(0,1fr)_320px]">
             <div className="p-5">
               <div className="eyebrow mb-2">Journey cockpit</div>
-              <h2 className="font-serif text-xl font-bold leading-tight text-foreground">Keep applications, deadlines, and document blockers in one operating view.</h2>
+              <h2 className="font-serif text-xl font-bold leading-tight text-foreground">
+                {lockedCountry ? "Keep Canada applications, deadlines, and document blockers in one operating view." : "Keep applications, deadlines, and document blockers in one operating view."}
+              </h2>
               <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-4">
                 {[
                   { label: "Active", value: String(activeApplications.length) },

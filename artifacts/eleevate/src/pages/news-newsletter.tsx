@@ -51,7 +51,7 @@ const automationRules = [
   "Tag each update by country, intake, module, risk level, and audience.",
   "Convert high-impact updates into tasks on the student dashboard.",
   "Send consultant brief before student-facing newsletter when action is required.",
-  "Archive every sent issue against the student's ELLE timeline.",
+  "Archive every sent issue against the student's ELEE timeline.",
 ];
 
 export default function NewsNewsletterPage() {
@@ -62,8 +62,8 @@ export default function NewsNewsletterPage() {
         title="News command center"
         description="A curated update layer for visa changes, admission deadlines, scholarships, job market signals, and newsletter campaigns. Demo data is shown now; live feeds can be connected later."
         actions={
-          <Link href="/elle-report">
-            <Button className="rounded-full font-serif">Open ELLE context</Button>
+          <Link href="/elee-report">
+            <Button className="rounded-full font-serif">Open ELEE context</Button>
           </Link>
         }
       />

@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { ShoppingCart, Clock, Star, CheckCircle, Package, FileText, Globe, BookOpen, UserCheck, DollarSign } from "lucide-react";
 import { toast } from "sonner";
 import { isDemoMode, listFromApi } from "@/lib/demo-mode";
+import { addDemoLedgerEvent, useDemoJourneyState } from "@/lib/demo-journey";
 
 type ServiceItem = {
   id: string;
@@ -39,6 +40,7 @@ const CATEGORY_ICONS: Record<string, React.ElementType> = {
   application: UserCheck,
   coaching: Star,
   financial: DollarSign,
+  accommodation: Package,
 };
 
 const STATUS_COLORS: Record<string, string> = {
@@ -90,6 +92,16 @@ const DEMO_SERVICES: ServiceItem[] = [
     deliveryDays: 5,
   },
   {
+    id: "demo-service-accommodation",
+    name: "Canada Accommodation Launch Desk",
+    price: 6900,
+    currency: "USD",
+    category: "accommodation",
+    description: "Shortlist Toronto and Vancouver housing options, arrival timeline, rent proof, and parent visibility.",
+    deliveryDays: 5,
+    popular: true,
+  },
+  {
     id: "demo-service-test",
     name: "IELTS Writing Review",
     price: 3900,
@@ -138,6 +150,8 @@ export default function MarketplacePage() {
   const [confirming, setConfirming] = useState(false);
   const [category, setCategory] = useState("all");
   const [demoOrders, setDemoOrders] = useState<ServiceOrderItem[]>(DEMO_ORDERS);
+  const demoJourney = useDemoJourneyState();
+  const lockedCountry = demoJourney.countryLock;
 
   const { data: services } = useQuery({
     queryKey: ["services"],
@@ -202,6 +216,15 @@ export default function MarketplacePage() {
       ]);
       setSelectedService(null);
       setConfirming(false);
+      addDemoLedgerEvent({
+        id: `ledger-service-${service.id}`,
+        source: service.category === "accommodation" ? "Accommodation" : "Services",
+        event: `${service.name} ordered`,
+        studentView: `${service.name} added to Jehan's ${lockedCountry?.countryName ?? "study-abroad"} service queue.`,
+        consultantView: "Service order routed to consultant workbench with delivery owner and revenue line.",
+        revenue: service.category === "accommodation" ? "Accommodation Partner Fee" : "Service Order Revenue",
+        status: "Queued",
+      });
       toast.success("Order placed successfully. Demo order added to your services queue.");
       return;
     }
@@ -213,7 +236,9 @@ export default function MarketplacePage() {
     <div className="p-6 max-w-5xl mx-auto space-y-6">
       <div>
         <h1 className="text-3xl font-bold flex items-center gap-2"><ShoppingCart className="h-8 w-8 text-primary" />Service Marketplace</h1>
-        <p className="text-muted-foreground mt-1">Expert services to boost your study abroad application</p>
+        <p className="text-muted-foreground mt-1">
+          Expert services to boost your study abroad application{lockedCountry ? `, scoped to the ${lockedCountry.countryName} route` : ""}.
+        </p>
       </div>
 
       <Tabs defaultValue="browse">

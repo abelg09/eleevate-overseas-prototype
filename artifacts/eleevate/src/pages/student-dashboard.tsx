@@ -18,6 +18,7 @@ import {
   studentModules,
 } from "@/lib/demo-data";
 import { demoUser } from "@/lib/demo-mode";
+import { useDemoJourneyState } from "@/lib/demo-journey";
 import { cn } from "@/lib/utils";
 
 const journeyStages = [
@@ -62,6 +63,9 @@ export default function StudentDashboardPage() {
   const user = demoUser.student;
   const urgentTasks = studentJourneyTasks.filter((task) => task.status !== "done").slice(0, 4);
   const financeGap = demoEdgeReport.financialReadiness.fundingGapUsd;
+  const demoJourney = useDemoJourneyState();
+  const lockedCountry = demoJourney.countryLock;
+  const recentLedgerEvents = demoJourney.ledgerEvents.slice(0, 3);
 
   return (
     <AppLayout>
@@ -69,12 +73,12 @@ export default function StudentDashboardPage() {
         <PageHeader
           eyebrow="Student Journey OS"
           title={`Good morning, ${user.firstName}`}
-          description="A clean operating view for decisions, deadlines, documents, finance, visa readiness, and the next action that moves the journey forward."
+          description={lockedCountry ? "Canada route is locked, so every module is now scoped to the same applications, cities, finance proof, and visa path." : "A clean operating view for decisions, deadlines, documents, finance, visa readiness, and the next action that moves the journey forward."}
           actions={
             <>
-              <Link href="/elle-report">
+              <Link href="/elee-report">
                 <Button variant="outline" className="rounded-full font-serif">
-                  Open ELLE report
+                  Open ELEE report
                 </Button>
               </Link>
               <Link href="/universities">
@@ -92,8 +96,8 @@ export default function StudentDashboardPage() {
             <div className="p-5 md:p-6">
               <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
                 <div className="flex h-36 w-36 flex-shrink-0 flex-col items-center justify-center rounded-full border-[10px] border-primary/15 bg-muted/50 text-center">
-                  <div className="font-serif text-5xl font-bold leading-none text-primary">{demoEdgeReport.clarityScore}</div>
-                  <div className="mt-1 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">ELLE score</div>
+                    <div className="font-serif text-5xl font-bold leading-none text-primary">{demoEdgeReport.clarityScore}</div>
+                  <div className="mt-1 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">ELEE score</div>
                 </div>
                 <div className="min-w-0 flex-1">
                   <Badge className="mb-4 rounded-full border-primary/20 bg-primary/10 px-3 text-xs text-primary hover:bg-primary/10">
@@ -103,7 +107,8 @@ export default function StudentDashboardPage() {
                     Strong study fit, but finance proof is now the main blocker.
                   </h2>
                   <p className="mt-3 max-w-3xl text-sm leading-6 text-muted-foreground">
-                    Canada remains the lead route. The next improvement comes from closing the ${Math.round(financeGap / 1000)}k funding gap, finalising the SOP narrative, and moving the shortlist into tracked applications.
+                    {lockedCountry ? `${lockedCountry.countryName} is locked as the live route. ` : "Canada remains the lead route. "}
+                    The next improvement comes from closing the ${Math.round(financeGap / 1000)}k funding gap, finalising the SOP narrative, and moving the shortlist into tracked applications.
                   </p>
                   <div className="mt-5 grid grid-cols-1 gap-3 md:grid-cols-3">
                     {nextActions.map((action, index) => (
@@ -134,6 +139,22 @@ export default function StudentDashboardPage() {
                 <Button className="mt-4 w-full rounded-full font-serif">Open document vault</Button>
               </Link>
             </aside>
+          </div>
+        </section>
+
+        <section className="mb-5">
+          <SectionHeader title="Autonomous proof" description="Recent student actions and system decisions that changed the portal without duplicate entry." href="/financial-hub" />
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+            {recentLedgerEvents.map((event) => (
+              <Card key={event.id} className="app-card p-4">
+                <div className="text-[10px] font-semibold uppercase tracking-wide text-primary">{event.source}</div>
+                <div className="mt-2 font-serif text-base font-bold leading-6 text-foreground">{event.event}</div>
+                <p className="mt-2 text-xs leading-5 text-muted-foreground">{event.studentView}</p>
+                <div className="mt-3 rounded-lg border border-border bg-muted/30 p-2 text-xs font-semibold text-foreground">
+                  Consultant: {event.consultantView}
+                </div>
+              </Card>
+            ))}
           </div>
         </section>
 
@@ -230,7 +251,7 @@ export default function StudentDashboardPage() {
 
           <aside className="space-y-5">
             <Card className="app-card p-4">
-              <SectionHeader title="Action queue" description="Sorted by what unlocks progress fastest." href="/elle-report" />
+              <SectionHeader title="Action queue" description="Sorted by what unlocks progress fastest." href="/elee-report" />
               <TaskQueue tasks={urgentTasks} compact />
             </Card>
             <Card className="app-card p-4">

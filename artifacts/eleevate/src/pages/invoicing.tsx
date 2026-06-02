@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { FileText, Plus, Trash2, DollarSign, TrendingUp, Clock, CheckCircle2, X } from "lucide-react";
 import { toast } from "sonner";
 import { isDemoMode } from "@/lib/demo-mode";
+import { useDemoJourneyState } from "@/lib/demo-journey";
 
 interface LineItem { description: string; quantity: number; unitPrice: number; }
 type Invoice = { id: string; clientName: string; clientEmail: string | null; lineItems: LineItem[]; subtotal: number; taxAmount: number; total: number; currency: string; status: string; notes: string | null; dueDate: string | null; createdAt: string };
@@ -66,6 +67,7 @@ export default function InvoicingPage() {
   const [notes, setNotes] = useState("");
   const [demoInvoices, setDemoInvoices] = useState<Invoice[]>(DEMO_INVOICES);
   const [demoCommissions, setDemoCommissions] = useState<Commission[]>(DEMO_COMMISSIONS);
+  const demoJourney = useDemoJourneyState();
 
   const { data: invoices } = useQuery({
     queryKey: ["my-invoices"],
@@ -139,8 +141,23 @@ export default function InvoicingPage() {
   const total = subtotal + tax;
   const fmt = (cents: number) => `$${(cents / 100).toFixed(2)}`;
 
+  const ledgerCommissions: Commission[] = demoMode
+    ? demoJourney.ledgerEvents
+      .filter((event) => !["Loan referral opportunity", "University partner pipeline"].includes(event.revenue))
+      .map((event) => ({
+        id: `commission-${event.id}`,
+        source: event.source.toLowerCase().replace(/[^a-z0-9]+/g, "_"),
+        description: `${event.revenue} - ${event.event}`,
+        amount: event.revenue.includes("NBFC") ? 62000 : event.revenue.includes("Forex") ? 8400 : event.revenue.includes("Accommodation") ? 6900 : event.revenue.includes("Insurance") ? 4900 : 3900,
+        currency: "USD",
+        status: event.status === "Processing" || event.status === "Queued" ? "pending" : "earned",
+        paidAt: null,
+        createdAt: event.createdAt,
+        revenueStream: event.revenue,
+      }))
+    : [];
   const invoiceList = demoMode ? demoInvoices : invoices ?? [];
-  const commissionList = demoMode ? demoCommissions : commissions ?? [];
+  const commissionList = demoMode ? [...ledgerCommissions, ...demoCommissions] : commissions ?? [];
   const totalEarned = commissionList.filter(c => c.status === "paid").reduce((s, c) => s + c.amount, 0);
   const pending = commissionList.filter(c => c.status !== "paid").reduce((s, c) => s + c.amount, 0);
 
@@ -197,7 +214,7 @@ export default function InvoicingPage() {
       <div className="flex items-start justify-between">
         <div>
           <h1 className="text-3xl font-bold flex items-center gap-2"><FileText className="h-8 w-8 text-primary" />Invoicing & Commission</h1>
-          <p className="text-muted-foreground mt-1">Generate invoices and track your earnings</p>
+          <p className="text-muted-foreground mt-1">Generate invoices and track earnings created by applications, finance, insurance, accommodation, and forex actions.</p>
         </div>
         <Button onClick={() => setCreating(true)} className="gap-2"><Plus className="h-4 w-4" />New Invoice</Button>
       </div>
@@ -216,6 +233,22 @@ export default function InvoicingPage() {
           </Card>
         ))}
       </div>
+
+      {demoMode && ledgerCommissions.length > 0 && (
+        <Card className="border-primary/20 bg-primary/5">
+          <CardContent className="flex flex-col gap-3 py-4 md:flex-row md:items-center md:justify-between">
+            <div>
+              <div className="font-serif text-sm font-bold text-foreground">Live ledger revenue</div>
+              <p className="mt-1 text-sm leading-6 text-muted-foreground">
+                {ledgerCommissions[0].revenueStream} is visible from the student action stream. Open Commission Ledger for the full payout view.
+              </p>
+            </div>
+            <Badge variant="outline" className="w-fit rounded-full border-primary/30 bg-white text-primary">
+              {ledgerCommissions.length} synced event{ledgerCommissions.length === 1 ? "" : "s"}
+            </Badge>
+          </CardContent>
+        </Card>
+      )}
 
       <Tabs defaultValue="invoices">
         <TabsList>

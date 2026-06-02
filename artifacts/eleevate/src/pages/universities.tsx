@@ -21,6 +21,7 @@ import { useToast } from "@/hooks/use-toast";
 import { isDemoMode, listFromApi } from "@/lib/demo-mode";
 import { DEMO_UNIVERSITIES } from "@/lib/demo-catalog";
 import { ensureDemoApplicationForUniversity, readDemoShortlistIds, writeDemoShortlistIds } from "@/lib/demo-flow";
+import { getScopedDemoUniversities, useDemoJourneyState } from "@/lib/demo-journey";
 import { cn } from "@/lib/utils";
 
 const COUNTRIES = ["All", "GB", "US", "CA", "AU", "DE", "NL", "SG", "IE"];
@@ -78,6 +79,10 @@ export default function UniversitiesPage() {
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS);
   const [demoSavedIds, setDemoSavedIds] = useState<Set<string>>(() => new Set(readDemoShortlistIds()));
+  const demoJourney = useDemoJourneyState();
+  const lockedCountry = demoJourney.countryLock;
+  const effectiveCountry = lockedCountry ? lockedCountry.countryCode : country;
+  const countryOptions = lockedCountry ? [lockedCountry.countryCode] : COUNTRIES;
 
   const params = {
     search: search || undefined,
@@ -111,8 +116,8 @@ export default function UniversitiesPage() {
     return [uni.name, uni.city, uni.country, uni.description ?? ""].join(" ").toLowerCase().includes(q);
   };
   const matchesCountry = (uni: University) => {
-    if (country === "All") return true;
-    return (COUNTRY_MATCHES[country] ?? [country]).includes(uni.country);
+    if (effectiveCountry === "All") return true;
+    return (COUNTRY_MATCHES[effectiveCountry] ?? [effectiveCountry]).includes(uni.country);
   };
   const matchesAdvancedFilters = (uni: University) => {
     if (minR !== null && (uni.ranking == null || uni.ranking < minR)) return false;
@@ -123,7 +128,8 @@ export default function UniversitiesPage() {
   };
 
   const apiUnis = result?.data ?? [];
-  const filteredDemoUnis = DEMO_UNIVERSITIES
+  const demoUniversities = lockedCountry ? getScopedDemoUniversities(DEMO_UNIVERSITIES) : DEMO_UNIVERSITIES;
+  const filteredDemoUnis = demoUniversities
     .filter(matchesSearch)
     .filter(matchesCountry)
     .filter(matchesAdvancedFilters);
@@ -179,8 +185,8 @@ export default function UniversitiesPage() {
       <div data-testid="universities-page">
         <PageHeader
           eyebrow="Discovery"
-          title="University Finder"
-          description="Search, compare, shortlist, and move directly into applications with demo-ready data for every key study destination."
+          title={lockedCountry ? "Canada University Finder" : "University Finder"}
+          description={lockedCountry ? "Canada route is locked, so recommendations now focus on selected Canadian universities and cities only." : "Search, compare, shortlist, and move directly into applications with demo-ready data for every key study destination."}
           actions={
             <Link href="/shortlist">
               <Button variant="outline" className="rounded-full" data-testid="btn-view-shortlist">
@@ -221,14 +227,14 @@ export default function UniversitiesPage() {
               </div>
 
               <div className="mt-4 flex flex-wrap gap-2">
-                {COUNTRIES.map(c => (
+                {countryOptions.map(c => (
                   <button
                     key={c}
                     onClick={() => { setCountry(c); setPage(1); }}
                     data-testid={`filter-country-${c}`}
                     className={cn(
                       "rounded-full border px-3 py-1.5 text-xs font-semibold transition-all",
-                      country === c
+                      effectiveCountry === c
                         ? "border-primary bg-primary text-primary-foreground shadow-sm"
                         : "border-border bg-white text-muted-foreground hover:border-primary/40 hover:text-foreground",
                     )}
@@ -236,6 +242,11 @@ export default function UniversitiesPage() {
                     {c === "All" ? "All destinations" : COUNTRY_NAMES[c]}
                   </button>
                 ))}
+                {lockedCountry && (
+                  <Badge variant="outline" className="rounded-full border-primary/20 bg-primary/5 px-3 py-1.5 text-xs text-primary">
+                    {lockedCountry.routeLabel}
+                  </Badge>
+                )}
               </div>
             </div>
 
@@ -256,7 +267,7 @@ export default function UniversitiesPage() {
               </div>
               {topMatch && (
                 <div className="mt-3 rounded-lg border border-primary/20 bg-primary/5 p-3">
-                  <div className="text-[10px] font-semibold uppercase tracking-wide text-primary">Best ELLE match in view</div>
+                  <div className="text-[10px] font-semibold uppercase tracking-wide text-primary">Best ELEE match in view</div>
                   <div className="mt-1 text-sm font-semibold leading-5 text-foreground">{topMatch.name}</div>
                   <div className="mt-1 text-xs text-muted-foreground">{getElleMatchScore(topMatch)}% profile fit · {topMatch.city}</div>
                 </div>
@@ -361,7 +372,7 @@ export default function UniversitiesPage() {
                         <UniversityLogo name={uni.name} website={uni.website} className="h-12 w-12" imageClassName="h-8 w-8" />
                         <div className="min-w-0 flex-1">
                           <div className="flex flex-wrap items-center gap-2">
-                            <Badge className="rounded-full bg-secondary text-white hover:bg-secondary text-xs">{matchScore}% ELLE Match</Badge>
+                            <Badge className="rounded-full bg-secondary text-white hover:bg-secondary text-xs">{matchScore}% ELEE Match</Badge>
                             {uni.ranking != null && <Badge variant="outline" className="rounded-full text-xs">Rank #{uni.ranking}</Badge>}
                             <Badge variant="outline" className="rounded-full text-xs">{uni.country}</Badge>
                           </div>

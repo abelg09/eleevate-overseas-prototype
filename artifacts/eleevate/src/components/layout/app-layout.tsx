@@ -1,10 +1,12 @@
 import { Link, useLocation } from "wouter";
 import { Bell, Search, Sparkles, UserRoundCheck } from "lucide-react";
 import { Sidebar } from "./sidebar";
+import { EleeBuddy } from "@/components/common/elee-buddy";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { demoUser, isDemoMode } from "@/lib/demo-mode";
+import { useDemoJourneyState } from "@/lib/demo-journey";
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
@@ -12,6 +14,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const user = consultant ? demoUser.consultant : demoUser.student;
   const section = consultant ? "Consultant workbench" : "Student journey";
   const userName = [user.firstName, user.lastName].filter(Boolean).join(" ");
+  const demoJourney = useDemoJourneyState();
 
   return (
     <div className="app-shell-bg flex min-h-screen">
@@ -38,10 +41,10 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                   {consultant ? "Student view" : "Consultant view"}
                 </Button>
               </Link>
-              <Link href="/elle-report">
+              <Link href="/elee-report">
                 <Button variant={consultant ? "outline" : "default"} size="sm">
                   <Sparkles className="h-3.5 w-3.5" />
-                  ELLE
+                  ELEE
                 </Button>
               </Link>
             </div>
@@ -58,15 +61,45 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
 
             {isDemoMode() && (
               <Badge variant="outline" className="hidden border-emerald-200 bg-emerald-50 text-emerald-700 sm:inline-flex">
-                Demo
+                {demoJourney.mode === "canada_locked" ? "Canada demo" : "Preliminary demo"}
               </Badge>
             )}
           </div>
         </header>
 
+        {isDemoMode() && (
+          <div className="border-b border-border bg-white/80 backdrop-blur">
+            <div className="mx-auto flex max-w-[1180px] flex-col gap-3 px-4 py-3 pl-16 text-sm sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-6 lg:pl-6">
+              <div className="min-w-0">
+                <div className="font-serif text-sm font-bold text-foreground">
+                  {demoJourney.countryLock ? demoJourney.countryLock.routeLabel : "Preliminary discovery mode"}
+                </div>
+                <p className="mt-0.5 text-xs leading-5 text-muted-foreground">
+                  {demoJourney.countryLock
+                    ? `${demoJourney.countryLock.countryName} only: ${demoJourney.countryLock.cities.join(", ")} city guides, ${demoJourney.countryLock.universityIds.length} selected universities, and ${demoJourney.ledgerEvents.length} live ledger events.`
+                    : "Broad first-arrival demo: countries, universities, finance, services, and consultant tools stay open for exploration."}
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <Link href="/demo/preliminary">
+                  <Button variant={demoJourney.mode === "preliminary" ? "default" : "outline"} size="sm" className="rounded-full">
+                    Preliminary
+                  </Button>
+                </Link>
+                <Link href="/demo/canada">
+                  <Button variant={demoJourney.mode === "canada_locked" ? "default" : "outline"} size="sm" className="rounded-full">
+                    Canada locked
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="mx-auto max-w-[1180px] p-4 sm:p-5 lg:p-6">
           {children}
         </div>
+        <EleeBuddy compact />
       </main>
     </div>
   );

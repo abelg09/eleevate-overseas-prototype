@@ -130,7 +130,7 @@ export default function StudentProfilePage() {
           <Card className="p-6 border border-border mb-6" data-testid="study-preferences">
             <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <h2 className="font-semibold text-foreground flex items-center gap-2"><BookOpen className="h-4 w-4 text-primary" /> AI Profile & Study Preferences</h2>
-              <Badge className="rounded-full border-primary/20 bg-primary/10 text-primary hover:bg-primary/10">Locked by ELLE Assessment</Badge>
+              <Badge className="rounded-full border-primary/20 bg-primary/10 text-primary hover:bg-primary/10">Locked by ELEE Assessment</Badge>
             </div>
             <div className="space-y-6">
               <div>

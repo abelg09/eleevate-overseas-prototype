@@ -60,9 +60,8 @@ export default function OnboardingPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/5 flex flex-col items-center justify-center px-4 py-12">
       {/* Logo */}
-      <div className="flex items-center gap-2 mb-10">
-        <img src={assetUrl("logo.svg")} alt="EleevateOverseas" className="h-8 w-8" />
-        <span className="font-bold text-lg text-foreground">EleevateOverseas</span>
+      <div className="mb-10">
+        <img src={assetUrl("logo.svg")} alt="EleevateOverseas" className="h-auto w-[150px]" />
       </div>
 
       {/* Step indicator */}

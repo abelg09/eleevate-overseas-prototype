@@ -210,7 +210,7 @@ export const demoEdgeReport: EdgeReport = {
       priority: "medium",
       status: "due",
       due: "25 May",
-      module: "ELLE",
+      module: "ELEE",
     },
   ],
 };
@@ -240,11 +240,11 @@ export const studentJourneyTasks: JourneyTask[] = [
 export const studentModules: ModuleStatusItem[] = [
   {
     id: "edge",
-    title: "ELLE Clarity Report",
+    title: "ELEE Clarity Report",
     description: "Readiness score, family clarity, finances, documents, and next best action.",
     status: "demo",
     progress: 82,
-    href: "/elle-report",
+    href: "/elee-report",
     icon: Sparkles,
   },
   {

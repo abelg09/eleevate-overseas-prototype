@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { PageHeader, SectionHeader } from "@/components/common/page-shell";
+import { addDemoLedgerEvent, useDemoJourneyState } from "@/lib/demo-journey";
 import { cn } from "@/lib/utils";
 
 const remittanceKpis = [
@@ -30,6 +31,21 @@ const checklist = [
 ];
 
 export default function RemittancePage() {
+  const demoJourney = useDemoJourneyState();
+  const lockedCountry = demoJourney.countryLock;
+
+  const handlePlanRemittance = () => {
+    addDemoLedgerEvent({
+      id: "ledger-remittance-action",
+      source: "Remittance",
+      event: "Tuition remittance plan confirmed",
+      studentView: "University of Toronto tuition deposit, LRS checklist, and receipt evidence are queued.",
+      consultantView: "Finance desk receives receipt-follow-up task for the visa proof stack.",
+      revenue: "Forex Margin",
+      status: "Ready",
+    });
+  };
+
   return (
     <div data-testid="remittance-page">
       <PageHeader
@@ -37,11 +53,20 @@ export default function RemittancePage() {
         title="Fee remittance gateway"
         description="Plan, send, and evidence overseas education payments without breaking the application or visa timeline."
         actions={
-          <Link href="/forex">
-            <Button className="rounded-full font-serif">Check forex rates</Button>
-          </Link>
+          <div className="flex flex-wrap gap-2">
+            <Button variant="outline" className="rounded-full font-serif" onClick={handlePlanRemittance}>Confirm plan</Button>
+            <Link href="/forex">
+              <Button className="rounded-full font-serif">Check forex rates</Button>
+            </Link>
+          </div>
         }
       />
+
+      {lockedCountry && (
+        <div className="mb-4 rounded-lg border border-primary/20 bg-primary/5 p-4 text-sm leading-6 text-foreground">
+          Route locked to {lockedCountry.countryName}: tuition deposit, living funds, and receipts are prepared for {lockedCountry.cities.join(" and ")}.
+        </div>
+      )}
 
       <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
         {remittanceKpis.map((kpi) => (

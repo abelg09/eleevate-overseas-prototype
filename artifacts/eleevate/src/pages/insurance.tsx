@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Shield, CheckCircle2, Star, Plane, Heart, BookOpen } from "lucide-react";
 import { toast } from "sonner";
 import { isDemoMode } from "@/lib/demo-mode";
+import { addDemoLedgerEvent, useDemoJourneyState } from "@/lib/demo-journey";
 
 type InsuranceProduct = {
   id: string; provider: string; name: string; type: string;
@@ -97,6 +98,8 @@ export default function InsurancePage() {
   const [confirming, setConfirming] = useState(false);
   const [typeFilter, setTypeFilter] = useState<string>("all");
   const [demoPolicies, setDemoPolicies] = useState<InsurancePolicy[]>(DEMO_POLICIES);
+  const demoJourney = useDemoJourneyState();
+  const lockedCountry = demoJourney.countryLock;
 
   const { data: products } = useQuery({
     queryKey: ["insurance-products"],
@@ -163,6 +166,15 @@ export default function InsurancePage() {
       ]);
       setSelectedProduct(null);
       setConfirming(false);
+      addDemoLedgerEvent({
+        id: `ledger-insurance-${product.id}`,
+        source: "Insurance",
+        event: `${product.name} quote created`,
+        studentView: "Insurance quote is added to visa-stage proof planning.",
+        consultantView: "Insurance partner revenue and policy follow-up are queued.",
+        revenue: "Insurance Commission",
+        status: "Queued",
+      });
       toast.success("Policy quote created. Demo policy added to your insurance tab.");
       return;
     }
@@ -174,7 +186,9 @@ export default function InsurancePage() {
     <div className="p-6 max-w-5xl mx-auto space-y-6">
       <div>
         <h1 className="text-3xl font-bold flex items-center gap-2"><Shield className="h-8 w-8 text-primary" />Insurance Marketplace</h1>
-        <p className="text-muted-foreground mt-1">Compare travel, health, and study abroad insurance products</p>
+        <p className="text-muted-foreground mt-1">
+          Compare travel, health, and study abroad insurance products{lockedCountry ? ` for the ${lockedCountry.countryName} visa and arrival route` : ""}.
+        </p>
       </div>
 
       <Tabs defaultValue="browse">

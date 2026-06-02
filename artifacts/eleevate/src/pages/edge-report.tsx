@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { PageHeader, SectionHeader, TaskQueue } from "@/components/common/page-shell";
 import { demoEdgeReport } from "@/lib/demo-data";
+import { useDemoJourneyState } from "@/lib/demo-journey";
 import { cn } from "@/lib/utils";
 
 const profileToneStyles = {
@@ -25,7 +26,7 @@ const documentStatusLabels = {
   approved: "Approved",
   review: "Review",
   missing: "Missing",
-  ai_check: "ELLE check",
+  ai_check: "ELEE check",
 };
 
 const decisionSummary = [
@@ -52,6 +53,9 @@ function scoreToneClass(tone: string) {
 
 export default function EdgeReportPage() {
   const report = demoEdgeReport;
+  const demoJourney = useDemoJourneyState();
+  const lockedCountry = demoJourney.countryLock;
+  const recentLedgerEvents = demoJourney.ledgerEvents.slice(0, 4);
   const budget = report.financialReadiness.budgetUsd;
   const confirmed = report.financialReadiness.confirmedFundsUsd;
   const gap = report.financialReadiness.fundingGapUsd;
@@ -62,9 +66,9 @@ export default function EdgeReportPage() {
     <AppLayout>
       <div data-testid="edge-report-page">
         <PageHeader
-          eyebrow="ELLE Clarity Report"
+          eyebrow="ELEE Clarity Report"
           title={`${report.studentName}'s decision dossier`}
-          description="A consultant-ready view of country fit, family readiness, finance evidence, documents, and the actions that improve the student journey fastest."
+          description={lockedCountry ? "Canada route is locked. This report now acts as the readable command layer for finance, documents, visa, applications, and consultant handoff." : "A consultant-ready view of country fit, family readiness, finance evidence, documents, and the actions that improve the student journey fastest."}
           actions={
             <>
               <Button variant="outline" className="rounded-full font-serif">
@@ -86,7 +90,7 @@ export default function EdgeReportPage() {
               <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
                 <div className="flex h-36 w-36 flex-shrink-0 flex-col items-center justify-center rounded-full border-[10px] border-primary/15 bg-muted/50 text-center">
                   <div className="font-serif text-5xl font-bold leading-none text-primary">{report.clarityScore}</div>
-                  <div className="mt-1 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">ELLE score</div>
+                  <div className="mt-1 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">ELEE score</div>
                 </div>
                 <div className="min-w-0 flex-1">
                   <Badge className="mb-4 rounded-full border-primary/20 bg-primary/10 px-3 text-xs text-primary hover:bg-primary/10">
@@ -240,6 +244,24 @@ export default function EdgeReportPage() {
                 ))}
               </div>
             </Card>
+
+            <Card className="app-card p-4">
+              <SectionHeader title="What ELEE changed" description="Every report insight should update another module." />
+              <div className="space-y-3">
+                {recentLedgerEvents.map((event) => (
+                  <div key={event.id} className="rounded-lg border border-border bg-muted/25 p-3">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <div className="text-[10px] font-semibold uppercase tracking-wide text-primary">{event.source}</div>
+                        <div className="mt-1 text-sm font-bold leading-5 text-foreground">{event.event}</div>
+                      </div>
+                      <Badge variant="outline" className="rounded-full text-xs">{event.status}</Badge>
+                    </div>
+                    <p className="mt-2 text-xs leading-5 text-muted-foreground">{event.studentView}</p>
+                  </div>
+                ))}
+              </div>
+            </Card>
           </aside>
         </div>
 
@@ -264,7 +286,7 @@ export default function EdgeReportPage() {
           </Card>
 
           <Card className="app-card p-4">
-            <SectionHeader title="Action plan" description="Work in this order to improve the ELLE score fastest." href="/dashboard" />
+            <SectionHeader title="Action plan" description="Work in this order to improve the ELEE score fastest." href="/dashboard" />
             <TaskQueue tasks={report.actionPlan} />
           </Card>
         </div>
@@ -274,7 +296,7 @@ export default function EdgeReportPage() {
             <div className="border-l-4 border-l-primary pl-4">
               <div className="font-serif text-lg font-bold text-foreground">Recommended next step</div>
               <p className="mt-1 max-w-3xl text-sm leading-6 text-muted-foreground">
-                Build the sponsor evidence bundle first, then rerun ELLE before finalising payment-heavy applications.
+                Build the sponsor evidence bundle first, then rerun ELEE before finalising payment-heavy applications.
               </p>
             </div>
             <div className="flex flex-wrap gap-2">

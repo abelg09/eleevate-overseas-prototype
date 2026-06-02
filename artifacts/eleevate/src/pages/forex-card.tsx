@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { PageHeader, SectionHeader } from "@/components/common/page-shell";
+import { addDemoLedgerEvent, useDemoJourneyState } from "@/lib/demo-journey";
 import { cn } from "@/lib/utils";
 
 const cardPlans = [
@@ -41,7 +42,7 @@ const readinessSteps = [
 ];
 
 const usageControls = [
-  "Country-specific load recommendation from ELLE budget",
+  "Country-specific load recommendation from ELEE budget",
   "Parent and student alerts for large transactions",
   "Receipt sync for visa and finance evidence",
   "Emergency reload workflow through consultant desk",
@@ -50,6 +51,21 @@ const usageControls = [
 ];
 
 export default function ForexCardPage() {
+  const demoJourney = useDemoJourneyState();
+  const lockedCountry = demoJourney.countryLock;
+
+  const handleQueueCard = () => {
+    addDemoLedgerEvent({
+      id: "ledger-forex-card-action",
+      source: "Forex Card",
+      event: "Student forex card queued",
+      studentView: "CAD initial load, family alerts, and arrival spending controls are queued.",
+      consultantView: "Card partner fee and KYC follow-up appear in operations.",
+      revenue: "Card Partner Fee",
+      status: "Queued",
+    });
+  };
+
   return (
     <div data-testid="forex-card-page">
       <PageHeader
@@ -57,11 +73,20 @@ export default function ForexCardPage() {
         title="Student forex card"
         description="A planned card workflow for tuition, arrival expenses, family visibility, and post-landing safety."
         actions={
-          <Link href="/remittance">
-            <Button className="rounded-full font-serif">Plan remittance</Button>
-          </Link>
+          <div className="flex flex-wrap gap-2">
+            <Button variant="outline" className="rounded-full font-serif" onClick={handleQueueCard}>Queue card</Button>
+            <Link href="/remittance">
+              <Button className="rounded-full font-serif">Plan remittance</Button>
+            </Link>
+          </div>
         }
       />
+
+      {lockedCountry && (
+        <div className="mb-4 rounded-lg border border-primary/20 bg-primary/5 p-4 text-sm leading-6 text-foreground">
+          Route locked to {lockedCountry.countryName}: card options are tuned for {lockedCountry.currency} spending in {lockedCountry.cities.join(" and ")}.
+        </div>
+      )}
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.05fr_0.95fr]">
         <Card className="app-card p-4">

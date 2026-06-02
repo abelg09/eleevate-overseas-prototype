@@ -30,7 +30,7 @@ const studentGroups: NavGroup[] = [
       { href: "/dashboard", label: "Dashboard" },
       { href: "/journey-map", label: "Journey Map" },
       { href: "/profile", label: "Profile" },
-      { href: "/elle-report", label: "ELLE Report" },
+      { href: "/elee-report", label: "ELEE Report" },
       { href: "/assessment", label: "Psychometric Test" },
       { href: "/applications", label: "Applications" },
     ],
@@ -39,6 +39,7 @@ const studentGroups: NavGroup[] = [
     label: "Discovery",
     items: [
       { href: "/universities", label: "Universities" },
+      { href: "/course-finder", label: "Course Finder" },
       { href: "/shortlist", label: "Shortlist" },
       { href: "/countries", label: "City Guides" },
       { href: "/news", label: "News & Newsletter" },
@@ -48,6 +49,7 @@ const studentGroups: NavGroup[] = [
     label: "Docs & Visa",
     items: [
       { href: "/documents", label: "Document Vault" },
+      { href: "/sop-studio", label: "SOP Studio" },
       { href: "/visa-center", label: "Visa Center" },
       { href: "/support", label: "Support" },
     ],
@@ -68,6 +70,7 @@ const studentGroups: NavGroup[] = [
     label: "Finance",
     items: [
       { href: "/financial-hub", label: "Financial Hub" },
+      { href: "/scholarships", label: "Scholarships" },
       { href: "/loans", label: "Edu Loans" },
       { href: "/remittance", label: "Remittance" },
       { href: "/forex-card", label: "Forex Card" },
@@ -200,7 +203,7 @@ function SidebarShell({
       <div className="border-b border-sidebar-border bg-white p-4">
         <Link href={role === "consultant" ? "/consultant/dashboard" : "/dashboard"}>
           <div className="flex cursor-pointer items-center gap-3" data-testid="sidebar-logo">
-            <img src={assetUrl("logo.svg")} alt="EleevateOverseas" className="h-10 w-auto" />
+            <img src={assetUrl("logo.svg")} alt="EleevateOverseas" className="h-auto w-[132px]" />
           </div>
         </Link>
         <div className="mt-4 flex items-center gap-2">

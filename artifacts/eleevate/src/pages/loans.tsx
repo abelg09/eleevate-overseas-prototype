@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { isDemoMode } from "@/lib/demo-mode";
+import { addDemoLedgerEvent, useDemoJourneyState } from "@/lib/demo-journey";
 
 const STATUS_COLORS: Record<string, string> = {
   submitted: "bg-blue-100 text-blue-700",
@@ -87,8 +88,14 @@ export default function LoansPage() {
   const [tenure, setTenure] = useState("120");
   const [universityName, setUniversityName] = useState(demoMode ? "University of Toronto" : "");
   const [country, setCountry] = useState(demoMode ? "Canada" : "");
+  const [repaymentMode, setRepaymentMode] = useState("deferred");
+  const [calculatorRate, setCalculatorRate] = useState("11.2");
+  const [processingFee, setProcessingFee] = useState("1.0");
   const [selectedLender, setSelectedLender] = useState<string | null>(null);
   const [searched, setSearched] = useState(demoMode);
+  const [demoLoanApplications, setDemoLoanApplications] = useState(DEMO_LOAN_APPLICATIONS);
+  const demoJourney = useDemoJourneyState();
+  const lockedCountry = demoJourney.countryLock;
 
   const { data: products } = useQuery({
     queryKey: ["loan-products"],
@@ -127,7 +134,40 @@ export default function LoansPage() {
       if (!res.ok) throw new Error(await res.text());
       return res.json();
     },
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["my-loan-applications"] }); setSelectedLender(null); toast.success("Application submitted! The lender will contact you within their stated turnaround time."); },
+    onSuccess: (_data, lenderId) => {
+      if (demoMode) {
+        const product = DEMO_LOAN_PRODUCTS.find((item) => item.id === lenderId);
+        if (product) {
+          setDemoLoanApplications((items) => [
+            {
+              id: `loan-app-${lenderId}`,
+              lenderName: product.lenderName,
+              amount: Math.round((parseFloat(loanAmount) || 8000) * 83.77),
+              currency: "INR",
+              interestRate: product.interestRate,
+              tenureMonths: parseInt(tenure),
+              status: "submitted",
+              universityName: universityName || "University of Toronto",
+              createdAt: new Date().toISOString(),
+            },
+            ...items.filter((item) => item.lenderName !== product.lenderName),
+          ]);
+          addDemoLedgerEvent({
+            id: `ledger-loan-${lenderId}`,
+            source: "Edu Loans",
+            event: `${product.lenderName} loan application submitted`,
+            studentView: "Documents and funding gap are bundled for lender review.",
+            consultantView: "Loan desk receives follow-up task and pending NBFC commission.",
+            revenue: "NBFC Commission",
+            status: "Processing",
+          });
+        }
+      } else {
+        qc.invalidateQueries({ queryKey: ["my-loan-applications"] });
+      }
+      setSelectedLender(null);
+      toast.success("Application submitted! The lender will contact you within their stated turnaround time.");
+    },
     onError: () => toast.error("Application failed. Please try again."),
   });
 
@@ -139,7 +179,33 @@ export default function LoansPage() {
     : [];
 
   const productsList = demoMode || !products?.length ? DEMO_LOAN_PRODUCTS : products;
-  const applicationsList = demoMode ? DEMO_LOAN_APPLICATIONS : applications ?? [];
+  const applicationsList = demoMode ? demoLoanApplications : applications ?? [];
+  const principalUsd = parseFloat(loanAmount) || 0;
+  const principalInr = Math.round(principalUsd * 83.77);
+  const tenureMonths = parseInt(tenure) || 120;
+  const rate = parseFloat(calculatorRate) || 11.2;
+  const monthlyRate = rate / 100 / 12;
+  const standardEmi = principalInr > 0 && monthlyRate > 0
+    ? Math.round(principalInr * monthlyRate * Math.pow(1 + monthlyRate, tenureMonths) / (Math.pow(1 + monthlyRate, tenureMonths) - 1))
+    : 0;
+  const moratoriumInterest = Math.round(principalInr * (rate / 100));
+  const processingFeeInr = Math.round(principalInr * ((parseFloat(processingFee) || 0) / 100));
+  const displayedEmi = repaymentMode === "deferred"
+    ? Math.round((principalInr + moratoriumInterest) * monthlyRate * Math.pow(1 + monthlyRate, tenureMonths) / (Math.pow(1 + monthlyRate, tenureMonths) - 1))
+    : standardEmi;
+
+  const queueCalculatorPlan = () => {
+    addDemoLedgerEvent({
+      id: `ledger-loan-calculator-${repaymentMode}`,
+      source: "Edu Loans",
+      event: `${repaymentMode === "deferred" ? "Deferred" : "Standard"} loan plan calculated`,
+      studentView: `Estimated EMI ₹${displayedEmi.toLocaleString("en-IN")} and processing fee ₹${processingFeeInr.toLocaleString("en-IN")} added to funding plan.`,
+      consultantView: "Loan desk receives calculator output and lender comparison context.",
+      revenue: "NBFC Commission",
+      status: "Ready",
+    });
+    toast.success("Loan calculator output added to the unified ledger.");
+  };
 
   const emi = (principal: number, rateStr: string, months: number) => {
     const minRate = parseFloat(rateStr.split("–")[0]) / 100 / 12;
@@ -151,7 +217,10 @@ export default function LoansPage() {
     <div className="p-6 max-w-5xl mx-auto space-y-6">
       <div>
         <h1 className="font-serif text-2xl font-bold text-foreground">Edu Loans</h1>
-        <p className="text-muted-foreground mt-1">Compare and apply to leading education loan providers with ELLE funding data already synced.</p>
+        <p className="text-muted-foreground mt-1">
+          Compare and apply to leading education loan providers with ELEE funding data already synced.
+          {lockedCountry ? ` Route locked to ${lockedCountry.countryName}.` : ""}
+        </p>
       </div>
 
       <Tabs defaultValue="marketplace">
@@ -167,9 +236,49 @@ export default function LoansPage() {
               {demoMode && (
                 <div className="mb-4 rounded-lg border border-primary/20 bg-white/90 p-3 text-sm leading-6 text-foreground">
                   <span className="mr-2 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">Unified Ledger</span>
-                  Pre-filled based on Jehan&apos;s current ELLE Funding Gap for University of Toronto.
+                  Pre-filled based on Jehan&apos;s current ELEE Funding Gap for University of Toronto. Submitting creates a consultant NBFC commission event.
                 </div>
               )}
+              <div className="mb-4 rounded-lg border border-border bg-white p-4 shadow-sm">
+                <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+                  <div>
+                    <div className="eyebrow mb-1">Loan calculator</div>
+                    <h2 className="font-serif text-xl font-bold text-foreground">Compare EMI, deferred repayment, and fee impact.</h2>
+                    <p className="mt-1 text-sm text-muted-foreground">Inspired by loan-calculator patterns, but connected to Eleevate&apos;s ledger and consultant handoff.</p>
+                  </div>
+                  <Button variant="outline" className="rounded-full font-serif" onClick={queueCalculatorPlan} disabled={!principalInr}>
+                    Add calculator to ledger
+                  </Button>
+                </div>
+                <div className="grid gap-3 md:grid-cols-5">
+                  <div>
+                    <label className="text-xs font-semibold text-muted-foreground">Repayment mode</label>
+                    <Select value={repaymentMode} onValueChange={setRepaymentMode}>
+                      <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="deferred">Deferred repayment</SelectItem>
+                        <SelectItem value="standard">Immediate EMI</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-muted-foreground">Interest rate</label>
+                    <Input className="mt-1" value={calculatorRate} onChange={(event) => setCalculatorRate(event.target.value)} />
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-muted-foreground">Processing fee %</label>
+                    <Input className="mt-1" value={processingFee} onChange={(event) => setProcessingFee(event.target.value)} />
+                  </div>
+                  <div className="rounded-lg border border-border bg-muted/35 p-3">
+                    <div className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">Estimated EMI</div>
+                    <div className="mt-1 font-serif text-xl font-bold text-foreground">₹{displayedEmi.toLocaleString("en-IN")}</div>
+                  </div>
+                  <div className="rounded-lg border border-border bg-muted/35 p-3">
+                    <div className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">Fee + moratorium</div>
+                    <div className="mt-1 font-serif text-xl font-bold text-foreground">₹{(processingFeeInr + (repaymentMode === "deferred" ? moratoriumInterest : 0)).toLocaleString("en-IN")}</div>
+                  </div>
+                </div>
+              </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                 <div>
                   <label className="text-sm font-medium">Loan Amount (USD) *</label>
