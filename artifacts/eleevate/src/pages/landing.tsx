@@ -42,14 +42,14 @@ const JOURNEY_STEPS = [
   {
     title: "Profile",
     detail: "Add academics, budget, tests, goals, intake, and family support.",
-    action: "Build your student file",
+    action: "Start profile",
     icon: UserRound,
     tone: "from-sky-500 to-emerald-500",
   },
   {
     title: "ELEE Report",
     detail: "Generate a readable route report with gaps, risks, and next actions.",
-    action: "Get your route view",
+    action: "View report",
     icon: ClipboardCheck,
     tone: "from-violet-500 to-sky-500",
   },
@@ -70,7 +70,7 @@ const JOURNEY_STEPS = [
   {
     title: "Applications",
     detail: "Track submissions, requirements, deadlines, offers, and conditions.",
-    action: "Submit with clarity",
+    action: "Track apply",
     icon: Send,
     tone: "from-blue-600 to-indigo-500",
   },
@@ -253,7 +253,7 @@ export default function LandingPage() {
                 return (
                   <Card
                     key={step.title}
-                    className="group relative h-full min-h-72 overflow-hidden rounded-lg border border-border bg-white p-4 shadow-sm transition-all hover:-translate-y-1 hover:border-primary/30 hover:shadow-lg"
+                    className="group relative flex h-full min-h-80 flex-col overflow-hidden rounded-lg border border-border bg-white p-4 shadow-sm transition-all hover:-translate-y-1 hover:border-primary/30 hover:shadow-lg"
                   >
                     <div className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${step.tone}`} />
                     <div className="flex items-start justify-between gap-3">
@@ -267,10 +267,10 @@ export default function LandingPage() {
                     <div className="mt-6 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Step {index + 1}</div>
                     <h3 className="mt-2 font-serif text-lg font-bold leading-tight text-foreground">{step.title}</h3>
                     <p className="mt-3 text-sm leading-6 text-muted-foreground">{step.detail}</p>
-                    <div className="absolute inset-x-4 bottom-4">
-                      <div className="flex items-center justify-between gap-2 rounded-lg border border-border bg-muted/25 px-3 py-2">
-                        <span className="text-[11px] font-semibold text-foreground">{step.action}</span>
-                        <ArrowRight className="h-3.5 w-3.5 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-primary" />
+                    <div className="mt-auto pt-5">
+                      <div className="flex min-h-11 items-center justify-between gap-2 rounded-lg border border-border bg-muted/25 px-3 py-2">
+                        <span className="min-w-0 text-xs font-semibold leading-4 text-foreground">{step.action}</span>
+                        <ArrowRight className="h-3.5 w-3.5 flex-shrink-0 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-primary" />
                       </div>
                     </div>
                   </Card>
