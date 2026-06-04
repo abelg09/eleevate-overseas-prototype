@@ -159,9 +159,15 @@ function SidebarShell({
           </div>
         </Link>
         <div className="mt-4 flex items-center gap-2">
-          <Badge className="brand-gradient-bg rounded-full px-3 py-1 text-white hover:opacity-95">
-            {role === "consultant" ? "Workbench" : "Student Journey"}
-          </Badge>
+          <Link
+            href={role === "consultant" ? "/consultant/dashboard" : "/journey-map"}
+            onClick={() => setMobileOpen(false)}
+            data-testid="sidebar-journey-link"
+          >
+            <Badge className="brand-gradient-bg cursor-pointer rounded-full px-3 py-1 text-white transition-opacity hover:opacity-90">
+              {role === "consultant" ? "Workbench" : "Student Journey"}
+            </Badge>
+          </Link>
         </div>
       </div>
 

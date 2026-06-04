@@ -31,10 +31,14 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         <header className="sticky top-0 z-30 border-b border-border bg-white/95 backdrop-blur">
           <div className="mx-auto flex min-h-14 max-w-[1180px] items-center gap-3 px-4 pl-16 sm:px-6 lg:px-6 lg:pl-6">
             <div className="min-w-0 flex-1">
-              <div className="eyebrow">{section}</div>
-              <div className="mt-0.5 truncate font-serif text-sm font-bold text-foreground">
-                {isDemoMode() ? userName : "EleevateOverseas"}
-              </div>
+              <Link href={consultant ? "/consultant/dashboard" : "/journey-map"}>
+                <div className="inline-block cursor-pointer rounded-md transition-colors hover:text-primary" data-testid="header-journey-link">
+                  <div className="eyebrow">{section}</div>
+                  <div className="mt-0.5 truncate font-serif text-sm font-bold text-foreground">
+                    {isDemoMode() ? userName : "EleevateOverseas"}
+                  </div>
+                </div>
+              </Link>
             </div>
 
             <div className="hidden min-w-64 items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-xs text-muted-foreground md:flex">
