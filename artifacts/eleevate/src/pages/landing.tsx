@@ -9,17 +9,17 @@ import { Link } from "wouter";
 import {
   ArrowRight,
   BadgeCheck,
+  BookmarkCheck,
   BookOpenCheck,
-  CheckCircle2,
-  FileText,
-  GraduationCap,
-  MapPinned,
-  MessageCircle,
+  BriefcaseBusiness,
+  ClipboardCheck,
+  FileCheck2,
+  Globe2,
+  HandCoins,
+  MessagesSquare,
   Plane,
-  Search,
-  ShieldCheck,
-  UsersRound,
-  WalletCards,
+  Send,
+  UserRound,
 } from "lucide-react";
 import { UniversityLogo } from "@/components/common/university-logo";
 import { EleeBuddy } from "@/components/common/elee-buddy";
@@ -41,38 +41,52 @@ const STATS = [
 const JOURNEY_STEPS = [
   {
     title: "Profile",
-    detail: "Tell us your academics, goals, budget, tests, and preferred intake.",
-    icon: CheckCircle2,
+    detail: "Add academics, budget, tests, goals, intake, and family support.",
+    action: "Build your student file",
+    icon: UserRound,
+    tone: "from-sky-500 to-emerald-500",
   },
   {
     title: "ELEE Report",
-    detail: "See your best route, missing documents, finance gap, and next actions.",
-    icon: FileText,
+    detail: "Generate a readable route report with gaps, risks, and next actions.",
+    action: "Get your route view",
+    icon: ClipboardCheck,
+    tone: "from-violet-500 to-sky-500",
   },
   {
     title: "Country & Course Fit",
-    detail: "Compare countries, cities, courses, costs, and career outcomes.",
-    icon: MapPinned,
+    detail: "Compare countries, cities, courses, costs, visas, and careers.",
+    action: "Choose direction",
+    icon: Globe2,
+    tone: "from-emerald-500 to-teal-500",
   },
   {
     title: "Shortlist",
     detail: "Save universities that match your profile, budget, and deadline.",
-    icon: Search,
+    action: "Save best fits",
+    icon: BookmarkCheck,
+    tone: "from-amber-500 to-orange-500",
   },
   {
     title: "Applications",
     detail: "Track submissions, requirements, deadlines, offers, and conditions.",
-    icon: GraduationCap,
+    action: "Submit with clarity",
+    icon: Send,
+    tone: "from-blue-600 to-indigo-500",
   },
   {
     title: "Documents & Visa",
     detail: "Prepare SOP, LOR, resume, finance proof, and visa checklist early.",
-    icon: ShieldCheck,
+    action: "Upload and verify",
+    icon: FileCheck2,
+    tone: "from-rose-500 to-red-500",
   },
   {
     title: "Finance & Arrival",
-    detail: "Plan loans, remittance, forex, insurance, accommodation, and arrival.",
+    detail: "Plan loans, remittance, forex, insurance, stay, and arrival.",
+    action: "Arrive ready",
     icon: Plane,
+    tone: "from-cyan-500 to-green-500",
   },
 ];
 
@@ -80,22 +94,30 @@ const SUPPORT_AREAS = [
   {
     title: "Counselling",
     detail: "Personal guidance for the student and family from first call to departure.",
-    icon: MessageCircle,
+    action: "Talk to an advisor",
+    icon: MessagesSquare,
+    tone: "from-sky-500 to-emerald-500",
   },
   {
     title: "Upskilling",
     detail: "IELTS, TOEFL, GRE, language support, mock tests, and course readiness.",
+    action: "Prepare for tests",
     icon: BookOpenCheck,
+    tone: "from-violet-500 to-indigo-500",
   },
   {
     title: "Finance",
     detail: "Education loans, remittance, forex card, forex, insurance, and rewards.",
-    icon: WalletCards,
+    action: "Plan money steps",
+    icon: HandCoins,
+    tone: "from-amber-500 to-orange-500",
   },
   {
     title: "Consultant Workbench",
     detail: "A separate advisor view for student queues, documents, SOP review, and applications.",
-    icon: UsersRound,
+    action: "For the team",
+    icon: BriefcaseBusiness,
+    tone: "from-slate-700 to-sky-600",
   },
 ];
 
@@ -175,10 +197,10 @@ export default function LandingPage() {
                 Write Your Future
               </Badge>
               <h1 className="mt-6 font-serif text-4xl font-bold leading-[1.04] text-white md:text-6xl lg:text-[68px]">
-                EleevateOverseas makes study abroad simple.
+                Global study-abroad guidance from profile to arrival.
               </h1>
               <p className="mt-6 max-w-2xl text-base leading-8 text-white/82 md:text-lg">
-                Choose a country, find the right university, prepare documents, apply, track visa and finance, and arrive ready.
+                ELEE helps students choose countries, find universities, prepare documents, apply, track visa and finance, and arrive ready.
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Link href={primaryCtaHref} data-testid="hero-cta-primary">
@@ -229,13 +251,28 @@ export default function LandingPage() {
                 const StepIcon = step.icon;
 
                 return (
-                  <Card key={step.title} className="app-card h-full p-4">
-                    <div className="brand-gradient-bg flex h-11 w-11 items-center justify-center rounded-lg text-white">
-                      <StepIcon className="h-5 w-5" />
+                  <Card
+                    key={step.title}
+                    className="group relative h-full min-h-72 overflow-hidden rounded-lg border border-border bg-white p-4 shadow-sm transition-all hover:-translate-y-1 hover:border-primary/30 hover:shadow-lg"
+                  >
+                    <div className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${step.tone}`} />
+                    <div className="flex items-start justify-between gap-3">
+                      <div className={`flex h-14 w-14 items-center justify-center rounded-lg bg-gradient-to-br ${step.tone} text-white shadow-sm transition-transform group-hover:scale-105`}>
+                        <StepIcon className="h-6 w-6" strokeWidth={2.2} />
+                      </div>
+                      <div className="rounded-full border border-border bg-muted/40 px-2.5 py-1 font-serif text-[11px] font-bold text-muted-foreground">
+                        {String(index + 1).padStart(2, "0")}
+                      </div>
                     </div>
-                    <div className="mt-5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Step {index + 1}</div>
+                    <div className="mt-6 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Step {index + 1}</div>
                     <h3 className="mt-2 font-serif text-lg font-bold leading-tight text-foreground">{step.title}</h3>
-                    <p className="mt-2 text-xs leading-5 text-muted-foreground">{step.detail}</p>
+                    <p className="mt-3 text-sm leading-6 text-muted-foreground">{step.detail}</p>
+                    <div className="absolute inset-x-4 bottom-4">
+                      <div className="flex items-center justify-between gap-2 rounded-lg border border-border bg-muted/25 px-3 py-2">
+                        <span className="text-[11px] font-semibold text-foreground">{step.action}</span>
+                        <ArrowRight className="h-3.5 w-3.5 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-primary" />
+                      </div>
+                    </div>
                   </Card>
                 );
               })}
@@ -321,7 +358,7 @@ export default function LandingPage() {
                 A readable readiness report before big decisions.
               </h2>
               <p className="mt-5 text-base leading-8 text-muted-foreground">
-                ELEE shows the best country route, why it fits, what's missing, the finance gap, visa readiness, and the next three actions.
+                ELEE turns a student's profile into country fit, university direction, document gaps, finance clarity, visa readiness, and the next three actions.
               </p>
               <div className="mt-6 flex flex-wrap gap-2">
                 <Link href="/elee-report">
@@ -337,18 +374,18 @@ export default function LandingPage() {
               <div className="brand-gradient-bg p-5 text-white">
                 <div className="flex items-center justify-between gap-4">
                   <div>
-                    <div className="font-serif text-xl font-bold">Jehan's ELEE Report</div>
-                    <div className="mt-1 text-sm text-white/80">Best route: Canada</div>
+                    <div className="font-serif text-xl font-bold">Your ELEE Report</div>
+                    <div className="mt-1 text-sm text-white/80">Generated after profile completion</div>
                   </div>
-                  <div className="rounded-full bg-white px-4 py-2 font-serif text-xl font-bold text-primary">82</div>
+                  <div className="rounded-full bg-white px-4 py-2 font-serif text-xl font-bold text-primary">--</div>
                 </div>
               </div>
               <div className="grid gap-4 p-5 md:grid-cols-2">
                 {[
-                  ["Country fit", "88%", "Canada leads for CS and PGWP."],
-                  ["Documents", "67%", "Finance proof and SOP review pending."],
-                  ["Visa readiness", "Medium", "Improves after sponsor proof."],
-                  ["Next action", "Today", "Upload bank statement bundle."],
+                  ["Country fit", "Pending", "Compare destinations after profile completion."],
+                  ["Documents", "Pending", "Upload required files when applications begin."],
+                  ["Visa readiness", "Pending", "Prepared after offer and funding details."],
+                  ["Next action", "Profile", "Start by adding academics, budget, and goals."],
                 ].map(([label, value, detail]) => (
                   <div key={label} className="rounded-lg border border-border bg-muted/25 p-4">
                     <div className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">{label}</div>
@@ -419,12 +456,17 @@ export default function LandingPage() {
                 const AreaIcon = area.icon;
 
                 return (
-                  <Card key={area.title} className="app-card p-5">
-                    <div className="brand-gradient-bg mb-5 flex h-11 w-11 items-center justify-center rounded-lg text-white">
-                      <AreaIcon className="h-5 w-5" />
+                  <Card key={area.title} className="group relative overflow-hidden rounded-lg border border-border bg-white p-5 shadow-sm transition-all hover:-translate-y-1 hover:border-primary/30 hover:shadow-lg">
+                    <div className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${area.tone}`} />
+                    <div className={`mb-5 flex h-14 w-14 items-center justify-center rounded-lg bg-gradient-to-br ${area.tone} text-white shadow-sm transition-transform group-hover:scale-105`}>
+                      <AreaIcon className="h-6 w-6" strokeWidth={2.2} />
                     </div>
                     <div className="font-serif text-lg font-bold text-foreground">{area.title}</div>
                     <p className="mt-3 text-sm leading-6 text-muted-foreground">{area.detail}</p>
+                    <div className="mt-5 inline-flex items-center gap-2 rounded-full border border-border bg-muted/25 px-3 py-1.5 text-xs font-semibold text-foreground">
+                      {area.action}
+                      <ArrowRight className="h-3.5 w-3.5 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-primary" />
+                    </div>
                   </Card>
                 );
               })}

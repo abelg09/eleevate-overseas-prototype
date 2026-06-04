@@ -111,7 +111,7 @@ export interface ServiceOrder {
 }
 
 export const demoEdgeReport: EdgeReport = {
-  studentName: "Jehan",
+  studentName: "Student",
   generatedAt: "21 May 2026",
   clarityScore: 82,
   readinessBand: "Strong fit, finance proof needed",
@@ -465,7 +465,7 @@ export const demystifiedJourneyStages: DemystifiedJourneyStage[] = [
 export const consultantTasks: JourneyTask[] = [
   {
     id: "c-task-1",
-    title: "Verify Jehan's financial documents",
+    title: "Verify Student's financial documents",
     owner: "consultant",
     priority: "high",
     status: "due",
@@ -505,7 +505,7 @@ export const serviceOrders: ServiceOrder[] = [
   {
     id: "SO-1024",
     service: "IELTS premium prep",
-    student: "Jehan",
+    student: "Student",
     amount: "$280",
     status: "active",
     owner: "Upskilling Hub",

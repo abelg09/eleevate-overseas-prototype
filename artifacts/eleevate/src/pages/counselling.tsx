@@ -53,7 +53,7 @@ const STATUS_CONFIG: Record<SessionStatus, { label: string; color: string; icon:
 const DEMO_SESSIONS: CounsellingSession[] = [
   {
     id: "demo-session-1",
-    studentName: "Jehan",
+    studentName: "Student",
     studentEmail: "jehan@example.com",
     title: "Canada finance and visa readiness call",
     scheduledAt: "2026-05-29T10:00:00.000Z",

@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { ShoppingCart, Clock, Star, CheckCircle, Package, FileText, Globe, BookOpen, UserCheck, DollarSign } from "lucide-react";
 import { toast } from "sonner";
 import { isDemoMode, listFromApi } from "@/lib/demo-mode";
-import { addDemoLedgerEvent, useDemoJourneyState } from "@/lib/demo-journey";
+import { addDemoLedgerEvent } from "@/lib/demo-journey";
 
 type ServiceItem = {
   id: string;
@@ -150,8 +150,6 @@ export default function MarketplacePage() {
   const [confirming, setConfirming] = useState(false);
   const [category, setCategory] = useState("all");
   const [demoOrders, setDemoOrders] = useState<ServiceOrderItem[]>(DEMO_ORDERS);
-  const demoJourney = useDemoJourneyState();
-  const lockedCountry = demoJourney.countryLock;
 
   const { data: services } = useQuery({
     queryKey: ["services"],
@@ -220,12 +218,12 @@ export default function MarketplacePage() {
         id: `ledger-service-${service.id}`,
         source: service.category === "accommodation" ? "Accommodation" : "Services",
         event: `${service.name} ordered`,
-        studentView: `${service.name} added to Jehan's ${lockedCountry?.countryName ?? "study-abroad"} service queue.`,
+        studentView: `${service.name} added to your study-abroad service queue.`,
         consultantView: "Service order routed to consultant workbench with delivery owner and revenue line.",
         revenue: service.category === "accommodation" ? "Accommodation Partner Fee" : "Service Order Revenue",
         status: "Queued",
       });
-      toast.success("Order placed successfully. Demo order added to your services queue.");
+      toast.success("Order placed successfully and added to your services queue.");
       return;
     }
 
@@ -237,7 +235,7 @@ export default function MarketplacePage() {
       <div>
         <h1 className="text-3xl font-bold flex items-center gap-2"><ShoppingCart className="h-8 w-8 text-primary" />Service Marketplace</h1>
         <p className="text-muted-foreground mt-1">
-          Expert services to boost your study abroad application{lockedCountry ? `, scoped to the ${lockedCountry.countryName} route` : ""}.
+          Expert services to support your study-abroad applications, arrival, accommodation, and family planning.
         </p>
       </div>
 

@@ -10,7 +10,7 @@ import { Progress } from "@/components/ui/progress";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { DEMO_PROGRAMS } from "@/lib/demo-catalog";
-import { addDemoLedgerEvent, useDemoJourneyState } from "@/lib/demo-journey";
+import { addDemoLedgerEvent } from "@/lib/demo-journey";
 import { getCourseInsight } from "@/lib/product-demo";
 
 const SOP_QUESTIONS = [
@@ -22,11 +22,7 @@ const SOP_QUESTIONS = [
 ];
 
 export default function SopStudioPage() {
-  const demoJourney = useDemoJourneyState();
-  const lockedCountry = demoJourney.countryLock?.countryName;
-  const availablePrograms = useMemo(() => {
-    return lockedCountry ? DEMO_PROGRAMS.filter((program) => program.university?.country === lockedCountry) : DEMO_PROGRAMS;
-  }, [lockedCountry]);
+  const availablePrograms = useMemo(() => DEMO_PROGRAMS, []);
   const [programId, setProgramId] = useState(availablePrograms[0]?.id ?? DEMO_PROGRAMS[0].id);
   const [evidence, setEvidence] = useState("Built a final-year AI recommendation project, completed internship in software QA, and led a college coding club workshop.");
   const [careerGoal, setCareerGoal] = useState("Become a product-focused AI engineer, then build education technology tools for international students.");

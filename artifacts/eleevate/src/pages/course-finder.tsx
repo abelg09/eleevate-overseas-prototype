@@ -12,16 +12,14 @@ import { Progress } from "@/components/ui/progress";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DEMO_COUNTRIES, DEMO_PROGRAMS } from "@/lib/demo-catalog";
 import { ensureDemoApplicationForUniversity, readDemoShortlistIds, writeDemoShortlistIds } from "@/lib/demo-flow";
-import { addDemoLedgerEvent, useDemoJourneyState } from "@/lib/demo-journey";
+import { addDemoLedgerEvent } from "@/lib/demo-journey";
 import { getCourseInsight } from "@/lib/product-demo";
 
 const all = "All";
 
 export default function CourseFinderPage() {
-  const demoJourney = useDemoJourneyState();
-  const lockedCountry = demoJourney.countryLock?.countryName;
   const [query, setQuery] = useState("");
-  const [country, setCountry] = useState(lockedCountry ?? all);
+  const [country, setCountry] = useState(all);
   const [field, setField] = useState(all);
   const [degree, setDegree] = useState(all);
   const [maxTuition, setMaxTuition] = useState("65000");
@@ -61,7 +59,7 @@ export default function CourseFinderPage() {
   };
 
   const averageFit = Math.round(filteredPrograms.reduce((sum, program) => sum + getCourseInsight(program).fitScore, 0) / Math.max(filteredPrograms.length, 1));
-  const topCountry = filteredPrograms[0]?.university?.country ?? lockedCountry ?? "Canada";
+  const topCountry = filteredPrograms[0]?.university?.country ?? "Global";
 
   return (
     <div data-testid="course-finder-page">
@@ -79,14 +77,14 @@ export default function CourseFinderPage() {
       <div className="mb-5 grid gap-3 md:grid-cols-4">
         <MetricCard label="Matched courses" value={String(filteredPrograms.length)} detail="live filter" />
         <MetricCard label="Average ELEE fit" value={`${averageFit}%`} detail="profile weighted" tone="good" />
-        <MetricCard label="Top route" value={topCountry} detail={lockedCountry ? "locked" : "dynamic"} />
+        <MetricCard label="Top route" value={topCountry} detail="dynamic" />
         <MetricCard label="Saved universities" value={String(savedIds.length)} detail="shortlist" tone="watch" />
       </div>
 
       <Card className="app-card mb-5 p-4">
         <div className="grid gap-3 md:grid-cols-[1.2fr_0.9fr_0.9fr_0.8fr_0.8fr]">
           <Input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search course, field, or university" data-testid="course-search" />
-          <Select value={country} onValueChange={setCountry} disabled={Boolean(lockedCountry)}>
+          <Select value={country} onValueChange={setCountry}>
             <SelectTrigger><SelectValue placeholder="Country" /></SelectTrigger>
             <SelectContent>
               <SelectItem value={all}>All countries</SelectItem>

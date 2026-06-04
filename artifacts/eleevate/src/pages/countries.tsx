@@ -13,7 +13,6 @@ import { ChevronDown, ChevronUp, X } from "lucide-react";
 import { PageHeader } from "@/components/common/page-shell";
 import { isDemoMode, listFromApi } from "@/lib/demo-mode";
 import { DEMO_COUNTRIES } from "@/lib/demo-catalog";
-import { useDemoJourneyState } from "@/lib/demo-journey";
 import { getComparableCountries, getCountryInsight } from "@/lib/product-demo";
 import { cn } from "@/lib/utils";
 
@@ -81,23 +80,20 @@ export default function CountriesPage() {
   const [compareCodes, setCompareCodes] = useState<string[]>(["CA", "GB", "US"]);
   const [budget, setBudget] = useState<Record<string, string>>({ food: "", transport: "", misc: "" });
   const [accomType, setAccomType] = useState<string>("shared_room");
-  const demoJourney = useDemoJourneyState();
-  const lockedCountry = demoJourney.countryLock;
 
   const apiCountries = listFromApi<Country>(countries);
   const baseCountries = demoMode || apiCountries.length === 0 ? DEMO_COUNTRIES : apiCountries;
-  const countriesArr = lockedCountry ? baseCountries.filter((country) => country.code === lockedCountry.countryCode) : baseCountries;
-  const activeSelectedCountry = lockedCountry?.countryCode ?? selectedCountry;
+  const countriesArr = baseCountries;
+  const activeSelectedCountry = selectedCountry;
   const selected = countriesArr.find(c => c.code === activeSelectedCountry);
   const allCities = CITY_DATA[activeSelectedCountry ?? ""] ?? [];
-  const cities = lockedCountry ? allCities.filter((city) => lockedCountry.cities.includes(city.name)) : allCities;
-  const displayCityNames = lockedCountry ? lockedCountry.cities : undefined;
+  const cities = allCities;
   const selectedAccom = ACCOMMODATION_TYPES.find(a => a.key === accomType) ?? ACCOMMODATION_TYPES[0];
   const comparableCountries = getComparableCountries();
   const selectedCompareCountries = comparableCountries.filter((country) => compareCodes.includes(country.code));
 
   const nonRentBudget = Object.values(budget).reduce((sum, v) => sum + (parseFloat(v) || 0), 0);
-  const totalCityCount = lockedCountry ? cities.length : Object.values(CITY_DATA).reduce((sum, list) => sum + list.length, 0);
+  const totalCityCount = Object.values(CITY_DATA).reduce((sum, list) => sum + list.length, 0);
   const avgMonthlyCost = Math.round(
     countriesArr.reduce((sum, country) => sum + (country.avgCostOfLivingUsd ?? 0), 0) / Math.max(countriesArr.length, 1),
   );
@@ -113,8 +109,8 @@ export default function CountriesPage() {
       <div data-testid="countries-page">
         <PageHeader
           eyebrow="Discovery"
-          title={lockedCountry ? "Canada City Guides" : "Destinations & City Guides"}
-          description={lockedCountry ? "The route is locked to Canada, so city exploration now follows the selected universities only." : "Compare study countries by visa pathway, living cost, city fit, and budget readiness before you lock your shortlist."}
+          title="Destinations & City Guides"
+          description="Compare study countries by visa pathway, living cost, city fit, and budget readiness before you build your shortlist."
           actions={(
             <Button variant="outline" className="rounded-full border-secondary font-serif text-secondary" onClick={() => setCompareOpen(true)} data-testid="btn-country-compare">
               Compare countries
@@ -129,8 +125,8 @@ export default function CountriesPage() {
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <div className="eyebrow mb-2">Country compare</div>
-                    <h2 className="font-serif text-2xl font-bold text-foreground">Compare route fit before locking the journey.</h2>
-                    <p className="mt-1 text-sm text-muted-foreground">Pick up to four destinations. ELEE compares tuition, visa risk, post-study work, family readiness, and route fit.</p>
+                    <h2 className="font-serif text-2xl font-bold text-foreground">Compare global study routes before you shortlist.</h2>
+                    <p className="mt-1 text-sm text-muted-foreground">Pick up to four destinations. ELEE compares tuition, visa pathway, post-study work, family readiness, and route fit after your profile is complete.</p>
                   </div>
                   <button className="rounded-lg border border-border p-2 text-muted-foreground hover:bg-muted hover:text-foreground" onClick={() => setCompareOpen(false)} aria-label="Close country compare">
                     <X className="h-4 w-4" />
@@ -205,13 +201,13 @@ export default function CountriesPage() {
                 </div>
 
                 <Card className="app-card mt-5 border-primary/20 bg-primary/5 p-4">
-                  <div className="font-serif text-lg font-bold text-foreground">ELEE recommendation</div>
+                  <div className="font-serif text-lg font-bold text-foreground">How to use this comparison</div>
                   <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                    Canada stays strongest for the current demo profile because fit, PGWP pathway, and sponsor budget are balanced. UK is the fastest backup, while the US needs stronger visa-interview preparation.
+                    Start broad, compare country requirements, then save universities that match your academic profile, budget, intake, and visa readiness. Once your profile is complete, ELEE can turn this research into a personal route recommendation.
                   </p>
                   <div className="mt-4 flex flex-wrap gap-2">
-                    <Button className="rounded-full font-serif" onClick={() => setCompareOpen(false)}>Keep Canada as route</Button>
-                    <Button variant="outline" className="rounded-full font-serif" onClick={() => setCompareOpen(false)}>Continue exploring</Button>
+                    <Button className="rounded-full font-serif" onClick={() => setCompareOpen(false)}>Continue exploring</Button>
+                    <Button variant="outline" className="rounded-full font-serif" onClick={() => setCompareOpen(false)}>Close comparison</Button>
                   </div>
                 </Card>
               </div>
@@ -225,7 +221,7 @@ export default function CountriesPage() {
             <div className="p-5">
               <div className="eyebrow mb-2">Destination intelligence</div>
               <h2 className="font-serif text-2xl font-bold leading-tight text-foreground">
-                {lockedCountry ? "Explore only the cities attached to Jehan's selected Canadian universities." : "Find the country that matches your profile, budget, and visa story."}
+                Find the country that matches your profile, budget, and visa story.
               </h2>
               <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
                 Each destination combines university depth, city costs, visa proof points, and work pathway notes so the student journey moves from research to action.
@@ -258,9 +254,7 @@ export default function CountriesPage() {
                   "cursor-pointer overflow-hidden border bg-white p-0 transition-all hover:-translate-y-0.5 hover:shadow-md",
                   activeSelectedCountry === country.code ? "border-primary shadow-sm" : "border-border hover:border-primary/30",
                 )}
-                onClick={() => {
-                  if (!lockedCountry) setSelectedCountry(selectedCountry === country.code ? null : country.code);
-                }}
+                onClick={() => setSelectedCountry(selectedCountry === country.code ? null : country.code)}
                 data-testid={`country-card-${country.code}`}
               >
                 <div className={cn("h-1", activeSelectedCountry === country.code ? "brand-gradient-bg" : "bg-border")} />
@@ -270,10 +264,10 @@ export default function CountriesPage() {
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="text-lg">{country.flagEmoji}</span>
                         <Badge variant="secondary" className="rounded-full text-xs">{country.continent}</Badge>
-                        {activeSelectedCountry === country.code && <Badge className="rounded-full text-xs">{lockedCountry ? "Locked route" : "Selected"}</Badge>}
+                        {activeSelectedCountry === country.code && <Badge className="rounded-full text-xs">Selected</Badge>}
                       </div>
                       <h2 className="mt-3 font-serif text-xl font-bold leading-tight text-foreground">{country.name}</h2>
-                      <p className="mt-1 text-xs font-medium text-muted-foreground">{(displayCityNames ?? country.popularCities)?.slice(0, 3).join(" · ")}</p>
+                      <p className="mt-1 text-xs font-medium text-muted-foreground">{country.popularCities?.slice(0, 3).join(" · ")}</p>
                     </div>
                     <div className="text-right">
                       <div className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Living cost</div>
@@ -292,7 +286,7 @@ export default function CountriesPage() {
                     </div>
                     <div className="rounded-lg border border-border bg-muted/30 p-3">
                       <div className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Cities</div>
-                      <div className="mt-1 text-sm font-bold text-foreground">{displayCityNames?.length ?? country.popularCities?.length ?? 0}</div>
+                      <div className="mt-1 text-sm font-bold text-foreground">{country.popularCities?.length ?? 0}</div>
                     </div>
                   </div>
                   {country.visaInfo && (
@@ -315,7 +309,7 @@ export default function CountriesPage() {
                     <div className="eyebrow mb-1">Selected destination</div>
                     <h2 className="font-serif text-lg font-bold text-foreground">City Guides · {selected.name}</h2>
                     <p className="mt-1 text-sm text-muted-foreground">
-                      {lockedCountry ? "Only cities tied to selected universities are shown." : "Compare student lifestyle, affordability, and local advantages."}
+                      Compare student lifestyle, affordability, and local advantages.
                     </p>
                   </div>
                   <Badge variant="outline" className="rounded-full">{selected.currency}</Badge>

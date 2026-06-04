@@ -6,59 +6,18 @@ import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { PageHeader, SectionHeader } from "@/components/common/page-shell";
 import { DEMO_UNIVERSITIES } from "@/lib/demo-catalog";
-import { demoEdgeReport } from "@/lib/demo-data";
-import { demoUser } from "@/lib/demo-mode";
-import { useDemoJourneyState } from "@/lib/demo-journey";
+import { readDemoShortlistIds } from "@/lib/demo-flow";
+import { STUDENT_GUIDE_STEPS } from "@/lib/student-guide";
+import { hasStudentWorkspaceProfile, useStudentWorkspaceProfile } from "@/lib/student-workspace";
 import { cn } from "@/lib/utils";
 
-const journeySteps = [
-  { label: "Profile", status: "Done", detail: "Academics, goals, budget", href: "/profile", tone: "done" },
-  { label: "ELEE Report", status: "Done", detail: "Canada leads the route", href: "/elee-report", tone: "done" },
-  { label: "Country & Course Fit", status: "Review", detail: "Compare Canada backups", href: "/universities", tone: "current" },
-  { label: "Shortlist", status: "Done", detail: "4 universities saved", href: "/shortlist", tone: "done" },
-  { label: "Applications", status: "Start", detail: "2 applications ready", href: "/applications", tone: "current" },
-  { label: "Documents & Visa", status: "Blocked", detail: "Finance proof missing", href: "/documents", tone: "action" },
-  { label: "Finance & Arrival", status: "Next", detail: "Loan and forex pending", href: "/financial-hub", tone: "next" },
-];
-
-const pendingTasks = [
-  {
-    title: "Upload sponsor bank statement",
-    detail: "Needed for Canada visa confidence and university payment planning.",
-    due: "Today",
-    href: "/documents",
-    tone: "action",
-  },
-  {
-    title: "Review SOP for University of Toronto",
-    detail: "Add project outcomes and why this course fits your career goal.",
-    due: "Tomorrow",
-    href: "/sop-studio",
-    tone: "current",
-  },
-  {
-    title: "Move saved universities into applications",
-    detail: "Toronto and UBC are ready to track with deadlines and documents.",
-    due: "This week",
-    href: "/applications",
-    tone: "next",
-  },
-  {
-    title: "Complete IELTS writing mock",
-    detail: "Target score is 7.5; current mock is close but needs writing polish.",
-    due: "24 May",
-    href: "/test-prep",
-    tone: "next",
-  },
-];
-
 const documentStatus = [
-  { label: "Passport", status: "Ready" },
-  { label: "Transcripts", status: "Ready" },
-  { label: "SOP", status: "Review" },
-  { label: "LOR", status: "Review" },
-  { label: "Finance proof", status: "Missing" },
-  { label: "Resume", status: "Review" },
+  { label: "Passport", status: "Not uploaded" },
+  { label: "Transcripts", status: "Not uploaded" },
+  { label: "SOP", status: "Not started" },
+  { label: "LOR", status: "Not started" },
+  { label: "Finance proof", status: "Not uploaded" },
+  { label: "Resume", status: "Not uploaded" },
 ];
 
 function toneClass(tone: string) {
@@ -71,28 +30,30 @@ function toneClass(tone: string) {
 }
 
 export default function StudentDashboardPage() {
-  const student = demoUser.student;
-  const report = demoEdgeReport;
-  const demoJourney = useDemoJourneyState();
-  const selectedCountry = demoJourney.countryLock?.countryName ?? report.preferredCountries[0].country;
-  const selectedIds = demoJourney.countryLock?.universityIds ?? ["demo-uoft", "demo-ubc", "demo-manchester", "demo-melbourne"];
+  const profile = useStudentWorkspaceProfile();
+  const hasProfile = hasStudentWorkspaceProfile(profile);
+  const selectedIds = readDemoShortlistIds();
   const selectedUniversities = DEMO_UNIVERSITIES.filter((university) => selectedIds.includes(university.id)).slice(0, 4);
-  const fundingProgress = Math.round((report.financialReadiness.confirmedFundsUsd / report.financialReadiness.budgetUsd) * 100);
+  const nextAction = hasProfile ? "Generate your ELEE Report" : "Complete your profile";
+  const nextActionDetail = hasProfile
+    ? "Your profile is ready. ELEE can now turn it into country fit, route clarity, document gaps, and next actions."
+    : "Add your academics, target course, budget, intake, test status, and country preferences so ELEE can guide the journey.";
+  const nextActionHref = hasProfile ? "/elee-report" : "/profile";
 
   return (
     <AppLayout>
       <div data-testid="student-dashboard">
         <PageHeader
           eyebrow="Dashboard"
-          title={`Welcome, ${student.firstName}`}
-          description={`Your ${selectedCountry} journey is focused on applications, documents, finance proof, and visa readiness.`}
+          title="Welcome to your study-abroad workspace"
+          description="Start blank, fill your profile, compare global options, shortlist universities, and move step by step toward applications, visa, finance, and arrival."
           actions={
             <>
-              <Link href="/elee-report">
-                <Button variant="outline" className="rounded-full font-serif">Open ELEE Report</Button>
+              <Link href="/profile">
+                <Button variant="outline" className="rounded-full font-serif">Complete profile</Button>
               </Link>
               <Link href="/universities">
-                <Button className="rounded-full font-serif">Find universities</Button>
+                <Button className="rounded-full font-serif">Explore universities</Button>
               </Link>
             </>
           }
@@ -102,21 +63,21 @@ export default function StudentDashboardPage() {
           <div className="brand-gradient-bg h-1.5" />
           <div className="grid gap-0 xl:grid-cols-[minmax(0,1fr)_340px]">
             <div className="p-5 md:p-6">
-              <Badge className="mb-4 rounded-full bg-red-50 px-3 py-1 text-red-700 hover:bg-red-50">
+              <Badge className="mb-4 rounded-full bg-primary/10 px-3 py-1 text-primary hover:bg-primary/10">
                 Next action
               </Badge>
               <h2 className="max-w-3xl font-serif text-3xl font-bold leading-tight text-foreground">
-                Upload finance proof before starting paid submissions.
+                {nextAction}
               </h2>
               <p className="mt-3 max-w-3xl text-sm leading-6 text-muted-foreground">
-                Your profile and shortlist are strong. The main blocker is an ${Math.round(report.financialReadiness.fundingGapUsd / 1000)}k funding evidence gap for visa and offer confidence.
+                {nextActionDetail}
               </p>
               <div className="mt-5 flex flex-wrap gap-2">
-                <Link href="/documents">
-                  <Button className="rounded-full font-serif">Upload documents</Button>
+                <Link href={nextActionHref}>
+                  <Button className="rounded-full font-serif">{nextAction}</Button>
                 </Link>
-                <Link href="/loans">
-                  <Button variant="outline" className="rounded-full font-serif">Check education loan</Button>
+                <Link href="/journey-map">
+                  <Button variant="outline" className="rounded-full font-serif">View journey map</Button>
                 </Link>
               </div>
             </div>
@@ -124,9 +85,9 @@ export default function StudentDashboardPage() {
             <aside className="border-t border-border bg-muted/35 p-5 xl:border-l xl:border-t-0">
               <div className="space-y-3">
                 {[
-                  { label: "Current stage", value: "Documents & Visa" },
-                  { label: "Deadline", value: "26 May" },
-                  { label: "Selected country", value: selectedCountry },
+                  { label: "Current stage", value: hasProfile ? "ELEE Report" : "Profile" },
+                  { label: "Selected countries", value: profile?.targetCountries?.length ? String(profile.targetCountries.length) : "Not set" },
+                  { label: "Shortlisted universities", value: String(selectedUniversities.length) },
                 ].map((item) => (
                   <div key={item.label} className="rounded-lg border border-border bg-white p-3">
                     <div className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">{item.label}</div>
@@ -139,9 +100,9 @@ export default function StudentDashboardPage() {
         </section>
 
         <section className="mb-5">
-          <SectionHeader title="Your 7-step journey" description="Work through these steps in order. The current blocker is documents and finance proof." href="/journey-map" />
+          <SectionHeader title="Your 7-step journey" description="Work through these steps in order. ELEE will guide you as your profile, shortlist, and documents grow." href="/journey-map" />
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-7">
-            {journeySteps.map((step, index) => (
+            {STUDENT_GUIDE_STEPS.map((step, index) => (
               <Link key={step.label} href={step.href}>
                 <Card className="app-card group h-full cursor-pointer p-4 transition-all hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-md">
                   <div className="flex items-center justify-between gap-3">
@@ -159,53 +120,53 @@ export default function StudentDashboardPage() {
         <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_380px]">
           <section className="space-y-5">
             <Card className="app-card p-4">
-              <SectionHeader title="What needs attention" description="Sorted by the tasks that unlock the journey fastest." />
-              <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                {pendingTasks.map((task) => (
-                  <Link key={task.title} href={task.href}>
-                    <div className="group h-full rounded-lg border border-border bg-muted/25 p-4 transition-all hover:border-primary/35 hover:bg-primary/5">
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="font-serif text-base font-bold leading-tight text-foreground">{task.title}</div>
-                        <Badge variant="outline" className={cn("rounded-full", toneClass(task.tone))}>{task.due}</Badge>
-                      </div>
-                      <p className="mt-2 text-sm leading-6 text-muted-foreground">{task.detail}</p>
-                    </div>
-                  </Link>
-                ))}
+              <SectionHeader title="What needs attention" description="Your personal tasks will appear here as you complete the profile and start applications." />
+              <div className="rounded-lg border border-dashed border-border bg-muted/25 p-6 text-center">
+                <div className="font-serif text-lg font-bold text-foreground">No personal tasks yet</div>
+                <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-muted-foreground">
+                  Complete your profile first. ELEE will then create report actions, document gaps, university next steps, and finance reminders.
+                </p>
+                <Link href="/profile">
+                  <Button className="mt-4 rounded-full font-serif">Complete profile</Button>
+                </Link>
               </div>
             </Card>
 
             <Card className="app-card p-4">
-              <SectionHeader title="Selected universities" description="Shortlisted options ready to move into the application tracker." href="/shortlist" />
-              <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                {selectedUniversities.map((university) => (
-                  <Link key={university.id} href={`/universities/${university.id}`}>
-                    <div className="rounded-lg border border-border bg-white p-4 transition-all hover:border-primary/35 hover:bg-primary/5">
-                      <div className="flex items-start justify-between gap-3">
-                        <div>
-                          <div className="font-serif text-base font-bold leading-tight text-foreground">{university.name}</div>
-                          <div className="mt-1 text-sm text-muted-foreground">{university.city}, {university.country}</div>
-                        </div>
-                        {university.ranking && <Badge className="rounded-full bg-secondary text-white hover:bg-secondary">#{university.ranking}</Badge>}
-                      </div>
-                      <div className="mt-3 text-sm text-muted-foreground">${Math.round((university.avgTuitionUsd ?? 0) / 1000)}k/yr tuition estimate</div>
-                    </div>
+              <SectionHeader title="Selected universities" description="Shortlisted universities will appear here and can be moved into applications." href="/shortlist" />
+              {selectedUniversities.length === 0 ? (
+                <div className="rounded-lg border border-dashed border-border bg-muted/25 p-6 text-center">
+                  <div className="font-serif text-lg font-bold text-foreground">No universities shortlisted yet</div>
+                  <p className="mt-2 text-sm text-muted-foreground">Browse global destinations and save universities that fit your goals.</p>
+                  <Link href="/universities">
+                    <Button className="mt-4 rounded-full font-serif">Explore universities</Button>
                   </Link>
-                ))}
-              </div>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                  {selectedUniversities.map((university) => (
+                    <Link key={university.id} href={`/universities/${university.id}`}>
+                      <div className="rounded-lg border border-border bg-white p-4 transition-all hover:border-primary/35 hover:bg-primary/5">
+                        <div className="font-serif text-base font-bold leading-tight text-foreground">{university.name}</div>
+                        <div className="mt-1 text-sm text-muted-foreground">{university.city}, {university.country}</div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              )}
             </Card>
           </section>
 
           <aside className="space-y-5">
             <Card className="app-card p-4">
-              <SectionHeader title="ELEE score" href="/elee-report" />
+              <SectionHeader title="ELEE Report" href="/elee-report" />
               <div className="flex items-center gap-4">
                 <div className="flex h-24 w-24 flex-shrink-0 items-center justify-center rounded-full border-[8px] border-primary/15 bg-muted/40">
-                  <span className="font-serif text-4xl font-bold text-primary">{report.clarityScore}</span>
+                  <span className="font-serif text-3xl font-bold text-primary">--</span>
                 </div>
                 <div>
-                  <div className="font-serif text-lg font-bold text-foreground">{selectedCountry} is the best route</div>
-                  <p className="mt-1 text-sm leading-6 text-muted-foreground">Strong study fit. Finance evidence and SOP polish are the next improvements.</p>
+                  <div className="font-serif text-lg font-bold text-foreground">Not generated yet</div>
+                  <p className="mt-1 text-sm leading-6 text-muted-foreground">Complete your profile to unlock country fit, finance clarity, and next actions.</p>
                 </div>
               </div>
             </Card>
@@ -214,16 +175,14 @@ export default function StudentDashboardPage() {
               <SectionHeader title="Document status" href="/documents" />
               <div className="mb-3 flex items-center justify-between text-sm">
                 <span className="font-semibold text-muted-foreground">Readiness</span>
-                <span className="font-serif text-lg font-bold text-foreground">67%</span>
+                <span className="font-serif text-lg font-bold text-foreground">0%</span>
               </div>
-              <Progress value={67} className="h-2" />
+              <Progress value={0} className="h-2" />
               <div className="mt-4 space-y-2">
                 {documentStatus.map((item) => (
                   <div key={item.label} className="flex items-center justify-between gap-3 rounded-lg border border-border bg-muted/25 px-3 py-2">
                     <span className="text-sm font-semibold text-foreground">{item.label}</span>
-                    <Badge variant="outline" className={cn("rounded-full", item.status === "Ready" ? toneClass("done") : item.status === "Missing" ? toneClass("action") : toneClass("current"))}>
-                      {item.status}
-                    </Badge>
+                    <Badge variant="outline" className="rounded-full">{item.status}</Badge>
                   </div>
                 ))}
               </div>
@@ -231,29 +190,9 @@ export default function StudentDashboardPage() {
 
             <Card className="app-card p-4">
               <SectionHeader title="Finance & arrival" href="/financial-hub" />
-              <div className="grid grid-cols-2 gap-3">
-                <div className="rounded-lg border border-border bg-muted/25 p-3">
-                  <div className="font-serif text-xl font-bold text-foreground">${Math.round(report.financialReadiness.confirmedFundsUsd / 1000)}k</div>
-                  <div className="mt-1 text-xs text-muted-foreground">Confirmed funds</div>
-                </div>
-                <div className="rounded-lg border border-border bg-muted/25 p-3">
-                  <div className="font-serif text-xl font-bold text-foreground">${Math.round(report.financialReadiness.fundingGapUsd / 1000)}k</div>
-                  <div className="mt-1 text-xs text-muted-foreground">Funding gap</div>
-                </div>
+              <div className="rounded-lg border border-dashed border-border bg-muted/25 p-4 text-sm leading-6 text-muted-foreground">
+                Add budget, target countries, offer details, and funding documents to build your finance and arrival plan.
               </div>
-              <div className="mt-4 flex items-center justify-between text-sm">
-                <span className="font-semibold text-muted-foreground">Funding readiness</span>
-                <span className="font-serif font-bold text-foreground">{fundingProgress}%</span>
-              </div>
-              <Progress value={fundingProgress} className="mt-2 h-2" />
-            </Card>
-
-            <Card className="app-card border-primary/20 bg-primary/5 p-4">
-              <div className="font-serif text-base font-bold text-foreground">Need something else?</div>
-              <p className="mt-2 text-sm leading-6 text-muted-foreground">Finance, visa, upskilling, alumni, news, support, and rewards are grouped in More.</p>
-              <Link href="/more">
-                <Button className="mt-4 w-full rounded-full font-serif">Open More</Button>
-              </Link>
             </Card>
           </aside>
         </div>

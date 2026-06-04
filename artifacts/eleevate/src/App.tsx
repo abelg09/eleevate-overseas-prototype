@@ -64,18 +64,8 @@ import InvoicingPage from "@/pages/invoicing";
 import MorePage from "@/pages/more";
 import NotFound from "@/pages/not-found";
 import { useDemoAuthState } from "@/lib/demo-auth";
-import { DEMO_APPLICATION_STORAGE_KEY } from "@/lib/demo-catalog";
-import {
-  CANADA_COUNTRY_LOCK,
-  resetDemoLedgerEvents,
-  writeDemoJourneyMode,
-  type DemoJourneyMode,
-} from "@/lib/demo-journey";
-import {
-  DEFAULT_DEMO_SHORTLIST_IDS,
-  ensureDemoApplicationForUniversity,
-  writeDemoShortlistIds,
-} from "@/lib/demo-flow";
+import { writeDemoJourneyMode } from "@/lib/demo-journey";
+import { resetStudentOwnedSessionData } from "@/lib/student-session-reset";
 
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 const demoMode = isDemoMode();
@@ -203,7 +193,7 @@ function HomeRedirect() {
   );
 }
 
-function DemoEntryRoute({ mode }: { mode: DemoJourneyMode }) {
+function StudentEntryRoute() {
   const [, setLocation] = useLocation();
 
   useEffect(() => {
@@ -212,24 +202,17 @@ function DemoEntryRoute({ mode }: { mode: DemoJourneyMode }) {
       return;
     }
 
-    writeDemoJourneyMode(mode);
-    resetDemoLedgerEvents();
-    localStorage.removeItem(DEMO_APPLICATION_STORAGE_KEY);
-
-    const shortlistIds = mode === "canada_locked"
-      ? CANADA_COUNTRY_LOCK.universityIds
-      : DEFAULT_DEMO_SHORTLIST_IDS;
-    writeDemoShortlistIds(shortlistIds);
-    shortlistIds.forEach((id) => ensureDemoApplicationForUniversity(id, mode === "canada_locked" ? "canada-route" : "preliminary"));
+    writeDemoJourneyMode("preliminary");
+    resetStudentOwnedSessionData();
 
     setLocation("/login?redirect=/dashboard");
-  }, [mode, setLocation]);
+  }, [setLocation]);
 
   return (
     <div className="flex min-h-dvh items-center justify-center bg-background px-4 text-center">
       <div>
-        <div className="font-serif text-xl font-bold text-foreground">Preparing EleevateOverseas demo</div>
-        <p className="mt-2 text-sm text-muted-foreground">Setting up {mode === "canada_locked" ? "Canada locked" : "preliminary"} journey data...</p>
+        <div className="font-serif text-xl font-bold text-foreground">Preparing your EleevateOverseas journey</div>
+        <p className="mt-2 text-sm text-muted-foreground">Opening a fresh student workspace...</p>
       </div>
     </div>
   );
@@ -329,8 +312,8 @@ function Router() {
     <Switch>
       <Route path="/" component={HomeRedirect} />
       <Route path="/product" component={LandingPage} />
-      <Route path="/demo/preliminary" component={() => <DemoEntryRoute mode="preliminary" />} />
-      <Route path="/demo/canada" component={() => <DemoEntryRoute mode="canada_locked" />} />
+      <Route path="/demo/preliminary" component={StudentEntryRoute} />
+      <Route path="/demo/canada" component={StudentEntryRoute} />
       <Route path="/login" component={() => demoMode ? <LoginPage /> : <Redirect to="/sign-in" />} />
       <Route path="/sign-in/*?" component={SignInPage} />
       <Route path="/sign-up/*?" component={SignUpPage} />

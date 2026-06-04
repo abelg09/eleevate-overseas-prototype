@@ -65,7 +65,7 @@ const DEMO_SOP_DOCS: SopDocument[] = [
     title: "Graduate Resume - Data/Product Track",
     targetUniversity: "University of Leeds",
     targetProgram: "MSc International Business",
-    content: "Jehan\nData Analyst and Product Intern\n\nEducation\nBSc Computer Science, GPA 3.72\n\nExperience\nProduct Analytics Intern - built dashboards, improved onboarding funnel insights, and documented weekly product metrics.\n\nProjects\nAI course recommender, finance readiness calculator, and student document tracker.\n\nSkills\nPython, SQL, Power BI, React, stakeholder communication.",
+    content: "Student\nData Analyst and Product Intern\n\nEducation\nBSc Computer Science, GPA 3.72\n\nExperience\nProduct Analytics Intern - built dashboards, improved onboarding funnel insights, and documented weekly product metrics.\n\nProjects\nAI course recommender, finance readiness calculator, and student document tracker.\n\nSkills\nPython, SQL, Power BI, React, stakeholder communication.",
     version: 1,
     status: "final",
     createdAt: "2026-05-17T10:00:00.000Z",
@@ -224,7 +224,7 @@ function DocumentEditor({ doc, onBack, demoMode, onSaveDoc }: { doc: SopDocument
         const draft = `${doc.type === "resume" ? "Professional Summary" : "Opening Direction"}\n\n${genForm.academicBackground || "BSc Computer Science with strong academic performance and applied project experience."}\n\n${genForm.workExperience || "Practical experience across analytics, product thinking, and stakeholder communication."}\n\n${doc.type === "sop" ? `${genForm.whyThisProgram || `I am drawn to ${doc.targetProgram || "this program"} because it combines academic depth with practical outcomes.`}\n\n${genForm.careerGoals || "My goal is to build an international career in technology and contribute to products that improve student mobility."}` : "This draft can now be refined for tone, evidence, and target university alignment."}`;
         setContent(draft);
         setShowGenForm(false);
-        toast({ title: "AI draft generated!", description: "Demo draft created for review." });
+        toast({ title: "AI draft generated!", description: "Draft created for review." });
         return;
       }
 

@@ -15,36 +15,30 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { User, BookOpen, FileText } from "lucide-react";
-import { demoUser, isDemoMode } from "@/lib/demo-mode";
+import { isDemoMode } from "@/lib/demo-mode";
+import { useDemoAuthState } from "@/lib/demo-auth";
+import {
+  readStudentWorkspaceProfile,
+  writeStudentWorkspaceProfile,
+  type StudentWorkspaceProfile,
+} from "@/lib/student-workspace";
 
 const INTAKES = ["Fall 2025", "Spring 2026", "Fall 2026", "Spring 2027"];
-const DEMO_PROFILE: StudentProfile = {
-  id: "demo-profile",
-  userId: "demo-student",
-  studyLevel: "postgraduate",
-  targetCountries: ["Canada", "UK", "Germany"],
-  gpa: 3.72,
-  ieltsScore: 7.5,
-  toeflScore: 104,
-  greScore: 318,
-  preferredIntake: "Fall 2026",
-  budget: 46000,
-  nationality: "Indian",
-  updatedAt: "2026-05-21",
-};
+const COUNTRY_OPTIONS = ["United Kingdom", "United States", "Canada", "Australia", "Germany", "Netherlands", "Singapore", "Ireland"];
 
 export default function StudentProfilePage() {
   const { user } = useUser();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const demoMode = isDemoMode();
+  const demoSession = useDemoAuthState();
 
   const { data: profile, isLoading } = useGetMyStudentProfile({
     query: { queryKey: getGetMyStudentProfileQueryKey(), enabled: !demoMode }
   });
 
   const updateProfile = useUpdateMyStudentProfile();
-  const p: StudentProfile | undefined = demoMode ? DEMO_PROFILE : profile;
+  const p: StudentProfile | StudentWorkspaceProfile | null | undefined = demoMode ? readStudentWorkspaceProfile() : profile;
 
   const [studyLevel, setStudyLevel] = useState("");
   const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
@@ -59,7 +53,7 @@ export default function StudentProfilePage() {
 
   useEffect(() => {
     if (p) {
-      setStudyLevel(p.studyLevel ?? "postgraduate");
+      setStudyLevel(p.studyLevel ?? "");
       setSelectedCountries(p.targetCountries ?? []);
       setGpa(p.gpa?.toString() ?? "");
       setIelts(p.ieltsScore?.toString() ?? "");
@@ -69,12 +63,35 @@ export default function StudentProfilePage() {
       setNationality(p.nationality ?? "");
       setIntake(p.preferredIntake ?? "");
       setBudget(p.budget?.toString() ?? "");
+    } else {
+      setStudyLevel("");
+      setSelectedCountries([]);
+      setGpa("");
+      setIelts("");
+      setToefl("");
+      setGre("");
+      setGmat("");
+      setNationality("");
+      setIntake("");
+      setBudget("");
     }
   }, [JSON.stringify(p)]);
 
   const handleSave = async () => {
     if (demoMode) {
-      toast({ title: "Profile updated!", description: "Demo preferences are saved for this review session." });
+      writeStudentWorkspaceProfile({
+        studyLevel,
+        targetCountries: selectedCountries,
+        gpa,
+        ieltsScore: ielts,
+        toeflScore: toefl,
+        greScore: gre,
+        gmatScore: gmat,
+        nationality,
+        preferredIntake: intake,
+        budget,
+      });
+      toast({ title: "Profile saved", description: "Your study preferences are saved in this browser session." });
       return;
     }
 
@@ -110,15 +127,15 @@ export default function StudentProfilePage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <Label className="mb-1.5">First name</Label>
-              <Input value={demoMode ? demoUser.student.firstName : user?.firstName ?? ""} disabled className="bg-muted/40" data-testid="input-first-name" />
+              <Input value={demoMode ? "" : user?.firstName ?? ""} disabled className="bg-muted/40" placeholder="Not set yet" data-testid="input-first-name" />
             </div>
             <div>
               <Label className="mb-1.5">Last name</Label>
-              <Input value={demoMode ? demoUser.student.lastName : user?.lastName ?? ""} disabled className="bg-muted/40" data-testid="input-last-name" />
+              <Input value={demoMode ? "" : user?.lastName ?? ""} disabled className="bg-muted/40" placeholder="Not set yet" data-testid="input-last-name" />
             </div>
             <div className="sm:col-span-2">
               <Label className="mb-1.5">Email</Label>
-              <Input value={demoMode ? demoUser.student.email : user?.primaryEmailAddress?.emailAddress ?? ""} disabled className="bg-muted/40" data-testid="input-email" />
+              <Input value={demoMode ? (demoSession?.email.endsWith("@eleevate.local") ? "" : demoSession?.email ?? "") : user?.primaryEmailAddress?.emailAddress ?? ""} disabled className="bg-muted/40" placeholder="Sign in email" data-testid="input-email" />
             </div>
           </div>
         </Card>
@@ -129,33 +146,31 @@ export default function StudentProfilePage() {
         ) : (
           <Card className="p-6 border border-border mb-6" data-testid="study-preferences">
             <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-              <h2 className="font-semibold text-foreground flex items-center gap-2"><BookOpen className="h-4 w-4 text-primary" /> AI Profile & Study Preferences</h2>
-              <Badge className="rounded-full border-primary/20 bg-primary/10 text-primary hover:bg-primary/10">Locked by ELEE Assessment</Badge>
+              <h2 className="font-semibold text-foreground flex items-center gap-2"><BookOpen className="h-4 w-4 text-primary" /> Study Preferences</h2>
+              <Badge className="rounded-full border-primary/20 bg-primary/10 text-primary hover:bg-primary/10">Used by ELEE</Badge>
             </div>
             <div className="space-y-6">
               <div>
                 <Label className="mb-3 block">Study level</Label>
-                <div className="rounded-lg border border-primary/20 bg-primary/5 p-4">
-                  <div className="flex flex-wrap items-center justify-between gap-3">
-                    <div>
-                      <div className="font-serif text-lg font-bold capitalize text-foreground">{studyLevel || "Postgraduate"}</div>
-                      <p className="mt-1 text-xs leading-5 text-muted-foreground">Auto-populated from Jehan&apos;s psychometric profile, academic record, and career direction.</p>
-                    </div>
-                    <Badge variant="outline" className="rounded-full border-primary/30 text-primary">AI recommended</Badge>
-                  </div>
+                <div className="flex flex-wrap gap-2">
+                  {["undergraduate", "postgraduate", "phd", "diploma"].map((level) => (
+                    <button key={level} onClick={() => setStudyLevel(level)} data-testid={`study-level-${level}`}
+                      className={`px-3 py-1.5 rounded-full text-xs font-medium border capitalize transition-all ${studyLevel === level ? "bg-primary text-primary-foreground border-primary" : "border-border hover:border-primary/50"}`}
+                    >{level}</button>
+                  ))}
                 </div>
               </div>
               <div>
                 <Label className="mb-3 block">Target countries</Label>
-                <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4">
-                  <div className="flex flex-wrap gap-2">
-                    {selectedCountries.map((country) => (
-                      <Badge key={country} className="rounded-full bg-emerald-700 text-white hover:bg-emerald-700">{country}</Badge>
-                    ))}
-                  </div>
-                  <p className="mt-3 text-xs leading-5 text-emerald-900">
-                    Countries are generated by the AI Career Predictor using budget, test score, academic fit, work-rights pathway, and visa resilience.
-                  </p>
+                <div className="flex flex-wrap gap-2">
+                  {COUNTRY_OPTIONS.map((country) => {
+                    const selected = selectedCountries.includes(country);
+                    return (
+                      <button key={country} onClick={() => setSelectedCountries((current) => selected ? current.filter((item) => item !== country) : [...current, country])}
+                        className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${selected ? "bg-primary text-primary-foreground border-primary" : "border-border hover:border-primary/50"}`}
+                      >{country}</button>
+                    );
+                  })}
                 </div>
               </div>
               <div>

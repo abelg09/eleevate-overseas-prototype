@@ -9,15 +9,13 @@ import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DEMO_COUNTRIES } from "@/lib/demo-catalog";
-import { addDemoLedgerEvent, useDemoJourneyState } from "@/lib/demo-journey";
+import { addDemoLedgerEvent } from "@/lib/demo-journey";
 import { DEMO_SCHOLARSHIPS } from "@/lib/product-demo";
 
 const all = "All";
 
 export default function ScholarshipsPage() {
-  const demoJourney = useDemoJourneyState();
-  const lockedCountry = demoJourney.countryLock?.countryName;
-  const [country, setCountry] = useState(lockedCountry ?? all);
+  const [country, setCountry] = useState(all);
   const [type, setType] = useState(all);
   const [addedIds, setAddedIds] = useState<string[]>([]);
 
@@ -62,7 +60,7 @@ export default function ScholarshipsPage() {
       />
 
       <div className="mb-5 grid gap-3 md:grid-cols-4">
-        <MetricCard label="Matched scholarships" value={String(scholarships.length)} detail={lockedCountry ? "country locked" : "demo list"} />
+        <MetricCard label="Matched scholarships" value={String(scholarships.length)} detail="global catalog" />
         <MetricCard label="Potential funding" value={`$${Math.round(totalPotential / 1000)}k`} detail="before eligibility" tone="good" />
         <MetricCard label="Best fit" value={`${bestFit}%`} detail="ELEE score" />
         <MetricCard label="Added to plan" value={String(addedIds.length)} detail="funding updates" tone="watch" />
@@ -70,7 +68,7 @@ export default function ScholarshipsPage() {
 
       <Card className="app-card mb-5 p-4">
         <div className="grid gap-3 md:grid-cols-[1fr_1fr_auto]">
-          <Select value={country} onValueChange={setCountry} disabled={Boolean(lockedCountry)}>
+          <Select value={country} onValueChange={setCountry}>
             <SelectTrigger><SelectValue placeholder="Country" /></SelectTrigger>
             <SelectContent>
               <SelectItem value={all}>All countries</SelectItem>
@@ -87,7 +85,7 @@ export default function ScholarshipsPage() {
               <SelectItem value="University">University</SelectItem>
             </SelectContent>
           </Select>
-          <Button variant="outline" className="rounded-full font-serif" onClick={() => { setCountry(lockedCountry ?? all); setType(all); }}>
+          <Button variant="outline" className="rounded-full font-serif" onClick={() => { setCountry(all); setType(all); }}>
             Reset
           </Button>
         </div>

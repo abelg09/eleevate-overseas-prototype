@@ -1,20 +1,28 @@
+import { useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { Bell, Search, Sparkles, UserRoundCheck } from "lucide-react";
 import { Sidebar } from "./sidebar";
 import { EleeBuddy } from "@/components/common/elee-buddy";
+import { StudentJourneyWelcomeDialog } from "@/components/common/student-journey-welcome";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { demoUser, isDemoMode } from "@/lib/demo-mode";
-import { useDemoJourneyState } from "@/lib/demo-journey";
+import { useDemoAuthState } from "@/lib/demo-auth";
+import { resetLegacyStudentWorkspaceOnce } from "@/lib/student-session-reset";
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
   const consultant = location.startsWith("/consultant");
+  const demoSession = useDemoAuthState();
   const user = consultant ? demoUser.consultant : demoUser.student;
   const section = consultant ? "Consultant workbench" : "Student journey";
-  const userName = [user.firstName, user.lastName].filter(Boolean).join(" ");
-  const demoJourney = useDemoJourneyState();
+  const userName = [user.firstName, user.lastName].filter(Boolean).join(" ") || (consultant ? "Consultant" : "Student");
+  const showStudentWelcome = location === "/dashboard" && !consultant && (!isDemoMode() || demoSession?.role === "student");
+
+  useEffect(() => {
+    if (!consultant) resetLegacyStudentWorkspaceOnce();
+  }, [consultant]);
 
   return (
     <div className="app-shell-bg flex min-h-screen">
@@ -59,46 +67,16 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
               <Bell className="h-4 w-4" />
             </button>
 
-            {isDemoMode() && (
-              <Badge variant="outline" className="hidden border-emerald-200 bg-emerald-50 text-emerald-700 sm:inline-flex">
-                {demoJourney.mode === "canada_locked" ? "Canada route" : "Exploring"}
-              </Badge>
-            )}
+            <Badge variant="outline" className="hidden border-emerald-200 bg-emerald-50 text-emerald-700 sm:inline-flex">
+              Global
+            </Badge>
           </div>
         </header>
-
-        {isDemoMode() && (
-          <div className="border-b border-border bg-white/80 backdrop-blur">
-            <div className="mx-auto flex max-w-[1180px] flex-col gap-3 px-4 py-3 pl-16 text-sm sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-6 lg:pl-6">
-              <div className="min-w-0">
-                <div className="font-serif text-sm font-bold text-foreground">
-                  {demoJourney.countryLock ? demoJourney.countryLock.routeLabel : "Preliminary discovery mode"}
-                </div>
-                <p className="mt-0.5 text-xs leading-5 text-muted-foreground">
-                  {demoJourney.countryLock
-                    ? `${demoJourney.countryLock.countryName} route: ${demoJourney.countryLock.cities.join(", ")} city guides, ${demoJourney.countryLock.universityIds.length} selected universities, and finance, visa, and arrival tasks kept together.`
-                    : "Explore countries, universities, documents, finance, services, and consultant support before locking a route."}
-                </p>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                <Link href="/demo/preliminary">
-                  <Button variant={demoJourney.mode === "preliminary" ? "default" : "outline"} size="sm" className="rounded-full">
-                    Preliminary
-                  </Button>
-                </Link>
-                <Link href="/demo/canada">
-                  <Button variant={demoJourney.mode === "canada_locked" ? "default" : "outline"} size="sm" className="rounded-full">
-                    Canada locked
-                  </Button>
-                </Link>
-              </div>
-            </div>
-          </div>
-        )}
 
         <div className="mx-auto max-w-[1180px] p-4 sm:p-5 lg:p-6">
           {children}
         </div>
+        <StudentJourneyWelcomeDialog enabled={showStudentWelcome} />
         <EleeBuddy compact />
       </main>
     </div>

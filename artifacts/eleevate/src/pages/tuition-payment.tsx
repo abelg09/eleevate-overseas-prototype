@@ -117,7 +117,7 @@ export default function TuitionPaymentPage() {
       setUniversity("");
       setDescription("");
       setConfirming(false);
-      toast.success("Payment initiated. Demo transaction added to history.");
+      toast.success("Payment initiated and added to history.");
       return;
     }
 

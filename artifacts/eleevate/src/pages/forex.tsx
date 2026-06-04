@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { isDemoMode } from "@/lib/demo-mode";
-import { addDemoLedgerEvent, useDemoJourneyState } from "@/lib/demo-journey";
+import { addDemoLedgerEvent } from "@/lib/demo-journey";
 
 const CURRENCIES = ["INR", "USD", "GBP", "AUD", "CAD", "EUR", "SGD", "NZD"];
 
@@ -38,30 +38,17 @@ const DEMO_RATES: Record<string, Record<string, number>> = {
   CAD: { INR: 61.1, USD: 0.74, GBP: 0.57, AUD: 1.1, EUR: 0.68, SGD: 0.99, NZD: 1.19 },
 };
 
-const DEMO_TRANSACTIONS = [
-  {
-    id: "fx-demo-1",
-    fromCurrency: "INR",
-    toCurrency: "CAD",
-    fromAmount: 1250000,
-    toAmount: 20400,
-    rate: "0.0163",
-    status: "completed",
-    purpose: "University tuition fee",
-    createdAt: "2026-05-21",
-  },
-  {
-    id: "fx-demo-2",
-    fromCurrency: "INR",
-    toCurrency: "GBP",
-    fromAmount: 420000,
-    toAmount: 3948,
-    rate: "0.0094",
-    status: "processing",
-    purpose: "Living expenses / rent",
-    createdAt: "2026-05-24",
-  },
-];
+const DEMO_TRANSACTIONS: Array<{
+  id: string;
+  fromCurrency: string;
+  toCurrency: string;
+  fromAmount: number;
+  toAmount: number;
+  rate: string;
+  status: string;
+  purpose: string | null;
+  createdAt: string;
+}> = [];
 
 export default function ForexPage() {
   const { getToken } = useAuth();
@@ -76,8 +63,6 @@ export default function ForexPage() {
   const [recipientAccount, setRecipientAccount] = useState("");
   const [confirming, setConfirming] = useState(false);
   const [demoTransactions, setDemoTransactions] = useState(DEMO_TRANSACTIONS);
-  const demoJourney = useDemoJourneyState();
-  const lockedCountry = demoJourney.countryLock;
 
   const { data: rateData, refetch: refetchRates } = useQuery({
     queryKey: ["forex-rates", fromCurrency, toCurrency],
@@ -177,7 +162,7 @@ export default function ForexPage() {
       <div>
         <h1 className="font-serif text-2xl font-bold text-foreground">Forex</h1>
         <p className="text-muted-foreground mt-1">
-          Live exchange rates and international money transfers for students{lockedCountry ? `, tuned to ${lockedCountry.currency} for ${lockedCountry.countryName}` : ""}.
+          Live exchange rates and international money transfers for study-abroad payments.
         </p>
       </div>
 

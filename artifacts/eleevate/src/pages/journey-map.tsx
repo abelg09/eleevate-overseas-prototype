@@ -5,73 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { PageHeader, SectionHeader } from "@/components/common/page-shell";
+import { STUDENT_GUIDE_STEPS } from "@/lib/student-guide";
 import { cn } from "@/lib/utils";
-
-const studentJourney = [
-  {
-    step: "Profile",
-    status: "Done",
-    progress: 100,
-    whatStudentDoes: "Add academics, budget, preferred intake, test status, work experience, and family sponsor details.",
-    required: "Academic marks, passport details, budget range, target course area.",
-    href: "/profile",
-    tone: "done",
-  },
-  {
-    step: "ELEE Report",
-    status: "Done",
-    progress: 82,
-    whatStudentDoes: "Review country ranking, finance gap, document gaps, visa readiness, and next actions.",
-    required: "Completed profile and basic finance information.",
-    href: "/elee-report",
-    tone: "done",
-  },
-  {
-    step: "Country & Course Fit",
-    status: "Review",
-    progress: 76,
-    whatStudentDoes: "Compare countries, courses, costs, cities, intakes, and career routes before locking a route.",
-    required: "Country preference, course interest, budget comfort, work outcome goals.",
-    href: "/universities",
-    tone: "current",
-  },
-  {
-    step: "Shortlist",
-    status: "Done",
-    progress: 72,
-    whatStudentDoes: "Save suitable universities and check tuition, ranking, course fit, and application deadlines.",
-    required: "At least 3 to 5 university options.",
-    href: "/shortlist",
-    tone: "done",
-  },
-  {
-    step: "Applications",
-    status: "Start",
-    progress: 58,
-    whatStudentDoes: "Move shortlisted universities into applications and track each deadline, status, and offer condition.",
-    required: "Selected universities, course choice, application documents.",
-    href: "/applications",
-    tone: "current",
-  },
-  {
-    step: "Documents & Visa",
-    status: "Blocked",
-    progress: 48,
-    whatStudentDoes: "Upload passport, transcripts, SOP, LOR, resume, sponsor proof, loan proof, and visa files.",
-    required: "Finance proof is the urgent missing item.",
-    href: "/documents",
-    tone: "action",
-  },
-  {
-    step: "Finance & Arrival",
-    status: "Next",
-    progress: 36,
-    whatStudentDoes: "Plan education loan, tuition payment, remittance, forex card, insurance, accommodation, and arrival checklist.",
-    required: "Offer letter, fee timeline, sponsor documents, travel dates.",
-    href: "/financial-hub",
-    tone: "next",
-  },
-];
 
 function toneClass(tone: string) {
   return cn(
@@ -130,8 +65,8 @@ export default function JourneyMapPage() {
         <section className="mb-5">
           <SectionHeader title="Seven-step student journey" description="Each step has a clear job, requirement, and action button." />
           <div className="space-y-4">
-            {studentJourney.map((stage, index) => (
-              <Card key={stage.step} className="app-card overflow-hidden p-0">
+            {STUDENT_GUIDE_STEPS.map((stage, index) => (
+              <Card key={stage.id} className="app-card overflow-hidden p-0">
                 <div className="grid gap-0 lg:grid-cols-[96px_minmax(0,1fr)_260px]">
                   <div className="brand-gradient-bg flex min-h-24 items-center justify-center text-white">
                     <div className="text-center">
@@ -143,7 +78,7 @@ export default function JourneyMapPage() {
                   <div className="p-4">
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                       <div>
-                        <h3 className="font-serif text-xl font-bold leading-tight text-foreground">{stage.step}</h3>
+                        <h3 className="font-serif text-xl font-bold leading-tight text-foreground">{stage.label}</h3>
                         <p className="mt-2 text-sm leading-6 text-muted-foreground">{stage.whatStudentDoes}</p>
                       </div>
                       <Badge variant="outline" className={cn("w-fit rounded-full", toneClass(stage.tone))}>{stage.status}</Badge>

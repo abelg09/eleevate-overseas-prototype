@@ -126,7 +126,7 @@ export default function SupportPage() {
         setSubject("");
         setBody("");
         setTab("tickets");
-        toast({ title: "Support ticket submitted!", description: "Demo ticket added to your support queue." });
+        toast({ title: "Support ticket submitted!", description: "Ticket added to your support queue." });
         return;
       }
 

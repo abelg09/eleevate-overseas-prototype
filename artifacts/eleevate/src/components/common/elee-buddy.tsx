@@ -1,10 +1,9 @@
 import { useMemo, useState } from "react";
 import { Link, useLocation } from "wouter";
-import { ArrowRight, MessageCircle, Sparkles, X } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { ArrowRight, Compass, MapPinned, MessageCircle, Sparkles, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { DEMO_AGENT_PROMPTS, useDemoJourneyState } from "@/lib/demo-journey";
-import { isDemoMode } from "@/lib/demo-mode";
+import { DEMO_AGENT_PROMPTS } from "@/lib/demo-journey";
+import { findStudentGuideStep, getNextStudentGuideStep, STUDENT_GUIDE_STEPS } from "@/lib/student-guide";
 
 const PRODUCT_PROMPTS = [
   { id: "courses", label: "Find my course", prompt: "Search programs by fit, tuition, intake, and career signal.", href: "/course-finder" },
@@ -16,11 +15,27 @@ const PRODUCT_PROMPTS = [
 export function EleeBuddy({ compact = false }: { compact?: boolean }) {
   const [open, setOpen] = useState(false);
   const [location] = useLocation();
-  const demoJourney = useDemoJourneyState();
+  const consultant = location.startsWith("/consultant");
+  const publicPage = location === "/product" || location === "/";
+  const currentStep = findStudentGuideStep(location);
+  const nextStep = getNextStudentGuideStep(location);
+  const dashboardContext = location === "/dashboard";
+  const showStudentGuide = !consultant && !publicPage;
   const prompts = useMemo(() => {
-    const base = location === "/product" || location === "/" ? PRODUCT_PROMPTS : [...PRODUCT_PROMPTS, ...DEMO_AGENT_PROMPTS].slice(0, 6);
+    if (publicPage) return PRODUCT_PROMPTS;
+    if (consultant) return DEMO_AGENT_PROMPTS.slice(0, 4);
+    const journeyPrompts = STUDENT_GUIDE_STEPS
+      .filter((step) => step.id !== currentStep?.id)
+      .slice(0, 4)
+      .map((step) => ({
+        id: step.id,
+        label: step.label,
+        prompt: step.detail,
+        href: step.href,
+      }));
+    const base = [...journeyPrompts, ...PRODUCT_PROMPTS].slice(0, 6);
     return base;
-  }, [location]);
+  }, [consultant, currentStep?.id, publicPage]);
 
   return (
     <div className="fixed bottom-5 right-5 z-50" data-testid="elee-buddy">
@@ -31,10 +46,10 @@ export function EleeBuddy({ compact = false }: { compact?: boolean }) {
               <div>
                 <div className="flex items-center gap-2">
                   <Sparkles className="h-4 w-4" />
-                  <div className="font-serif text-base font-bold">ELEE AI Buddy</div>
+                  <div className="font-serif text-base font-bold">ELEE Guide</div>
                 </div>
                 <p className="mt-1 text-xs leading-5 text-white/80">
-                  Ask a question or jump to the next step.
+                  Ask a question or continue your journey.
                 </p>
               </div>
               <button onClick={() => setOpen(false)} className="rounded-md p-1 text-white/80 hover:bg-white/10 hover:text-white" aria-label="Close ELEE AI Buddy">
@@ -44,21 +59,49 @@ export function EleeBuddy({ compact = false }: { compact?: boolean }) {
           </div>
 
           <div className="p-4">
-            {isDemoMode() && (
-              <div className="mb-3 rounded-lg border border-primary/20 bg-primary/5 p-3">
-                <div className="flex items-center justify-between gap-3">
-                  <div className="font-serif text-sm font-bold text-foreground">
-                    {demoJourney.countryLock ? demoJourney.countryLock.routeLabel : "Preliminary discovery"}
+            {showStudentGuide && (
+              <div className="mb-3 space-y-3 rounded-lg border border-primary/20 bg-primary/5 p-3">
+                <div>
+                  <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-wide text-primary">
+                    <Compass className="h-3.5 w-3.5" />
+                    You are here
                   </div>
-                  <Badge variant="outline" className="rounded-full text-xs">{demoJourney.countryLock ? "Route set" : "Explore"}</Badge>
+                  <div className="mt-1 font-serif text-sm font-bold text-foreground" data-testid="elee-guide-current-step">
+                    {dashboardContext ? "Dashboard overview" : currentStep?.label ?? "Student journey"}
+                  </div>
+                  <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                    {dashboardContext
+                      ? "This is your home base for tasks, universities, documents, visa, and finance."
+                      : currentStep?.whatStudentDoes ?? "ELEE keeps the path simple and shows the next useful action."}
+                  </p>
                 </div>
-                <p className="mt-1 text-xs leading-5 text-muted-foreground">
-                  ELEE keeps your report, applications, documents, and tasks pointed at the same journey.
-                </p>
+
+                <div className="rounded-lg border border-border bg-white p-3">
+                  <div className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Next recommended step</div>
+                  <div className="mt-1 font-serif text-sm font-bold text-foreground" data-testid="elee-guide-next-step">{nextStep.label}</div>
+                  <p className="mt-1 text-xs leading-5 text-muted-foreground">{nextStep.detail}</p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <Link href={nextStep.href}>
+                      <Button size="sm" className="rounded-full font-serif">
+                        Continue
+                        <ArrowRight className="h-3.5 w-3.5" />
+                      </Button>
+                    </Link>
+                    <Link href="/journey-map">
+                      <Button size="sm" variant="outline" className="rounded-full font-serif">
+                        <MapPinned className="h-3.5 w-3.5" />
+                        Journey Map
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
               </div>
             )}
 
             <div className="space-y-2">
+              {showStudentGuide && (
+                <div className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Quick jumps</div>
+              )}
               {prompts.map((prompt) => (
                 <Link key={prompt.id} href={prompt.href}>
                   <div className="group rounded-lg border border-border bg-white p-3 transition-all hover:border-primary/35 hover:bg-primary/5">

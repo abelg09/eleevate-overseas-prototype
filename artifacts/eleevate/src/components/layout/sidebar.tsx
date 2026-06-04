@@ -106,7 +106,6 @@ function DemoSidebar() {
         clearDemoAuth();
         setLocation("/");
       }}
-      demo
     />
   );
 }
@@ -140,7 +139,6 @@ function SidebarShell({
   initials,
   role,
   onSignOut,
-  demo = false,
 }: {
   location: string;
   groups: NavGroup[];
@@ -149,7 +147,6 @@ function SidebarShell({
   initials: string;
   role: "student" | "consultant";
   onSignOut?: () => void;
-  demo?: boolean;
 }) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -165,11 +162,6 @@ function SidebarShell({
           <Badge className="brand-gradient-bg rounded-full px-3 py-1 text-white hover:opacity-95">
             {role === "consultant" ? "Workbench" : "Student Journey"}
           </Badge>
-          {demo && (
-            <Badge variant="outline" className="rounded-full border-emerald-200 bg-emerald-50 px-3 py-1 text-emerald-700">
-              Demo
-            </Badge>
-          )}
         </div>
       </div>
 

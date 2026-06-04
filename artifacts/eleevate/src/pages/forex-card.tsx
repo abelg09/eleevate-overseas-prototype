@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { PageHeader, SectionHeader } from "@/components/common/page-shell";
-import { addDemoLedgerEvent, useDemoJourneyState } from "@/lib/demo-journey";
+import { addDemoLedgerEvent } from "@/lib/demo-journey";
 import { cn } from "@/lib/utils";
 
 const cardPlans = [
@@ -51,9 +51,6 @@ const usageControls = [
 ];
 
 export default function ForexCardPage() {
-  const demoJourney = useDemoJourneyState();
-  const lockedCountry = demoJourney.countryLock;
-
   const handleQueueCard = () => {
     addDemoLedgerEvent({
       id: "ledger-forex-card-action",
@@ -81,12 +78,6 @@ export default function ForexCardPage() {
           </div>
         }
       />
-
-      {lockedCountry && (
-        <div className="mb-4 rounded-lg border border-primary/20 bg-primary/5 p-4 text-sm leading-6 text-foreground">
-          Route locked to {lockedCountry.countryName}: card options are tuned for {lockedCountry.currency} spending in {lockedCountry.cities.join(" and ")}.
-        </div>
-      )}
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.05fr_0.95fr]">
         <Card className="app-card p-4">

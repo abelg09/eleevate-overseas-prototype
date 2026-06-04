@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Shield, CheckCircle2, Star, Plane, Heart, BookOpen } from "lucide-react";
 import { toast } from "sonner";
 import { isDemoMode } from "@/lib/demo-mode";
-import { addDemoLedgerEvent, useDemoJourneyState } from "@/lib/demo-journey";
+import { addDemoLedgerEvent } from "@/lib/demo-journey";
 
 type InsuranceProduct = {
   id: string; provider: string; name: string; type: string;
@@ -75,20 +75,7 @@ const DEMO_INSURANCE_PRODUCTS: InsuranceProduct[] = [
   },
 ];
 
-const DEMO_POLICIES: InsurancePolicy[] = [
-  {
-    id: "demo-policy-1",
-    productName: "Departure Travel Shield",
-    provider: "Atlas Travel",
-    type: "travel",
-    premium: 7900,
-    currency: "USD",
-    status: "active",
-    startDate: "2026-07-15",
-    endDate: "2027-07-14",
-    createdAt: "2026-05-18T10:00:00.000Z",
-  },
-];
+const DEMO_POLICIES: InsurancePolicy[] = [];
 
 export default function InsurancePage() {
   const { getToken } = useAuth();
@@ -98,8 +85,6 @@ export default function InsurancePage() {
   const [confirming, setConfirming] = useState(false);
   const [typeFilter, setTypeFilter] = useState<string>("all");
   const [demoPolicies, setDemoPolicies] = useState<InsurancePolicy[]>(DEMO_POLICIES);
-  const demoJourney = useDemoJourneyState();
-  const lockedCountry = demoJourney.countryLock;
 
   const { data: products } = useQuery({
     queryKey: ["insurance-products"],
@@ -175,7 +160,7 @@ export default function InsurancePage() {
         revenue: "Insurance Commission",
         status: "Queued",
       });
-      toast.success("Policy quote created. Demo policy added to your insurance tab.");
+      toast.success("Policy quote created and added to your insurance tab.");
       return;
     }
 
@@ -187,7 +172,7 @@ export default function InsurancePage() {
       <div>
         <h1 className="text-3xl font-bold flex items-center gap-2"><Shield className="h-8 w-8 text-primary" />Insurance Marketplace</h1>
         <p className="text-muted-foreground mt-1">
-          Compare travel, health, and study abroad insurance products{lockedCountry ? ` for the ${lockedCountry.countryName} visa and arrival route` : ""}.
+          Compare travel, health, and study-abroad insurance products for your visa and arrival plan.
         </p>
       </div>
 

@@ -188,7 +188,7 @@ export default function JobBoardPage() {
                     </div>
                   </div>
                   <div className="rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-xs font-semibold text-primary">
-                    Match with Jehan&apos;s MSc Computer Science profile and AI product career direction.
+                    Match with Student&apos;s MSc Computer Science profile and AI product career direction.
                   </div>
                   <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
                     {job.location && <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{job.location}</span>}

@@ -60,7 +60,7 @@ export default function NewsNewsletterPage() {
       <PageHeader
         eyebrow="Live News & Newsletter"
         title="News command center"
-        description="A curated update layer for visa changes, admission deadlines, scholarships, job market signals, and newsletter campaigns. Demo data is shown now; live feeds can be connected later."
+        description="A curated update layer for visa changes, admission deadlines, scholarships, job market signals, and newsletter campaigns. Live feeds can be connected when the final data sources are attached."
         actions={
           <Link href="/elee-report">
             <Button className="rounded-full font-serif">Open ELEE context</Button>

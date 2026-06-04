@@ -34,7 +34,7 @@ const COMMISSION_COLORS: Record<string, string> = {
 const DEMO_INVOICES: Invoice[] = [
   {
     id: "demo-invoice-1",
-    clientName: "Jehan",
+    clientName: "Student",
     clientEmail: "jehan@example.com",
     lineItems: [{ description: "SOP and application review", quantity: 1, unitPrice: 14900 }],
     subtotal: 14900,
@@ -202,7 +202,7 @@ export default function InvoicingPage() {
   const handlePayout = () => {
     if (demoMode) {
       setDemoCommissions((items) => items.map((item) => item.status === "paid" ? item : { ...item, status: "paid", paidAt: new Date().toISOString() }));
-      toast.success("Payout requested. Demo commissions marked as paid.");
+      toast.success("Payout requested. Commissions marked as paid for this review session.");
       return;
     }
 

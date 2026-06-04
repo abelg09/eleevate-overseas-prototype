@@ -23,13 +23,13 @@ export function listFromApi<T>(value: unknown): T[] {
 
 export const demoUser = {
   student: {
-    firstName: "Jehan",
+    firstName: "",
     lastName: "",
-    email: "jehan@student.example",
+    email: "",
   },
   consultant: {
-    firstName: "Maya",
-    lastName: "Rao",
-    email: "maya.rao@eleevate.example",
+    firstName: "Consultant",
+    lastName: "",
+    email: "",
   },
 };

@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { isDemoMode } from "@/lib/demo-mode";
-import { addDemoLedgerEvent, useDemoJourneyState } from "@/lib/demo-journey";
+import { addDemoLedgerEvent } from "@/lib/demo-journey";
 
 const STATUS_COLORS: Record<string, string> = {
   submitted: "bg-blue-100 text-blue-700",
@@ -66,36 +66,32 @@ const DEMO_LOAN_PRODUCTS = [
   },
 ];
 
-const DEMO_LOAN_APPLICATIONS = [
-  {
-    id: "loan-app-demo-1",
-    lenderName: "HDFC Credila",
-    amount: 800000,
-    currency: "INR",
-    interestRate: "11.2%",
-    tenureMonths: 120,
-    status: "under_review",
-    universityName: "University of Toronto",
-    createdAt: "2026-05-21",
-  },
-];
+const DEMO_LOAN_APPLICATIONS: Array<{
+  id: string;
+  lenderName: string;
+  amount: number;
+  currency: string;
+  interestRate: string | null;
+  tenureMonths: number | null;
+  status: string;
+  universityName: string | null;
+  createdAt: string;
+}> = [];
 
 export default function LoansPage() {
   const { getToken } = useAuth();
   const qc = useQueryClient();
   const demoMode = isDemoMode();
-  const [loanAmount, setLoanAmount] = useState(demoMode ? "8000" : "");
+  const [loanAmount, setLoanAmount] = useState("");
   const [tenure, setTenure] = useState("120");
-  const [universityName, setUniversityName] = useState(demoMode ? "University of Toronto" : "");
-  const [country, setCountry] = useState(demoMode ? "Canada" : "");
+  const [universityName, setUniversityName] = useState("");
+  const [country, setCountry] = useState("");
   const [repaymentMode, setRepaymentMode] = useState("deferred");
   const [calculatorRate, setCalculatorRate] = useState("11.2");
   const [processingFee, setProcessingFee] = useState("1.0");
   const [selectedLender, setSelectedLender] = useState<string | null>(null);
-  const [searched, setSearched] = useState(demoMode);
+  const [searched, setSearched] = useState(false);
   const [demoLoanApplications, setDemoLoanApplications] = useState(DEMO_LOAN_APPLICATIONS);
-  const demoJourney = useDemoJourneyState();
-  const lockedCountry = demoJourney.countryLock;
 
   const { data: products } = useQuery({
     queryKey: ["loan-products"],
@@ -218,8 +214,7 @@ export default function LoansPage() {
       <div>
         <h1 className="font-serif text-2xl font-bold text-foreground">Edu Loans</h1>
         <p className="text-muted-foreground mt-1">
-          Compare and apply to leading education loan providers with ELEE funding data already synced.
-          {lockedCountry ? ` Route locked to ${lockedCountry.countryName}.` : ""}
+          Compare and apply to leading education loan providers after adding your budget, destination, and offer details.
         </p>
       </div>
 
@@ -236,7 +231,7 @@ export default function LoansPage() {
               {demoMode && (
                 <div className="mb-4 rounded-lg border border-primary/20 bg-white/90 p-3 text-sm leading-6 text-foreground">
                   <span className="mr-2 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">Funding plan</span>
-                  Pre-filled based on Jehan&apos;s current ELEE funding gap for University of Toronto. Submitting creates a follow-up task for the finance team.
+                  Add tuition, living cost, and sponsor details to compare eligible education loan options.
                 </div>
               )}
               <div className="mb-4 rounded-lg border border-border bg-white p-4 shadow-sm">

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import type { University } from "@workspace/api-client-react";
 import { DEMO_COUNTRIES, DEMO_UNIVERSITIES } from "@/lib/demo-catalog";
 
-export type DemoJourneyMode = "preliminary" | "canada_locked";
+export type DemoJourneyMode = "preliminary";
 
 export interface DemoCountryLock {
   countryCode: string;
@@ -53,16 +53,6 @@ export const DEMO_JOURNEY_STORAGE_KEY = "eleevate.demo.journey.mode";
 export const DEMO_LEDGER_STORAGE_KEY = "eleevate.demo.ledger.events";
 export const DEMO_JOURNEY_EVENT = "eleevate-demo-journey";
 
-export const CANADA_COUNTRY_LOCK: DemoCountryLock = {
-  countryCode: "CA",
-  countryName: "Canada",
-  currency: "CAD",
-  routeLabel: "Canada route locked",
-  universityIds: ["demo-uoft", "demo-ubc"],
-  cities: ["Toronto", "Vancouver"],
-  reason: "Jehan selected Canada after ELEE ranked it highest for CS fit, PGWP pathway, sponsor budget, and visa evidence confidence.",
-};
-
 export const DEMO_AGENT_PROMPTS: DemoAgentPrompt[] = [
   { id: "country", label: "Find my country", prompt: "Compare countries by profile, budget, visa risk, and future career route.", href: "/countries" },
   { id: "report", label: "Generate ELEE report", prompt: "Turn my profile, family readiness, and finance details into a readable action report.", href: "/elee-report" },
@@ -70,58 +60,7 @@ export const DEMO_AGENT_PROMPTS: DemoAgentPrompt[] = [
   { id: "applications", label: "Start applications", prompt: "Move my saved universities into a tracked application workflow.", href: "/universities" },
 ];
 
-export const DEFAULT_DEMO_LEDGER_EVENTS: DemoLedgerEvent[] = [
-  {
-    id: "ledger-elee-gap",
-    source: "ELEE Report",
-    event: "Funding gap detected",
-    studentView: "$8k gap appears on dashboard, ELEE report, and Edu Loans.",
-    consultantView: "Finance task created for Jehan with sponsor proof required.",
-    revenue: "Loan shortlist ready",
-    status: "Live sync",
-    createdAt: "2026-05-30T10:00:00.000Z",
-  },
-  {
-    id: "ledger-loan-started",
-    source: "Edu Loans",
-    event: "HDFC Credila application started",
-    studentView: "Loan amount, Canada route, and University of Toronto are pre-filled.",
-    consultantView: "Loan desk receives the application and sponsor context.",
-    revenue: "Loan follow-up active",
-    status: "Processing",
-    createdAt: "2026-05-30T10:05:00.000Z",
-  },
-  {
-    id: "ledger-remittance-planned",
-    source: "Remittance",
-    event: "Tuition deposit planned",
-    studentView: "Payment milestone added to fee timeline and visa evidence checklist.",
-    consultantView: "Receipt reminder routed to document vault.",
-    revenue: "Receipt reminder set",
-    status: "Ready",
-    createdAt: "2026-05-30T10:10:00.000Z",
-  },
-  {
-    id: "ledger-forex-card",
-    source: "Forex Card",
-    event: "Initial CAD load recommended",
-    studentView: "Card load amount is based on Toronto and Vancouver arrival budgets.",
-    consultantView: "Family spending controls and alerts prepared.",
-    revenue: "Arrival card setup",
-    status: "Queued",
-    createdAt: "2026-05-30T10:12:00.000Z",
-  },
-  {
-    id: "ledger-insurance",
-    source: "Insurance",
-    event: "Visa-stage insurance package queued",
-    studentView: "Insurance prompt appears after offer upload.",
-    consultantView: "Post-offer checklist updates without manual entry.",
-    revenue: "Insurance review queued",
-    status: "Next",
-    createdAt: "2026-05-30T10:15:00.000Z",
-  },
-];
+export const DEFAULT_DEMO_LEDGER_EVENTS: DemoLedgerEvent[] = [];
 
 function canUseStorage() {
   return typeof window !== "undefined" && typeof window.localStorage !== "undefined";
@@ -132,24 +71,18 @@ function emitDemoJourneyChange() {
 }
 
 export function readDemoJourneyMode(): DemoJourneyMode {
-  if (!canUseStorage()) return "preliminary";
-  const stored = localStorage.getItem(DEMO_JOURNEY_STORAGE_KEY);
-  return stored === "canada_locked" ? "canada_locked" : "preliminary";
+  return "preliminary";
 }
 
 export function writeDemoJourneyMode(mode: DemoJourneyMode) {
   if (!canUseStorage()) return mode;
-  localStorage.setItem(DEMO_JOURNEY_STORAGE_KEY, mode);
+  localStorage.setItem(DEMO_JOURNEY_STORAGE_KEY, "preliminary");
   emitDemoJourneyChange();
-  return mode;
-}
-
-export function isCanadaLockedDemo() {
-  return readDemoJourneyMode() === "canada_locked";
+  return "preliminary";
 }
 
 export function getDemoCountryLock(): DemoCountryLock | null {
-  return isCanadaLockedDemo() ? CANADA_COUNTRY_LOCK : null;
+  return null;
 }
 
 export function getScopedDemoUniversities(universities: University[] = DEMO_UNIVERSITIES) {
@@ -166,7 +99,7 @@ export function getScopedDemoCities() {
 }
 
 export function getDemoModeLabel() {
-  return isCanadaLockedDemo() ? "Canada locked demo" : "Preliminary demo";
+  return "Global journey";
 }
 
 export function readDemoLedgerEvents(): DemoLedgerEvent[] {
@@ -227,5 +160,5 @@ export function useDemoJourneyState() {
 }
 
 export function getCanadaCountry() {
-  return DEMO_COUNTRIES.find((country) => country.code === CANADA_COUNTRY_LOCK.countryCode);
+  return DEMO_COUNTRIES.find((country) => country.code === "CA");
 }

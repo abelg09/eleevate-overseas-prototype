@@ -19,26 +19,8 @@ import {
   Star, AlertCircle, CheckCircle2, Loader2
 } from "lucide-react";
 import { isDemoMode, listFromApi } from "@/lib/demo-mode";
-import { DEMO_UNIVERSITIES, getDemoProgramsForUniversity, getDemoUniversity } from "@/lib/demo-catalog";
+import { DEMO_UNIVERSITIES, getDemoProgramsForUniversity } from "@/lib/demo-catalog";
 import { ensureDemoApplicationForUniversity, readDemoShortlistIds, writeDemoShortlistIds } from "@/lib/demo-flow";
-import { getScopedDemoUniversities, useDemoJourneyState } from "@/lib/demo-journey";
-
-const DEMO_AI_RECOMMENDATIONS: AiRecommendation[] = [
-  {
-    universityId: "demo-ubc",
-    matchScore: 91,
-    reasons: ["Strong CS and AI research fit", "Canada pathway aligns with post-study goals", "Budget can work with loan pre-approval"],
-    concern: "Financial proof should be prepared before offer acceptance.",
-    university: getDemoUniversity("demo-ubc"),
-  },
-  {
-    universityId: "demo-leeds",
-    matchScore: 86,
-    reasons: ["One-year UK master route is efficient", "Strong university brand for AI/product careers", "Application story has project depth"],
-    concern: "SOP needs a sharper motivation arc.",
-    university: getDemoUniversity("demo-leeds"),
-  },
-];
 
 export default function ShortlistPage() {
   const { toast } = useToast();
@@ -48,8 +30,6 @@ export default function ShortlistPage() {
   const [aiLoading, setAiLoading] = useState(false);
   const [demoShortlistIds, setDemoShortlistIds] = useState<Set<string>>(() => new Set(readDemoShortlistIds()));
   const demoMode = isDemoMode();
-  const demoJourney = useDemoJourneyState();
-  const lockedCountry = demoJourney.countryLock;
 
   const { data: shortlist, isLoading } = useGetShortlist({
     query: { queryKey: getGetShortlistQueryKey(), enabled: !demoMode }
@@ -59,7 +39,7 @@ export default function ShortlistPage() {
   const aiRecommend = useAiRecommend();
 
   const universities = demoMode
-    ? getScopedDemoUniversities(DEMO_UNIVERSITIES).filter((uni) => demoShortlistIds.has(uni.id))
+    ? DEMO_UNIVERSITIES.filter((uni) => demoShortlistIds.has(uni.id))
     : listFromApi<University>(shortlist);
   const shortlistPrograms = demoMode
     ? universities.flatMap((uni) => getDemoProgramsForUniversity(uni.id))
@@ -98,11 +78,8 @@ export default function ShortlistPage() {
     setAiLoading(true);
     try {
       if (demoMode) {
-        const nextRecommendations = lockedCountry
-          ? DEMO_AI_RECOMMENDATIONS.filter((rec) => rec.university?.country === lockedCountry.countryName)
-          : DEMO_AI_RECOMMENDATIONS;
-        setRecommendations(nextRecommendations);
-        toast({ title: "ELEE recommendations ready", description: lockedCountry ? "Canada-only matches are based on the locked ELEE route." : "Demo matches are based on the ELEE profile." });
+        setRecommendations([]);
+        toast({ title: "Complete your profile", description: "ELEE recommendations will appear after your study preferences are saved." });
         return;
       }
 
@@ -124,8 +101,8 @@ export default function ShortlistPage() {
       <div data-testid="shortlist-page">
         <PageHeader
           eyebrow="Discovery"
-          title={lockedCountry ? "Canada Shortlist" : "My Shortlist"}
-          description={lockedCountry ? "Saved universities are scoped to the Canada route and feed directly into applications, city guides, finance, and visa evidence." : "Turn saved universities into applications with program clarity, deadline awareness, and document readiness."}
+          title="My Shortlist"
+          description="Save universities from any destination, compare program fit, and move the strongest options into Applications."
           actions={
             <Button onClick={handleAiRecommend} disabled={aiLoading} data-testid="btn-ai-recommend" className="rounded-full font-serif">
               {aiLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
@@ -139,7 +116,7 @@ export default function ShortlistPage() {
           <div className="grid gap-0 lg:grid-cols-[minmax(0,1fr)_280px]">
             <div className="p-5">
               <div className="eyebrow mb-2">Shortlist to application</div>
-              <h2 className="font-serif text-xl font-bold leading-tight text-foreground">{lockedCountry ? "Choose the Canadian program, then open the application workflow." : "Choose the right program, then open the application workflow."}</h2>
+              <h2 className="font-serif text-xl font-bold leading-tight text-foreground">Choose the right program, then open the application workflow.</h2>
               <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
                 Saved universities now carry their next action: review programs, check deadlines, and move the strongest fit into Applications.
               </p>
@@ -235,7 +212,7 @@ export default function ShortlistPage() {
             <Badge variant="secondary">{universities.length}</Badge>
           </h2>
 
-          {!demoMode && isLoading ? (
+        {!demoMode && isLoading ? (
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-32 rounded-xl" />)}
             </div>

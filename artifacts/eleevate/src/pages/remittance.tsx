@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { PageHeader, SectionHeader } from "@/components/common/page-shell";
-import { addDemoLedgerEvent, useDemoJourneyState } from "@/lib/demo-journey";
+import { addDemoLedgerEvent } from "@/lib/demo-journey";
 import { cn } from "@/lib/utils";
 
 const remittanceKpis = [
@@ -31,9 +31,6 @@ const checklist = [
 ];
 
 export default function RemittancePage() {
-  const demoJourney = useDemoJourneyState();
-  const lockedCountry = demoJourney.countryLock;
-
   const handlePlanRemittance = () => {
     addDemoLedgerEvent({
       id: "ledger-remittance-action",
@@ -61,12 +58,6 @@ export default function RemittancePage() {
           </div>
         }
       />
-
-      {lockedCountry && (
-        <div className="mb-4 rounded-lg border border-primary/20 bg-primary/5 p-4 text-sm leading-6 text-foreground">
-          Route locked to {lockedCountry.countryName}: tuition deposit, living funds, and receipts are prepared for {lockedCountry.cities.join(" and ")}.
-        </div>
-      )}
 
       <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
         {remittanceKpis.map((kpi) => (
