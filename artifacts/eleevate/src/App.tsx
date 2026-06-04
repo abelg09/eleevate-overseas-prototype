@@ -84,6 +84,12 @@ function stripBase(path: string): string {
     : path;
 }
 
+function scrollToRouteTop() {
+  window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  document.scrollingElement?.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  document.querySelector<HTMLElement>("[data-route-scroll-container]")?.scrollTo({ top: 0, left: 0, behavior: "auto" });
+}
+
 if (!demoMode && !clerkPubKey) {
   throw new Error("Missing VITE_CLERK_PUBLISHABLE_KEY");
 }
@@ -307,70 +313,108 @@ function WithAppLayout({ component: Component }: { component: React.ComponentTyp
   );
 }
 
+function RouteScrollToTop() {
+  const [location] = useLocation();
+
+  useEffect(() => {
+    requestAnimationFrame(scrollToRouteTop);
+  }, [location]);
+
+  useEffect(() => {
+    const handleInternalLinkClick = (event: MouseEvent) => {
+      if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+
+      const target = event.target instanceof Element ? event.target : null;
+      const anchor = target?.closest("a[href]");
+      if (!(anchor instanceof HTMLAnchorElement)) return;
+      if (anchor.target && anchor.target !== "_self") return;
+
+      const url = new URL(anchor.href, window.location.href);
+      if (url.origin !== window.location.origin) return;
+
+      const samePageHashLink =
+        Boolean(url.hash) &&
+        url.pathname === window.location.pathname &&
+        url.search === window.location.search;
+      if (samePageHashLink) return;
+
+      window.setTimeout(scrollToRouteTop, 0);
+    };
+
+    document.addEventListener("click", handleInternalLinkClick);
+    return () => document.removeEventListener("click", handleInternalLinkClick);
+  }, []);
+
+  return null;
+}
+
 function Router() {
   return (
-    <Switch>
-      <Route path="/" component={HomeRedirect} />
-      <Route path="/product" component={LandingPage} />
-      <Route path="/demo/preliminary" component={StudentEntryRoute} />
-      <Route path="/demo/canada" component={StudentEntryRoute} />
-      <Route path="/login" component={() => demoMode ? <LoginPage /> : <Redirect to="/sign-in" />} />
-      <Route path="/sign-in/*?" component={SignInPage} />
-      <Route path="/sign-up/*?" component={SignUpPage} />
-      <Route path="/onboarding" component={() => <ProtectedRoute component={OnboardingPage} />} />
-      <Route path="/dashboard" component={() => <StudentRoute component={StudentDashboardPage} />} />
-      <Route path="/more" component={() => <StudentRoute component={MorePage} />} />
-      <Route path="/journey-map" component={() => <StudentRoute component={JourneyMapPage} />} />
-      <Route path="/elee-report" component={() => <StudentRoute component={EdgeReportPage} />} />
-      <Route path="/elle-report" component={() => <Redirect to="/elee-report" />} />
-      <Route path="/edge-report" component={() => <Redirect to="/elee-report" />} />
-      <Route path="/universities" component={() => <ProtectedRoute component={UniversitiesPage} />} />
-      <Route path="/universities/:id" component={() => <ProtectedRoute component={UniversityDetailPage} />} />
-      <Route path="/course-finder" component={() => <StudentRoute component={() => <WithAppLayout component={CourseFinderPage} />} />} />
-      <Route path="/applications" component={() => <StudentRoute component={ApplicationsPage} />} />
-      <Route path="/countries" component={() => <ProtectedRoute component={CountriesPage} />} />
-      <Route path="/profile" component={() => <StudentRoute component={StudentProfilePage} />} />
-      <Route path="/shortlist" component={() => <StudentRoute component={ShortlistPage} />} />
-      <Route path="/documents" component={() => <StudentRoute component={DocumentVaultPage} />} />
-      <Route path="/sop-studio" component={() => <StudentRoute component={() => <WithAppLayout component={SopStudioPage} />} />} />
-      <Route path="/visa-center" component={() => <StudentRoute component={VisaCenterPage} />} />
-      <Route path="/language-hub" component={() => <StudentRoute component={LanguageHubPage} />} />
-      <Route path="/rewards" component={() => <StudentRoute component={RewardsPage} />} />
-      <Route path="/support" component={() => <StudentRoute component={SupportPage} />} />
-      <Route path="/assessment" component={() => <StudentRoute component={() => <WithAppLayout component={AssessmentPage} />} />} />
-      <Route path="/test-prep" component={() => <StudentRoute component={() => <WithAppLayout component={TestPrepPage} />} />} />
-      <Route path="/mock-test" component={() => <StudentRoute component={() => <WithAppLayout component={MockTestPage} />} />} />
-      <Route path="/upskilling" component={() => <ProtectedRoute component={() => <WithAppLayout component={ELearningPage} />} />} />
-      <Route path="/e-learning" component={() => <ProtectedRoute component={() => <WithAppLayout component={ELearningPage} />} />} />
-      <Route path="/job-board" component={() => <ProtectedRoute component={() => <WithAppLayout component={JobBoardPage} />} />} />
-      <Route path="/careers" component={() => <StudentRoute component={() => <WithAppLayout component={CareersPage} />} />} />
-      <Route path="/alumni" component={() => <ProtectedRoute component={() => <WithAppLayout component={AlumniNetworkPage} />} />} />
-      <Route path="/news" component={() => <ProtectedRoute component={() => <WithAppLayout component={NewsNewsletterPage} />} />} />
-      <Route path="/consultant/lms" component={() => <ConsultantRoute component={() => <WithAppLayout component={LmsPage} />} />} />
-      <Route path="/consultant/dashboard" component={() => <ConsultantRoute component={ConsultantDashboardPage} />} />
-      <Route path="/consultant/profile" component={() => <ConsultantRoute component={ConsultantProfilePage} />} />
-      <Route path="/consultant/crm" component={() => <ConsultantRoute component={CrmPage} />} />
-      <Route path="/consultant/counselling" component={() => <ConsultantRoute component={CounsellingPage} />} />
-      <Route path="/consultant/chatbot" component={() => <ConsultantRoute component={AiChatbotPage} />} />
-      <Route path="/consultant/sop" component={() => <ConsultantRoute component={SopBuilderPage} />} />
-      <Route path="/consultant/doc-review" component={() => <ConsultantRoute component={DocumentReviewPage} />} />
-      <Route path="/consultant/team" component={() => <ConsultantRoute component={TeamPage} />} />
-      <Route path="/consultant/partners" component={() => <ConsultantRoute component={PartnersPage} />} />
-      <Route path="/consultant/branding" component={() => <ConsultantRoute component={BrandingPage} />} />
-      <Route path="/subscription" component={() => <ProtectedRoute component={() => <WithAppLayout component={SubscriptionPage} />} />} />
-      <Route path="/marketplace" component={() => <StudentRoute component={() => <WithAppLayout component={MarketplacePage} />} />} />
-      <Route path="/services" component={() => <StudentRoute component={() => <WithAppLayout component={MarketplacePage} />} />} />
-      <Route path="/tuition-payment" component={() => <StudentRoute component={() => <WithAppLayout component={TuitionPaymentPage} />} />} />
-      <Route path="/financial-hub" component={() => <StudentRoute component={() => <WithAppLayout component={FinancialHubPage} />} />} />
-      <Route path="/scholarships" component={() => <StudentRoute component={() => <WithAppLayout component={ScholarshipsPage} />} />} />
-      <Route path="/loans" component={() => <StudentRoute component={() => <WithAppLayout component={LoansPage} />} />} />
-      <Route path="/remittance" component={() => <StudentRoute component={() => <WithAppLayout component={RemittancePage} />} />} />
-      <Route path="/forex-card" component={() => <StudentRoute component={() => <WithAppLayout component={ForexCardPage} />} />} />
-      <Route path="/forex" component={() => <ProtectedRoute component={() => <WithAppLayout component={ForexPage} />} />} />
-      <Route path="/insurance" component={() => <StudentRoute component={() => <WithAppLayout component={InsurancePage} />} />} />
-      <Route path="/consultant/invoicing" component={() => <ConsultantRoute component={() => <WithAppLayout component={InvoicingPage} />} />} />
-      <Route component={NotFound} />
-    </Switch>
+    <>
+      <RouteScrollToTop />
+      <Switch>
+        <Route path="/" component={HomeRedirect} />
+        <Route path="/product" component={LandingPage} />
+        <Route path="/demo/preliminary" component={StudentEntryRoute} />
+        <Route path="/demo/canada" component={StudentEntryRoute} />
+        <Route path="/login" component={() => demoMode ? <LoginPage /> : <Redirect to="/sign-in" />} />
+        <Route path="/sign-in/*?" component={SignInPage} />
+        <Route path="/sign-up/*?" component={SignUpPage} />
+        <Route path="/onboarding" component={() => <ProtectedRoute component={OnboardingPage} />} />
+        <Route path="/dashboard" component={() => <StudentRoute component={StudentDashboardPage} />} />
+        <Route path="/more" component={() => <StudentRoute component={MorePage} />} />
+        <Route path="/journey-map" component={() => <StudentRoute component={JourneyMapPage} />} />
+        <Route path="/elee-report" component={() => <StudentRoute component={EdgeReportPage} />} />
+        <Route path="/elle-report" component={() => <Redirect to="/elee-report" />} />
+        <Route path="/edge-report" component={() => <Redirect to="/elee-report" />} />
+        <Route path="/universities" component={() => <ProtectedRoute component={UniversitiesPage} />} />
+        <Route path="/universities/:id" component={() => <ProtectedRoute component={UniversityDetailPage} />} />
+        <Route path="/course-finder" component={() => <StudentRoute component={() => <WithAppLayout component={CourseFinderPage} />} />} />
+        <Route path="/applications" component={() => <StudentRoute component={ApplicationsPage} />} />
+        <Route path="/countries" component={() => <ProtectedRoute component={CountriesPage} />} />
+        <Route path="/profile" component={() => <StudentRoute component={StudentProfilePage} />} />
+        <Route path="/shortlist" component={() => <StudentRoute component={ShortlistPage} />} />
+        <Route path="/documents" component={() => <StudentRoute component={DocumentVaultPage} />} />
+        <Route path="/sop-studio" component={() => <StudentRoute component={() => <WithAppLayout component={SopStudioPage} />} />} />
+        <Route path="/visa-center" component={() => <StudentRoute component={VisaCenterPage} />} />
+        <Route path="/language-hub" component={() => <StudentRoute component={LanguageHubPage} />} />
+        <Route path="/rewards" component={() => <StudentRoute component={RewardsPage} />} />
+        <Route path="/support" component={() => <StudentRoute component={SupportPage} />} />
+        <Route path="/assessment" component={() => <StudentRoute component={() => <WithAppLayout component={AssessmentPage} />} />} />
+        <Route path="/test-prep" component={() => <StudentRoute component={() => <WithAppLayout component={TestPrepPage} />} />} />
+        <Route path="/mock-test" component={() => <StudentRoute component={() => <WithAppLayout component={MockTestPage} />} />} />
+        <Route path="/upskilling" component={() => <ProtectedRoute component={() => <WithAppLayout component={ELearningPage} />} />} />
+        <Route path="/e-learning" component={() => <ProtectedRoute component={() => <WithAppLayout component={ELearningPage} />} />} />
+        <Route path="/job-board" component={() => <ProtectedRoute component={() => <WithAppLayout component={JobBoardPage} />} />} />
+        <Route path="/careers" component={() => <StudentRoute component={() => <WithAppLayout component={CareersPage} />} />} />
+        <Route path="/alumni" component={() => <ProtectedRoute component={() => <WithAppLayout component={AlumniNetworkPage} />} />} />
+        <Route path="/news" component={() => <ProtectedRoute component={() => <WithAppLayout component={NewsNewsletterPage} />} />} />
+        <Route path="/consultant/lms" component={() => <ConsultantRoute component={() => <WithAppLayout component={LmsPage} />} />} />
+        <Route path="/consultant/dashboard" component={() => <ConsultantRoute component={ConsultantDashboardPage} />} />
+        <Route path="/consultant/profile" component={() => <ConsultantRoute component={ConsultantProfilePage} />} />
+        <Route path="/consultant/crm" component={() => <ConsultantRoute component={CrmPage} />} />
+        <Route path="/consultant/counselling" component={() => <ConsultantRoute component={CounsellingPage} />} />
+        <Route path="/consultant/chatbot" component={() => <ConsultantRoute component={AiChatbotPage} />} />
+        <Route path="/consultant/sop" component={() => <ConsultantRoute component={SopBuilderPage} />} />
+        <Route path="/consultant/doc-review" component={() => <ConsultantRoute component={DocumentReviewPage} />} />
+        <Route path="/consultant/team" component={() => <ConsultantRoute component={TeamPage} />} />
+        <Route path="/consultant/partners" component={() => <ConsultantRoute component={PartnersPage} />} />
+        <Route path="/consultant/branding" component={() => <ConsultantRoute component={BrandingPage} />} />
+        <Route path="/subscription" component={() => <ProtectedRoute component={() => <WithAppLayout component={SubscriptionPage} />} />} />
+        <Route path="/marketplace" component={() => <StudentRoute component={() => <WithAppLayout component={MarketplacePage} />} />} />
+        <Route path="/services" component={() => <StudentRoute component={() => <WithAppLayout component={MarketplacePage} />} />} />
+        <Route path="/tuition-payment" component={() => <StudentRoute component={() => <WithAppLayout component={TuitionPaymentPage} />} />} />
+        <Route path="/financial-hub" component={() => <StudentRoute component={() => <WithAppLayout component={FinancialHubPage} />} />} />
+        <Route path="/scholarships" component={() => <StudentRoute component={() => <WithAppLayout component={ScholarshipsPage} />} />} />
+        <Route path="/loans" component={() => <StudentRoute component={() => <WithAppLayout component={LoansPage} />} />} />
+        <Route path="/remittance" component={() => <StudentRoute component={() => <WithAppLayout component={RemittancePage} />} />} />
+        <Route path="/forex-card" component={() => <StudentRoute component={() => <WithAppLayout component={ForexCardPage} />} />} />
+        <Route path="/forex" component={() => <ProtectedRoute component={() => <WithAppLayout component={ForexPage} />} />} />
+        <Route path="/insurance" component={() => <StudentRoute component={() => <WithAppLayout component={InsurancePage} />} />} />
+        <Route path="/consultant/invoicing" component={() => <ConsultantRoute component={() => <WithAppLayout component={InvoicingPage} />} />} />
+        <Route component={NotFound} />
+      </Switch>
+    </>
   );
 }
 
