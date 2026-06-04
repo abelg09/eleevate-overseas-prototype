@@ -46,32 +46,7 @@ const STATUS_CONFIG: Record<SopStatus, { label: string; color: string }> = {
   final: { label: "Final", color: "bg-green-100 text-green-700" },
 };
 
-const DEMO_SOP_DOCS: SopDocument[] = [
-  {
-    id: "demo-sop-1",
-    type: "sop",
-    title: "SOP - University of Toronto MSc Computer Science",
-    targetUniversity: "University of Toronto",
-    targetProgram: "MSc Computer Science",
-    content: "My academic and professional journey has consistently moved toward building responsible, useful AI systems. Through undergraduate work in computer science, applied projects in data analytics, and product-focused internships, I have learned that strong technical work becomes meaningful only when it is tied to real user problems.\n\nThe MSc Computer Science pathway at the University of Toronto is a strong fit because of its research depth, international environment, and proximity to Canada's technology ecosystem. I am especially interested in machine learning systems, human-computer interaction, and applied data products.\n\nAfter graduation, my goal is to work as a machine learning engineer or data product lead, then build products that improve access to education and career mobility.",
-    version: 2,
-    status: "review",
-    createdAt: "2026-05-18T10:00:00.000Z",
-    updatedAt: "2026-05-21T09:00:00.000Z",
-  },
-  {
-    id: "demo-resume-1",
-    type: "resume",
-    title: "Graduate Resume - Data/Product Track",
-    targetUniversity: "University of Leeds",
-    targetProgram: "MSc International Business",
-    content: "Student\nData Analyst and Product Intern\n\nEducation\nBSc Computer Science, GPA 3.72\n\nExperience\nProduct Analytics Intern - built dashboards, improved onboarding funnel insights, and documented weekly product metrics.\n\nProjects\nAI course recommender, finance readiness calculator, and student document tracker.\n\nSkills\nPython, SQL, Power BI, React, stakeholder communication.",
-    version: 1,
-    status: "final",
-    createdAt: "2026-05-17T10:00:00.000Z",
-    updatedAt: "2026-05-20T12:00:00.000Z",
-  },
-];
+const DEMO_SOP_DOCS: SopDocument[] = [];
 
 async function fetchDocs(): Promise<{ data: SopDocument[]; total: number }> {
   const res = await fetch("/api/consultant/sop");

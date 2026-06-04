@@ -38,18 +38,7 @@ const STATUS_COLORS: Record<string, string> = {
   refunded: "bg-slate-100 text-slate-700",
 };
 
-const DEMO_PAYMENTS: TuitionPayment[] = [
-  {
-    id: "demo-payment-1",
-    type: "tuition",
-    amount: 500000,
-    currency: "CAD",
-    status: "processing",
-    description: "University of Toronto tuition deposit",
-    reference: "EO-TU-1024",
-    createdAt: "2026-05-20T10:30:00.000Z",
-  },
-];
+const DEMO_PAYMENTS: TuitionPayment[] = [];
 
 export default function TuitionPaymentPage() {
   const { getToken } = useAuth();

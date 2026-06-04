@@ -63,26 +63,7 @@ const FAQ = [
   },
 ];
 
-const DEMO_TICKETS: SupportTicket[] = [
-  {
-    id: "demo-ticket-1",
-    userId: "demo-student",
-    subject: "Need finance document review before Canada visa filing",
-    body: "Please confirm if the sponsor letter and bank statement are enough for the University of Toronto study permit.",
-    status: "in_progress",
-    createdAt: "2026-05-20T09:30:00.000Z",
-    updatedAt: "2026-05-21T12:00:00.000Z",
-  },
-  {
-    id: "demo-ticket-2",
-    userId: "demo-student",
-    subject: "SOP review timeline",
-    body: "I uploaded SOP v2. Can the consultant review it before the application deadline?",
-    status: "open",
-    createdAt: "2026-05-21T08:10:00.000Z",
-    updatedAt: "2026-05-21T08:10:00.000Z",
-  },
-];
+const DEMO_TICKETS: SupportTicket[] = [];
 
 export default function SupportPage() {
   const { toast } = useToast();

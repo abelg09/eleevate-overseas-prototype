@@ -68,15 +68,10 @@ function getTier(points: number) {
 }
 
 const DEMO_LOYALTY: LoyaltyData = {
-  total: 1285,
-  tier: "Pathfinder",
+  total: 0,
+  tier: "Explorer",
   tiers: TIER_ORDER.map((name) => ({ name, minPoints: TIERS.find((tier) => tier.name === name)?.minPoints ?? 0, color: name })),
-  ledger: [
-    { id: "demo-loyalty-1", userId: "demo-student", event: "profile_completed", points: 100, description: "Completed ELEE profile", createdAt: "2026-05-15T09:00:00.000Z" },
-    { id: "demo-loyalty-2", userId: "demo-student", event: "document_uploaded", points: 25, description: "Uploaded SOP v2", createdAt: "2026-05-21T09:20:00.000Z" },
-    { id: "demo-loyalty-3", userId: "demo-student", event: "application_submitted", points: 50, description: "Submitted University of Toronto application", createdAt: "2026-05-18T10:00:00.000Z" },
-    { id: "demo-loyalty-4", userId: "demo-student", event: "test_score_logged", points: 20, description: "Logged IELTS result", createdAt: "2026-05-14T10:00:00.000Z" },
-  ],
+  ledger: [],
 };
 
 export default function RewardsPage() {
@@ -106,7 +101,7 @@ export default function RewardsPage() {
     : 100;
 
   // Deterministic referral code from Clerk user ID (no random)
-  const referralCode = demoMode ? "AARAV2026" : user?.id ? user.id.slice(-8).toUpperCase() : "--------";
+  const referralCode = demoMode ? "START2026" : user?.id ? user.id.slice(-8).toUpperCase() : "--------";
   const referralLink = `https://eleevate.app/ref/${referralCode}`;
 
   const handleEarnPoints = async (event: string, label: string, points: number) => {

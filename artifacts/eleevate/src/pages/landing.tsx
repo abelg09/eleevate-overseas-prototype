@@ -158,7 +158,7 @@ export default function LandingPage() {
   const apiCountries = listFromApi<Country>(countries);
   const universities = demoMode || apiUnis.length === 0 ? DEMO_UNIVERSITIES.slice(0, 4) : apiUnis.slice(0, 4);
   const countriesList = demoMode || apiCountries.length === 0 ? DEMO_COUNTRIES.slice(0, 6) : apiCountries.slice(0, 6);
-  const primaryCtaHref = demoMode ? "/demo/preliminary" : "/sign-up";
+  const primaryCtaHref = demoMode ? "/login?redirect=/dashboard" : "/sign-up";
   const consultantHref = demoMode ? "/login?role=consultant&redirect=/consultant/dashboard" : "/sign-in";
   const showCountries = demoMode || (!countriesLoading && countriesList.length > 0);
   const showUniversitySkeletons = !demoMode && unisLoading;
@@ -290,7 +290,7 @@ export default function LandingPage() {
                     Pick a route with cost, city, visa, and career clarity.
                   </h2>
                   <p className="mt-4 text-base leading-8 text-muted-foreground">
-                    Start broad, then lock the country that fits the student's profile, budget, family readiness, and career plan.
+                    Start broad, then choose the destination that fits the student's profile, budget, family readiness, and career plan.
                   </p>
                 </div>
                 <Link href="/countries">

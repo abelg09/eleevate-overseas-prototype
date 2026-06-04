@@ -69,7 +69,7 @@ const DEMO_RESULT: Session = {
   fieldRecommendations: [
     {
       field: "Computer Science and AI",
-      countries: ["Canada", "United Kingdom", "Germany"],
+      countries: ["United Kingdom", "Germany", "Singapore"],
       careers: ["AI Product Engineer", "Data Engineer", "Machine Learning Analyst", "Product Analyst"],
       matchScore: 91,
     },
@@ -81,7 +81,7 @@ const DEMO_RESULT: Session = {
     },
     {
       field: "Digital Product Management",
-      countries: ["Canada", "Netherlands", "Singapore"],
+      countries: ["Netherlands", "Singapore", "Ireland"],
       careers: ["Associate PM", "Product Operations", "UX Researcher"],
       matchScore: 78,
     },
@@ -110,7 +110,7 @@ export default function AssessmentPage() {
     },
     enabled: !demoMode,
   });
-  const pastSessionsList = demoMode ? [DEMO_RESULT] : pastSessions ?? [];
+  const pastSessionsList = demoMode ? [] : pastSessions ?? [];
 
   const fetchQuestions = async () => {
     if (demoMode) {

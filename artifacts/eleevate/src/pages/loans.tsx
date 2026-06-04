@@ -32,7 +32,7 @@ const DEMO_LOAN_PRODUCTS = [
     processingFee: "1.0%",
     collateralRequired: false,
     maxLoanINR: "INR 75L",
-    eligibility: "Best for Canada and UK admits with co-applicant income proof and clean academic profile.",
+    eligibility: "Best for admitted students with co-applicant income proof and a clean academic profile.",
     turnaround: "5-7 working days",
     popular: true,
   },
@@ -143,7 +143,7 @@ export default function LoansPage() {
               interestRate: product.interestRate,
               tenureMonths: parseInt(tenure),
               status: "submitted",
-              universityName: universityName || "University of Toronto",
+              universityName: universityName || "Selected university",
               createdAt: new Date().toISOString(),
             },
             ...items.filter((item) => item.lenderName !== product.lenderName),
@@ -290,11 +290,11 @@ export default function LoansPage() {
                 </div>
                 <div>
                   <label className="text-sm font-medium">University (optional)</label>
-                  <Input placeholder="e.g. University of Toronto" value={universityName} onChange={e => setUniversityName(e.target.value)} className="mt-1" />
+                  <Input placeholder="e.g. University name" value={universityName} onChange={e => setUniversityName(e.target.value)} className="mt-1" />
                 </div>
                 <div>
                   <label className="text-sm font-medium">Country (optional)</label>
-                  <Input placeholder="e.g. Canada" value={country} onChange={e => setCountry(e.target.value)} className="mt-1" />
+                  <Input placeholder="e.g. United Kingdom" value={country} onChange={e => setCountry(e.target.value)} className="mt-1" />
                 </div>
               </div>
               <Button className="mt-4 gap-2" onClick={() => setSearched(true)} disabled={!loanAmount}>

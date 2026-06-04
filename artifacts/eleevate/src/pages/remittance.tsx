@@ -8,17 +8,17 @@ import { addDemoLedgerEvent } from "@/lib/demo-journey";
 import { cn } from "@/lib/utils";
 
 const remittanceKpis = [
-  { label: "Tuition due", value: "$18.4k", detail: "University of Toronto", tone: "border-l-primary" },
-  { label: "Living funds", value: "$8.2k", detail: "Q1 proof target", tone: "border-l-[#F8B133]" },
-  { label: "Receipts stored", value: "6/8", detail: "Document vault sync", tone: "border-l-emerald-400" },
-  { label: "Compliance status", value: "Ready", detail: "LRS checklist complete", tone: "border-l-emerald-400" },
+  { label: "Tuition due", value: "--", detail: "Add an offer or invoice", tone: "border-l-primary" },
+  { label: "Living funds", value: "--", detail: "Add budget details", tone: "border-l-[#F8B133]" },
+  { label: "Receipts stored", value: "0", detail: "Upload after payment", tone: "border-l-emerald-400" },
+  { label: "Compliance status", value: "Not started", detail: "Checklist opens after route", tone: "border-l-emerald-400" },
 ];
 
 const paymentMilestones = [
-  { item: "Application fees", owner: "Student", due: "Done", status: "Completed", progress: 100 },
-  { item: "Tuition deposit", owner: "Family", due: "3 Jun", status: "Ready to send", progress: 76 },
-  { item: "GIC / living funds", owner: "Sponsor", due: "12 Jun", status: "Docs pending", progress: 52 },
-  { item: "Insurance premium", owner: "System", due: "After visa filing", status: "Queued", progress: 24 },
+  { item: "Application fees", owner: "Student", due: "Not set", status: "Not started", progress: 0 },
+  { item: "Tuition deposit", owner: "Family", due: "Not set", status: "Waiting for offer", progress: 0 },
+  { item: "Living funds", owner: "Sponsor", due: "Not set", status: "Waiting for route", progress: 0 },
+  { item: "Insurance premium", owner: "Student", due: "Not set", status: "Later", progress: 0 },
 ];
 
 const checklist = [
@@ -36,7 +36,7 @@ export default function RemittancePage() {
       id: "ledger-remittance-action",
       source: "Remittance",
       event: "Tuition remittance plan confirmed",
-      studentView: "University of Toronto tuition deposit, LRS checklist, and receipt evidence are queued.",
+      studentView: "Tuition deposit, compliance checklist, and receipt evidence are queued.",
       consultantView: "Finance desk receives a receipt follow-up task for visa evidence.",
       revenue: "Receipt follow-up ready",
       status: "Ready",

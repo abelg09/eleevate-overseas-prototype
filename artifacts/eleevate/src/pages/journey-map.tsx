@@ -30,7 +30,7 @@ export default function JourneyMapPage() {
               <Link href="/dashboard">
                 <Button variant="outline" className="rounded-full font-serif">Back to dashboard</Button>
               </Link>
-              <Link href="/documents">
+              <Link href="/profile">
                 <Button className="rounded-full font-serif">Continue current step</Button>
               </Link>
             </>
@@ -41,17 +41,17 @@ export default function JourneyMapPage() {
           <div className="brand-gradient-bg h-1.5" />
           <div className="p-5 md:p-6">
             <Badge className="mb-4 rounded-full border-primary/20 bg-white px-3 text-primary hover:bg-white">
-              Current stage: Documents & Visa
+              Current stage: Profile
             </Badge>
             <h2 className="max-w-4xl font-serif text-3xl font-bold leading-tight text-foreground">
               The journey is simple: choose the right route, apply properly, prepare documents early, then handle visa, finance, and arrival.
             </h2>
             <div className="mt-5 grid grid-cols-1 gap-3 md:grid-cols-4">
               {[
-                { label: "Selected route", value: "Canada" },
-                { label: "Saved universities", value: "4" },
-                { label: "Document readiness", value: "67%" },
-                { label: "Urgent blocker", value: "Finance proof" },
+                { label: "Selected route", value: "Not chosen" },
+                { label: "Saved universities", value: "0" },
+                { label: "Document readiness", value: "0%" },
+                { label: "Next action", value: "Profile" },
               ].map((item) => (
                 <div key={item.label} className="rounded-lg border border-border bg-white/85 p-4">
                   <div className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">{item.label}</div>
