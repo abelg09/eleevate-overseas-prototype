@@ -164,7 +164,7 @@ export default function SopStudioPage() {
           <Card className="app-card border-accent/20 bg-accent/5 p-4">
             <div className="font-serif text-base font-bold text-foreground">Consultant handoff</div>
             <p className="mt-2 text-sm leading-6 text-muted-foreground">
-              Generating the draft writes a ledger event and gives the consultant reviewer a structured queue item instead of a blank document.
+              Generating the draft gives the consultant reviewer a structured queue item instead of a blank document.
             </p>
           </Card>
         </aside>

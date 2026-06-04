@@ -61,6 +61,7 @@ import ForexCardPage from "@/pages/forex-card";
 import ForexPage from "@/pages/forex";
 import InsurancePage from "@/pages/insurance";
 import InvoicingPage from "@/pages/invoicing";
+import MorePage from "@/pages/more";
 import NotFound from "@/pages/not-found";
 import { useDemoAuthState } from "@/lib/demo-auth";
 import { DEMO_APPLICATION_STORAGE_KEY } from "@/lib/demo-catalog";
@@ -335,6 +336,7 @@ function Router() {
       <Route path="/sign-up/*?" component={SignUpPage} />
       <Route path="/onboarding" component={() => <ProtectedRoute component={OnboardingPage} />} />
       <Route path="/dashboard" component={() => <StudentRoute component={StudentDashboardPage} />} />
+      <Route path="/more" component={() => <StudentRoute component={MorePage} />} />
       <Route path="/journey-map" component={() => <StudentRoute component={JourneyMapPage} />} />
       <Route path="/elee-report" component={() => <StudentRoute component={EdgeReportPage} />} />
       <Route path="/elle-report" component={() => <Redirect to="/elee-report" />} />

@@ -31,7 +31,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
 
             <div className="hidden min-w-64 items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-xs text-muted-foreground md:flex">
               <Search className="h-4 w-4" />
-              <span className="truncate">Search students, documents, universities</span>
+              <span className="truncate">{consultant ? "Search students, documents, universities" : "Search universities, documents, tasks"}</span>
             </div>
 
             <div className="hidden items-center gap-2 xl:flex">
@@ -61,7 +61,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
 
             {isDemoMode() && (
               <Badge variant="outline" className="hidden border-emerald-200 bg-emerald-50 text-emerald-700 sm:inline-flex">
-                {demoJourney.mode === "canada_locked" ? "Canada demo" : "Preliminary demo"}
+                {demoJourney.mode === "canada_locked" ? "Canada route" : "Exploring"}
               </Badge>
             )}
           </div>
@@ -76,8 +76,8 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                 </div>
                 <p className="mt-0.5 text-xs leading-5 text-muted-foreground">
                   {demoJourney.countryLock
-                    ? `${demoJourney.countryLock.countryName} only: ${demoJourney.countryLock.cities.join(", ")} city guides, ${demoJourney.countryLock.universityIds.length} selected universities, and ${demoJourney.ledgerEvents.length} live ledger events.`
-                    : "Broad first-arrival demo: countries, universities, finance, services, and consultant tools stay open for exploration."}
+                    ? `${demoJourney.countryLock.countryName} route: ${demoJourney.countryLock.cities.join(", ")} city guides, ${demoJourney.countryLock.universityIds.length} selected universities, and finance, visa, and arrival tasks kept together.`
+                    : "Explore countries, universities, documents, finance, services, and consultant support before locking a route."}
                 </p>
               </div>
               <div className="flex flex-wrap gap-2">

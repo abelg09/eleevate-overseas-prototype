@@ -25,59 +25,14 @@ interface NavGroup {
 
 const studentGroups: NavGroup[] = [
   {
-    label: "Journey",
+    label: "Student Menu",
     items: [
       { href: "/dashboard", label: "Dashboard" },
-      { href: "/journey-map", label: "Journey Map" },
       { href: "/profile", label: "Profile" },
       { href: "/elee-report", label: "ELEE Report" },
-      { href: "/assessment", label: "Psychometric Test" },
-      { href: "/applications", label: "Applications" },
-    ],
-  },
-  {
-    label: "Discovery",
-    items: [
       { href: "/universities", label: "Universities" },
-      { href: "/course-finder", label: "Course Finder" },
-      { href: "/shortlist", label: "Shortlist" },
-      { href: "/countries", label: "City Guides" },
-      { href: "/news", label: "News & Newsletter" },
-    ],
-  },
-  {
-    label: "Docs & Visa",
-    items: [
-      { href: "/documents", label: "Document Vault" },
-      { href: "/sop-studio", label: "SOP Studio" },
-      { href: "/visa-center", label: "Visa Center" },
-      { href: "/support", label: "Support" },
-    ],
-  },
-  {
-    label: "Upskilling & Careers",
-    items: [
-      { href: "/upskilling", label: "Upskilling Hub" },
-      { href: "/test-prep", label: "Test Prep" },
-      { href: "/mock-test", label: "Mock Test" },
-      { href: "/language-hub", label: "Language Lab" },
-      { href: "/careers", label: "Careers" },
-      { href: "/job-board", label: "Job Board" },
-      { href: "/alumni", label: "Alumni Network" },
-    ],
-  },
-  {
-    label: "Finance",
-    items: [
-      { href: "/financial-hub", label: "Financial Hub" },
-      { href: "/scholarships", label: "Scholarships" },
-      { href: "/loans", label: "Edu Loans" },
-      { href: "/remittance", label: "Remittance" },
-      { href: "/forex-card", label: "Forex Card" },
-      { href: "/forex", label: "Forex" },
-      { href: "/insurance", label: "Insurance" },
-      { href: "/subscription", label: "Subscription" },
-      { href: "/rewards", label: "Rewards" },
+      { href: "/applications", label: "Applications" },
+      { href: "/more", label: "More" },
     ],
   },
 ];
@@ -203,12 +158,12 @@ function SidebarShell({
       <div className="border-b border-sidebar-border bg-white p-4">
         <Link href={role === "consultant" ? "/consultant/dashboard" : "/dashboard"}>
           <div className="flex cursor-pointer items-center gap-3" data-testid="sidebar-logo">
-            <img src={assetUrl("logo.webp")} alt="EleevateOverseas" className="h-32 w-32 rounded-full object-cover shadow-sm ring-1 ring-border" />
+            <img src={assetUrl("logo.webp")} alt="EleevateOverseas" className="h-24 w-24 rounded-full object-cover shadow-sm ring-1 ring-border" />
           </div>
         </Link>
         <div className="mt-4 flex items-center gap-2">
           <Badge className="brand-gradient-bg rounded-full px-3 py-1 text-white hover:opacity-95">
-            {role === "consultant" ? "Workbench" : "Journey OS"}
+            {role === "consultant" ? "Workbench" : "Student Journey"}
           </Badge>
           {demo && (
             <Badge variant="outline" className="rounded-full border-emerald-200 bg-emerald-50 px-3 py-1 text-emerald-700">

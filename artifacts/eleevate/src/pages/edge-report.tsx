@@ -4,46 +4,56 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { PageHeader, SectionHeader, TaskQueue } from "@/components/common/page-shell";
+import { PageHeader, SectionHeader } from "@/components/common/page-shell";
 import { demoEdgeReport } from "@/lib/demo-data";
 import { useDemoJourneyState } from "@/lib/demo-journey";
 import { cn } from "@/lib/utils";
 
-const profileToneStyles = {
-  good: "border-emerald-200 bg-emerald-50 text-emerald-800",
-  watch: "border-[#F8B133]/40 bg-[#F8B133]/10 text-[#7A5200]",
-  action: "border-red-200 bg-red-50 text-red-700",
-};
+const blockers = [
+  {
+    title: "Finance proof is incomplete",
+    detail: "Upload sponsor bank statements and education loan pre-approval before paying more application fees.",
+    href: "/documents",
+  },
+  {
+    title: "SOP needs a stronger course story",
+    detail: "Add project outcomes, why Canada, and why each selected program fits the career plan.",
+    href: "/sop-studio",
+  },
+  {
+    title: "Visa file is not ready yet",
+    detail: "The visa checklist should be completed after finance proof and offer conditions are clear.",
+    href: "/visa-center",
+  },
+];
 
-const documentStatusStyles = {
-  approved: "border-emerald-200 bg-emerald-50 text-emerald-800",
-  review: "border-primary/20 bg-primary/5 text-primary",
-  missing: "border-red-200 bg-red-50 text-red-700",
-  ai_check: "border-[#F8B133]/40 bg-[#F8B133]/10 text-[#7A5200]",
-};
+const nextActions = [
+  { label: "Upload sponsor statement", owner: "Student", due: "Today", href: "/documents" },
+  { label: "Review SOP draft", owner: "Student + advisor", due: "Tomorrow", href: "/sop-studio" },
+  { label: "Start Toronto and UBC applications", owner: "Student", due: "This week", href: "/applications" },
+];
 
-const documentStatusLabels = {
-  approved: "Approved",
+const readinessCards = [
+  { label: "Country fit", value: "88%", detail: "Canada is strongest for CS, PGWP, and budget fit.", progress: 88, tone: "good" },
+  { label: "Documents", value: "67%", detail: "Finance proof and final SOP review are pending.", progress: 67, tone: "watch" },
+  { label: "Visa readiness", value: "Medium", detail: "Confidence improves once the sponsor file is complete.", progress: 54, tone: "action" },
+  { label: "Family clarity", value: "72%", detail: "Share cost timeline before major fee payments.", progress: 72, tone: "watch" },
+];
+
+const recentUpdates = [
+  "Canada moved to the top route after budget and post-study work checks.",
+  "Finance gap added to the dashboard and document checklist.",
+  "SOP review moved ahead of final university submissions.",
+];
+
+const documentLabels = {
+  approved: "Ready",
   review: "Review",
   missing: "Missing",
-  ai_check: "ELEE check",
+  ai_check: "Review",
 };
 
-const decisionSummary = [
-  { label: "Best route", value: "Canada", note: "Highest study fit and post-study pathway confidence." },
-  { label: "Main blocker", value: "Finance proof", note: "Sponsor documents need to close an $8k evidence gap." },
-  { label: "Application story", value: "Promising", note: "Projects are strong, SOP needs a sharper motivation arc." },
-  { label: "Family decision", value: "Needs briefing", note: "Cost timeline should be shared before fee payments." },
-];
-
-const readinessMatrix = [
-  { label: "Academic fit", value: "91%", progress: 91, status: "Ready", tone: "good" },
-  { label: "Document packet", value: "67%", progress: 67, status: "Cleanup", tone: "watch" },
-  { label: "Visa confidence", value: "Medium", progress: 54, status: "Proof-led", tone: "action" },
-  { label: "Family clarity", value: "72%", progress: 72, status: "Briefing", tone: "watch" },
-];
-
-function scoreToneClass(tone: string) {
+function toneClass(tone: string) {
   return cn(
     tone === "good" && "border-emerald-200 bg-emerald-50 text-emerald-800",
     tone === "watch" && "border-[#F8B133]/40 bg-[#F8B133]/10 text-[#7A5200]",
@@ -54,30 +64,26 @@ function scoreToneClass(tone: string) {
 export default function EdgeReportPage() {
   const report = demoEdgeReport;
   const demoJourney = useDemoJourneyState();
-  const lockedCountry = demoJourney.countryLock;
-  const recentLedgerEvents = demoJourney.ledgerEvents.slice(0, 4);
+  const selectedCountry = demoJourney.countryLock?.countryName ?? report.preferredCountries[0].country;
   const budget = report.financialReadiness.budgetUsd;
   const confirmed = report.financialReadiness.confirmedFundsUsd;
   const gap = report.financialReadiness.fundingGapUsd;
   const fundingProgress = Math.round((confirmed / budget) * 100);
-  const primaryCountry = report.preferredCountries[0];
 
   return (
     <AppLayout>
       <div data-testid="edge-report-page">
         <PageHeader
-          eyebrow="ELEE Clarity Report"
-          title={`${report.studentName}'s decision dossier`}
-          description={lockedCountry ? "Canada route is locked. This report now acts as the readable command layer for finance, documents, visa, applications, and consultant handoff." : "A consultant-ready view of country fit, family readiness, finance evidence, documents, and the actions that improve the student journey fastest."}
+          eyebrow="ELEE Report"
+          title="Your study-abroad readiness report"
+          description={`ELEE ranks routes, explains why ${selectedCountry} fits, and shows the exact tasks that improve applications, finance, documents, and visa readiness.`}
           actions={
             <>
-              <Button variant="outline" className="rounded-full font-serif">
-                Export PDF
-              </Button>
+              <Link href="/dashboard">
+                <Button variant="outline" className="rounded-full font-serif">Back to dashboard</Button>
+              </Link>
               <Link href="/documents">
-                <Button className="rounded-full font-serif">
-                  Fix blockers
-                </Button>
+                <Button className="rounded-full font-serif">Fix blockers</Button>
               </Link>
             </>
           }
@@ -85,7 +91,7 @@ export default function EdgeReportPage() {
 
         <section className="mb-5 overflow-hidden rounded-lg border border-border bg-white shadow-sm">
           <div className="brand-gradient-bg h-1.5" />
-          <div className="grid gap-0 xl:grid-cols-[minmax(0,1fr)_360px]">
+          <div className="grid gap-0 xl:grid-cols-[minmax(0,1fr)_340px]">
             <div className="p-5 md:p-6">
               <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
                 <div className="flex h-36 w-36 flex-shrink-0 flex-col items-center justify-center rounded-full border-[10px] border-primary/15 bg-muted/50 text-center">
@@ -94,47 +100,51 @@ export default function EdgeReportPage() {
                 </div>
                 <div className="min-w-0 flex-1">
                   <Badge className="mb-4 rounded-full border-primary/20 bg-primary/10 px-3 text-xs text-primary hover:bg-primary/10">
-                    Generated {report.generatedAt}
+                    Updated {report.generatedAt}
                   </Badge>
                   <h2 className="max-w-3xl font-serif text-3xl font-bold leading-tight text-foreground">
-                    {report.readinessBand}
+                    {selectedCountry} should lead your application plan.
                   </h2>
                   <p className="mt-3 max-w-3xl text-sm leading-6 text-muted-foreground">
-                    {primaryCountry.country} should lead the application route. The profile is strong, but confidence depends on finance evidence, SOP clarity, and turning the shortlist into tracked applications.
+                    The profile is strong for computer science and AI programs. The next score improvement comes from finance proof, final SOP polish, and moving shortlisted universities into applications.
                   </p>
-                  <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                    {decisionSummary.map((item) => (
-                      <div key={item.label} className="rounded-lg border border-border bg-muted/30 p-3">
-                        <div className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">{item.label}</div>
-                        <div className="mt-1 font-serif text-lg font-bold leading-6 text-foreground">{item.value}</div>
-                        <p className="mt-2 text-xs leading-5 text-muted-foreground">{item.note}</p>
-                      </div>
-                    ))}
+                  <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
+                    <div className="rounded-lg border border-border bg-muted/30 p-3">
+                      <div className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Best country</div>
+                      <div className="mt-1 font-serif text-lg font-bold text-foreground">{selectedCountry}</div>
+                    </div>
+                    <div className="rounded-lg border border-border bg-muted/30 p-3">
+                      <div className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Funding gap</div>
+                      <div className="mt-1 font-serif text-lg font-bold text-foreground">${Math.round(gap / 1000)}k</div>
+                    </div>
+                    <div className="rounded-lg border border-border bg-muted/30 p-3">
+                      <div className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Current blocker</div>
+                      <div className="mt-1 font-serif text-lg font-bold text-foreground">Finance proof</div>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
 
             <aside className="border-t border-border bg-muted/35 p-5 xl:border-l xl:border-t-0">
-              <div className="eyebrow mb-3">Consultant verdict</div>
-              <div className="rounded-lg border border-primary/20 bg-white p-4">
-                <div className="text-sm font-semibold text-foreground">Proceed with targeted cleanup</div>
-                <p className="mt-2 text-xs leading-5 text-muted-foreground">
-                  Submit high-fit applications after the finance proof bundle and SOP review are completed.
-                </p>
-              </div>
-              <div className="mt-3 grid grid-cols-2 gap-3">
+              <div className="eyebrow mb-3">Finance summary</div>
+              <div className="grid grid-cols-2 gap-3">
                 <div className="rounded-lg border border-border bg-white p-3">
-                  <div className="font-serif text-xl font-bold text-foreground">${Math.round(gap / 1000)}k</div>
-                  <div className="mt-1 text-xs text-muted-foreground">Evidence gap</div>
+                  <div className="font-serif text-xl font-bold text-foreground">${Math.round(budget / 1000)}k</div>
+                  <div className="mt-1 text-xs text-muted-foreground">Total budget</div>
                 </div>
                 <div className="rounded-lg border border-border bg-white p-3">
-                  <div className="font-serif text-xl font-bold text-foreground">{fundingProgress}%</div>
-                  <div className="mt-1 text-xs text-muted-foreground">Funding ready</div>
+                  <div className="font-serif text-xl font-bold text-foreground">${Math.round(confirmed / 1000)}k</div>
+                  <div className="mt-1 text-xs text-muted-foreground">Confirmed funds</div>
                 </div>
               </div>
-              <Link href="/applications">
-                <Button className="mt-4 w-full rounded-full font-serif">Open applications</Button>
+              <div className="mt-4 flex items-center justify-between text-sm">
+                <span className="font-semibold text-muted-foreground">Funding readiness</span>
+                <span className="font-serif font-bold text-foreground">{fundingProgress}%</span>
+              </div>
+              <Progress value={fundingProgress} className="mt-2 h-2" />
+              <Link href="/loans">
+                <Button className="mt-4 w-full rounded-full font-serif">Review finance options</Button>
               </Link>
             </aside>
           </div>
@@ -143,16 +153,16 @@ export default function EdgeReportPage() {
         <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_380px]">
           <section className="space-y-5">
             <Card className="app-card p-4">
-              <SectionHeader title="Country route" description="Ranked by profile fit, budget, outcomes, and visa feasibility." />
+              <SectionHeader title="Route ranking" description="Countries ranked by study fit, budget fit, visa path, and career outcomes." />
               <div className="space-y-3">
                 {report.preferredCountries.map((country, index) => (
                   <div key={country.country} className="rounded-lg border border-border bg-muted/25 p-4">
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                      <div className="min-w-0">
+                      <div>
                         <div className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Route {index + 1}</div>
                         <div className="mt-1 font-serif text-lg font-bold text-foreground">{country.country}</div>
                       </div>
-                      <Badge variant="secondary" className="w-fit rounded-full px-3 py-1">{country.score}% fit</Badge>
+                      <Badge variant="secondary" className="w-fit rounded-full">{country.score}% fit</Badge>
                     </div>
                     <Progress value={country.score} className="mt-3 h-2" />
                     <p className="mt-3 text-sm leading-6 text-muted-foreground">{country.rationale}</p>
@@ -162,40 +172,36 @@ export default function EdgeReportPage() {
             </Card>
 
             <Card className="app-card p-4">
-              <SectionHeader title="Readiness matrix" description="The four areas that affect admission confidence and visa risk." />
+              <SectionHeader title="Readiness summary" description="The four areas that most affect the next decision." />
               <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                {readinessMatrix.map((item) => (
-                  <div key={item.label} className="rounded-lg border border-border bg-muted/25 p-4">
+                {readinessCards.map((item) => (
+                  <div key={item.label} className="rounded-lg border border-border bg-white p-4">
                     <div className="flex items-start justify-between gap-3">
                       <div>
                         <div className="text-xs font-semibold text-muted-foreground">{item.label}</div>
-                        <div className="mt-2 font-serif text-2xl font-bold leading-none text-foreground">{item.value}</div>
+                        <div className="mt-2 font-serif text-2xl font-bold text-foreground">{item.value}</div>
                       </div>
-                      <span className={cn("rounded-full border px-2.5 py-1 text-xs font-semibold", scoreToneClass(item.tone))}>
-                        {item.status}
+                      <span className={cn("rounded-full border px-2.5 py-1 text-xs font-semibold", toneClass(item.tone))}>
+                        {item.tone === "good" ? "Ready" : item.tone === "action" ? "Fix next" : "Review"}
                       </span>
                     </div>
                     <Progress value={item.progress} className="mt-4 h-2" />
+                    <p className="mt-3 text-xs leading-5 text-muted-foreground">{item.detail}</p>
                   </div>
                 ))}
               </div>
             </Card>
 
             <Card className="app-card p-4">
-              <SectionHeader title="Student profile signals" />
-              <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                {report.profileInsights.map((item) => (
-                  <div key={item.label} className="rounded-lg border border-border bg-white p-3">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0">
-                        <div className="text-xs font-semibold text-muted-foreground">{item.label}</div>
-                        <div className="mt-1 text-sm font-semibold leading-5 text-foreground">{item.value}</div>
-                      </div>
-                      <span className={cn("flex-shrink-0 rounded-full border px-2 py-1 text-xs font-semibold", profileToneStyles[item.tone])}>
-                        {item.tone}
-                      </span>
+              <SectionHeader title="Missing or weak items" description="Fix these before payment-heavy applications." />
+              <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
+                {blockers.map((blocker) => (
+                  <Link key={blocker.title} href={blocker.href}>
+                    <div className="h-full rounded-lg border border-red-200 bg-red-50 p-4 transition-all hover:border-red-300 hover:bg-red-100/60">
+                      <div className="font-serif text-base font-bold leading-tight text-red-800">{blocker.title}</div>
+                      <p className="mt-2 text-sm leading-6 text-red-700/85">{blocker.detail}</p>
                     </div>
-                  </div>
+                  </Link>
                 ))}
               </div>
             </Card>
@@ -203,28 +209,33 @@ export default function EdgeReportPage() {
 
           <aside className="space-y-5">
             <Card className="app-card p-4">
-              <SectionHeader title="Finance proof stack" href="/loans" />
+              <SectionHeader title="Next 3 actions" />
               <div className="space-y-3">
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="rounded-lg border border-border bg-muted/25 p-3">
-                    <div className="font-serif text-xl font-bold text-foreground">${Math.round(budget / 1000)}k</div>
-                    <div className="mt-1 text-xs text-muted-foreground">Total budget</div>
-                  </div>
-                  <div className="rounded-lg border border-border bg-muted/25 p-3">
-                    <div className="font-serif text-xl font-bold text-foreground">${Math.round(confirmed / 1000)}k</div>
-                    <div className="mt-1 text-xs text-muted-foreground">Confirmed funds</div>
-                  </div>
-                </div>
-                <div className="rounded-lg border border-[#F8B133]/40 bg-[#F8B133]/10 p-3">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="font-semibold text-[#7A5200]">Funding readiness</span>
-                    <span className="font-semibold text-foreground">{fundingProgress}%</span>
-                  </div>
-                  <Progress value={fundingProgress} className="mt-3 h-2" />
-                </div>
-                {report.financialReadiness.notes.map((note) => (
-                  <div key={note} className="rounded-lg border border-border bg-white p-3 text-xs leading-5 text-muted-foreground">
-                    {note}
+                {nextActions.map((action, index) => (
+                  <Link key={action.label} href={action.href}>
+                    <div className="flex items-start gap-3 rounded-lg border border-border bg-muted/25 p-3 transition-all hover:border-primary/35 hover:bg-primary/5">
+                      <div className="brand-gradient-bg flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg font-serif text-xs font-bold text-white">
+                        {index + 1}
+                      </div>
+                      <div className="min-w-0">
+                        <div className="font-serif text-sm font-bold text-foreground">{action.label}</div>
+                        <div className="mt-1 text-xs text-muted-foreground">{action.owner} · {action.due}</div>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </Card>
+
+            <Card className="app-card p-4">
+              <SectionHeader title="Documents" href="/documents" />
+              <div className="space-y-2">
+                {report.documentChecklist.map((doc) => (
+                  <div key={doc.id} className="flex items-center justify-between gap-3 rounded-lg border border-border bg-muted/25 px-3 py-2">
+                    <span className="text-sm font-semibold text-foreground">{doc.label}</span>
+                    <Badge variant="outline" className={cn("rounded-full", doc.status === "approved" ? toneClass("good") : doc.status === "missing" ? toneClass("action") : toneClass("watch"))}>
+                      {documentLabels[doc.status]}
+                    </Badge>
                   </div>
                 ))}
               </div>
@@ -236,7 +247,7 @@ export default function EdgeReportPage() {
                 {report.familyReadiness.map((item) => (
                   <div key={item.label} className="rounded-lg border border-border bg-muted/25 p-3">
                     <div className="flex items-start justify-between gap-3">
-                      <div className="text-sm font-semibold text-foreground">{item.label}</div>
+                      <div className="font-serif text-sm font-bold text-foreground">{item.label}</div>
                       <Badge variant="outline" className="rounded-full">{item.status}</Badge>
                     </div>
                     <p className="mt-2 text-xs leading-5 text-muted-foreground">{item.detail}</p>
@@ -244,69 +255,17 @@ export default function EdgeReportPage() {
                 ))}
               </div>
             </Card>
-
-            <Card className="app-card p-4">
-              <SectionHeader title="What ELEE changed" description="Every report insight should update another module." />
-              <div className="space-y-3">
-                {recentLedgerEvents.map((event) => (
-                  <div key={event.id} className="rounded-lg border border-border bg-muted/25 p-3">
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <div className="text-[10px] font-semibold uppercase tracking-wide text-primary">{event.source}</div>
-                        <div className="mt-1 text-sm font-bold leading-5 text-foreground">{event.event}</div>
-                      </div>
-                      <Badge variant="outline" className="rounded-full text-xs">{event.status}</Badge>
-                    </div>
-                    <p className="mt-2 text-xs leading-5 text-muted-foreground">{event.studentView}</p>
-                  </div>
-                ))}
-              </div>
-            </Card>
           </aside>
         </div>
 
-        <div className="mt-5 grid grid-cols-1 gap-5 xl:grid-cols-[0.9fr_1.1fr]">
-          <Card className="app-card p-4">
-            <SectionHeader title="Document packet" description="What is ready, what needs review, and what blocks visa confidence." href="/documents" />
-            <div className="space-y-3">
-              {report.documentChecklist.map((doc) => (
-                <div key={doc.id} className="rounded-lg border border-border bg-white p-3">
-                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="min-w-0">
-                      <div className="text-sm font-semibold text-foreground">{doc.label}</div>
-                      <div className="mt-1 text-xs capitalize text-muted-foreground">Owner: {doc.owner}</div>
-                    </div>
-                    <span className={cn("w-fit rounded-full border px-2.5 py-1 text-xs font-semibold", documentStatusStyles[doc.status])}>
-                      {documentStatusLabels[doc.status]}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </Card>
-
-          <Card className="app-card p-4">
-            <SectionHeader title="Action plan" description="Work in this order to improve the ELEE score fastest." href="/dashboard" />
-            <TaskQueue tasks={report.actionPlan} />
-          </Card>
-        </div>
-
-        <Card className="app-card mt-5 border-primary/20 bg-primary/5 p-5">
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div className="border-l-4 border-l-primary pl-4">
-              <div className="font-serif text-lg font-bold text-foreground">Recommended next step</div>
-              <p className="mt-1 max-w-3xl text-sm leading-6 text-muted-foreground">
-                Build the sponsor evidence bundle first, then rerun ELEE before finalising payment-heavy applications.
-              </p>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <Link href="/loans">
-                <Button variant="outline" className="rounded-full font-serif">Review finance</Button>
-              </Link>
-              <Link href="/documents">
-                <Button className="rounded-full font-serif">Upload proof</Button>
-              </Link>
-            </div>
+        <Card className="app-card mt-5 p-4">
+          <SectionHeader title="What changed recently" description="Simple updates from your latest profile, shortlist, and finance information." />
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+            {recentUpdates.map((update) => (
+              <div key={update} className="rounded-lg border border-border bg-muted/25 p-3 text-sm leading-6 text-muted-foreground">
+                {update}
+              </div>
+            ))}
           </div>
         </Card>
       </div>

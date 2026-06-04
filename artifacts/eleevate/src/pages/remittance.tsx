@@ -40,8 +40,8 @@ export default function RemittancePage() {
       source: "Remittance",
       event: "Tuition remittance plan confirmed",
       studentView: "University of Toronto tuition deposit, LRS checklist, and receipt evidence are queued.",
-      consultantView: "Finance desk receives receipt-follow-up task for the visa proof stack.",
-      revenue: "Forex Margin",
+      consultantView: "Finance desk receives a receipt follow-up task for visa evidence.",
+      revenue: "Receipt follow-up ready",
       status: "Ready",
     });
   };

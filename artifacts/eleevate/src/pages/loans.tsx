@@ -204,7 +204,7 @@ export default function LoansPage() {
       revenue: "NBFC Commission",
       status: "Ready",
     });
-    toast.success("Loan calculator output added to the unified ledger.");
+    toast.success("Loan estimate saved to the funding plan.");
   };
 
   const emi = (principal: number, rateStr: string, months: number) => {
@@ -235,8 +235,8 @@ export default function LoansPage() {
             <CardContent>
               {demoMode && (
                 <div className="mb-4 rounded-lg border border-primary/20 bg-white/90 p-3 text-sm leading-6 text-foreground">
-                  <span className="mr-2 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">Unified Ledger</span>
-                  Pre-filled based on Jehan&apos;s current ELEE Funding Gap for University of Toronto. Submitting creates a consultant NBFC commission event.
+                  <span className="mr-2 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">Funding plan</span>
+                  Pre-filled based on Jehan&apos;s current ELEE funding gap for University of Toronto. Submitting creates a follow-up task for the finance team.
                 </div>
               )}
               <div className="mb-4 rounded-lg border border-border bg-white p-4 shadow-sm">
@@ -244,10 +244,10 @@ export default function LoansPage() {
                   <div>
                     <div className="eyebrow mb-1">Loan calculator</div>
                     <h2 className="font-serif text-xl font-bold text-foreground">Compare EMI, deferred repayment, and fee impact.</h2>
-                    <p className="mt-1 text-sm text-muted-foreground">Inspired by loan-calculator patterns, but connected to Eleevate&apos;s ledger and consultant handoff.</p>
+                    <p className="mt-1 text-sm text-muted-foreground">Compare repayment options and add the best plan to the student&apos;s funding checklist.</p>
                   </div>
                   <Button variant="outline" className="rounded-full font-serif" onClick={queueCalculatorPlan} disabled={!principalInr}>
-                    Add calculator to ledger
+                    Save loan estimate
                   </Button>
                 </div>
                 <div className="grid gap-3 md:grid-cols-5">

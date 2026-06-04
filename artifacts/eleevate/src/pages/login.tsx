@@ -12,8 +12,8 @@ import { useDemoJourneyState } from "@/lib/demo-journey";
 
 const roleCopy: Record<DemoRole, { title: string; description: string; redirect: string }> = {
   student: {
-    title: "Student Journey OS",
-    description: "Dashboard, profile, ELEE report, university discovery, applications, documents, visa, finance, and upskilling.",
+    title: "Student Journey",
+    description: "Dashboard, profile, ELEE Report, universities, applications, documents, visa, finance, and arrival support.",
     redirect: "/dashboard",
   },
   consultant: {
@@ -22,6 +22,11 @@ const roleCopy: Record<DemoRole, { title: string; description: string; redirect:
     redirect: "/consultant/dashboard",
   },
 };
+
+function getInitialRole(): DemoRole {
+  const params = new URLSearchParams(window.location.search);
+  return params.get("role") === "consultant" ? "consultant" : "student";
+}
 
 function getRedirect(role: DemoRole) {
   const params = new URLSearchParams(window.location.search);
@@ -32,7 +37,7 @@ function getRedirect(role: DemoRole) {
 
 export default function LoginPage() {
   const [, setLocation] = useLocation();
-  const [role, setRole] = useState<DemoRole>("student");
+  const [role, setRole] = useState<DemoRole>(() => getInitialRole());
   const [email, setEmail] = useState("abel@metawareit.com");
   const activeCopy = roleCopy[role];
   const firstName = useMemo(() => email.split("@")[0]?.split(".")[0] || "there", [email]);
@@ -60,20 +65,20 @@ export default function LoginPage() {
       <main className="mx-auto grid min-h-[calc(100vh-6rem)] max-w-7xl gap-8 px-4 pb-12 pt-4 sm:px-6 lg:grid-cols-[minmax(0,0.95fr)_460px] lg:items-center lg:px-8">
         <section>
           <Badge className="brand-gradient-bg rounded-full px-5 py-2 font-serif text-white">
-            {demoJourney.mode === "canada_locked" ? "Canada Locked Demo" : "Secure Demo Login"}
+            {demoJourney.mode === "canada_locked" ? "Canada route" : "Secure login"}
           </Badge>
           <h1 className="mt-6 max-w-3xl font-serif text-4xl font-bold leading-tight text-foreground md:text-6xl">
-            Sign in before entering the EleevateOverseas program.
+            Sign in to continue your study-abroad journey.
           </h1>
           <p className="mt-5 max-w-2xl text-base leading-8 text-muted-foreground md:text-lg">
-            This prototype separates the public website from the working portal. {demoJourney.countryLock ? "This entry is locked to Canada, so every module speaks to the same selected route." : "This entry keeps broad discovery open before the student locks a country."}
+            {demoJourney.countryLock ? "Your Canada route is already selected, so the portal opens with the right universities, documents, finance, and visa tasks." : "Start with broad country and university discovery, then lock the route that fits your profile and budget."}
           </p>
 
           <div className="mt-8 grid max-w-3xl gap-3 sm:grid-cols-3">
             {[
               ["Public site", "Before login"],
-              ["Journey OS", "Student portal"],
-              ["Workbench", "Consultant portal"],
+              ["Student journey", "Main portal"],
+              ["Workbench", "Consultant view"],
             ].map(([title, detail]) => (
               <div key={title} className="rounded-lg border border-border bg-white/75 p-4 shadow-sm">
                 <div className="font-serif text-sm font-bold text-foreground">{title}</div>
@@ -147,7 +152,7 @@ export default function LoginPage() {
             </div>
 
             <Button type="submit" size="lg" className="w-full rounded-full font-serif" data-testid="btn-demo-login">
-              Continue to program <ArrowRight className="h-4 w-4" />
+              Continue <ArrowRight className="h-4 w-4" />
             </Button>
           </form>
         </Card>

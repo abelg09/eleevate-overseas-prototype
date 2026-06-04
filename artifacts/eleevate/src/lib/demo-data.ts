@@ -114,7 +114,7 @@ export const demoEdgeReport: EdgeReport = {
   studentName: "Jehan",
   generatedAt: "21 May 2026",
   clarityScore: 82,
-  readinessBand: "Strong fit with targeted cleanup",
+  readinessBand: "Strong fit, finance proof needed",
   preferredCountries: [
     {
       country: "Canada",
@@ -550,7 +550,7 @@ export const architectureModules: ModuleStatusItem[] = [
   {
     id: "commerce",
     title: "Commerce & Financial Engine",
-    description: "Edu loans, remittance, forex card, forex, insurance, subscriptions, rewards, and ledger.",
+    description: "Edu loans, remittance, forex card, forex, insurance, subscriptions, and rewards.",
     status: "demo",
     progress: 53,
     href: "/financial-hub",
@@ -577,7 +577,7 @@ export const architectureModules: ModuleStatusItem[] = [
   {
     id: "core",
     title: "Core Platform Services",
-    description: "AI matching, workflow controller, data ledger, analytics, roles, security.",
+    description: "AI matching, workflow controls, analytics, roles, and security.",
     status: "preview",
     progress: 45,
     href: "/consultant/branding",

@@ -34,7 +34,7 @@ export function EleeBuddy({ compact = false }: { compact?: boolean }) {
                   <div className="font-serif text-base font-bold">ELEE AI Buddy</div>
                 </div>
                 <p className="mt-1 text-xs leading-5 text-white/80">
-                  Ask a question or jump into the next product action.
+                  Ask a question or jump to the next step.
                 </p>
               </div>
               <button onClick={() => setOpen(false)} className="rounded-md p-1 text-white/80 hover:bg-white/10 hover:text-white" aria-label="Close ELEE AI Buddy">
@@ -50,10 +50,10 @@ export function EleeBuddy({ compact = false }: { compact?: boolean }) {
                   <div className="font-serif text-sm font-bold text-foreground">
                     {demoJourney.countryLock ? demoJourney.countryLock.routeLabel : "Preliminary discovery"}
                   </div>
-                  <Badge variant="outline" className="rounded-full text-xs">{demoJourney.ledgerEvents.length} events</Badge>
+                  <Badge variant="outline" className="rounded-full text-xs">{demoJourney.countryLock ? "Route set" : "Explore"}</Badge>
                 </div>
                 <p className="mt-1 text-xs leading-5 text-muted-foreground">
-                  Every action can update the report, applications, consultant queue, and ledger.
+                  ELEE keeps your report, applications, documents, and tasks pointed at the same journey.
                 </p>
               </div>
             )}

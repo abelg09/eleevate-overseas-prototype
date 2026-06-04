@@ -39,7 +39,7 @@ export default function ConsultantDashboardPage() {
         <PageHeader
           eyebrow="Consultant Command Center"
           title={`Welcome back, ${user.firstName}`}
-          description="A daily intelligent operating system for leads, documents, university communication, SOP/LOR/resume work, interviews, offers, visa strategy, and post-visa advocacy."
+          description="A daily workbench for leads, documents, university communication, SOP/LOR/resume work, interviews, offers, visa strategy, and post-visa advocacy."
           actions={
             <>
               <Link href="/consultant/crm">
