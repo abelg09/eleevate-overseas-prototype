@@ -42,6 +42,27 @@ jobs:
           BASE_PATH: /eleevate-overseas-prototype/
           VITE_DEMO_MODE: "true"
 
+      - name: Build archived AI super-app version
+        shell: bash
+        run: |
+          git fetch --depth=1 origin archive/ai-superapp-2026-06-04
+          git worktree add ../ai-superapp-worktree FETCH_HEAD
+
+          pushd ../ai-superapp-worktree
+          pnpm install --frozen-lockfile
+          BASE_PATH=/eleevate-overseas-prototype/ai-superapp/ VITE_DEMO_MODE="true" pnpm --filter @workspace/eleevate run build
+          popd
+
+          current_dist="$GITHUB_WORKSPACE/artifacts/eleevate/dist/public"
+          archive_dist="$GITHUB_WORKSPACE/../ai-superapp-worktree/artifacts/eleevate/dist/public"
+          mkdir -p "$current_dist/ai-superapp"
+          cp -a "$archive_dist/." "$current_dist/ai-superapp/"
+
+          for route in product dashboard journey-map elee-report universities applications documents financial-hub consultant/dashboard; do
+            mkdir -p "$current_dist/ai-superapp/$route"
+            cp "$archive_dist/index.html" "$current_dist/ai-superapp/$route/index.html"
+          done
+
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
