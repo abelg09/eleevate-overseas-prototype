@@ -17,6 +17,7 @@ import type { Document } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { FileText, Upload, Trash2, CheckCircle2, Clock, XCircle, Eye, FolderOpen, Loader2, History, ChevronDown, ChevronUp } from "lucide-react";
 import { isDemoMode, listFromApi } from "@/lib/demo-mode";
+import { addDemoLedgerEvent } from "@/lib/demo-journey";
 
 const DOC_TYPES = [
   { value: "sop", label: "Statement of Purpose" },
@@ -45,56 +46,7 @@ const STATUS_CONFIG: Record<string, { icon: React.ComponentType<{ className?: st
   under_review: { icon: Eye, label: "Under Review", className: "bg-blue-100 text-blue-700" },
 };
 
-const DEMO_DOCUMENTS: Document[] = [
-  {
-    id: "demo-doc-passport",
-    userId: "demo-student",
-    type: "passport",
-    name: "Passport - valid until 2031",
-    url: "#",
-    status: "approved",
-    notes: "Identity page is clear and expiry date is valid for visa filing.",
-    createdAt: "2026-05-18T10:30:00.000Z",
-  },
-  {
-    id: "demo-doc-sop-v2",
-    userId: "demo-student",
-    type: "sop",
-    name: "SOP - University of Toronto v2",
-    url: "#",
-    status: "under_review",
-    notes: "Consultant review: strengthen career goal paragraph and add one project outcome.",
-    createdAt: "2026-05-21T09:20:00.000Z",
-  },
-  {
-    id: "demo-doc-sop-v1",
-    userId: "demo-student",
-    type: "sop",
-    name: "SOP - University of Toronto v1",
-    url: "#",
-    status: "pending",
-    createdAt: "2026-05-19T15:10:00.000Z",
-  },
-  {
-    id: "demo-doc-finance",
-    userId: "demo-student",
-    type: "financial_proof",
-    name: "Bank statement and sponsor letter",
-    url: "#",
-    status: "pending",
-    notes: "Upload fixed deposit statement and source-of-funds explanation before visa review.",
-    createdAt: "2026-05-20T13:00:00.000Z",
-  },
-  {
-    id: "demo-doc-ielts",
-    userId: "demo-student",
-    type: "english_test",
-    name: "IELTS Academic TRF - 7.5",
-    url: "#",
-    status: "approved",
-    createdAt: "2026-05-16T11:00:00.000Z",
-  },
-];
+const DEMO_DOCUMENTS: Document[] = [];
 
 function groupDocsByType(documents: Document[]): Record<string, Document[]> {
   const result: Record<string, Document[]> = {};
@@ -198,11 +150,19 @@ export default function DocumentVaultPage() {
           name: docName.trim(),
           url: fileUrl,
           status: "pending",
-          notes: "Uploaded in demo mode. Consultant review queue will pick this up in the prototype.",
+          notes: "Uploaded by the student. Consultant review queue will pick this up automatically.",
           createdAt: new Date().toISOString(),
         };
         setDemoDocuments((items) => [newDoc, ...items]);
-        toast({ title: "Document uploaded", description: "Demo document added to your vault." });
+        addDemoLedgerEvent({
+          source: "Documents",
+          event: "Document uploaded for AI pre-screening",
+          studentView: "Document readiness updated and the file is queued for review.",
+          consultantView: "Document review queue receives a pending file with AI pre-screening status.",
+          revenue: "Document review workflow",
+          status: "Queued",
+        });
+        toast({ title: "Document uploaded", description: "Document added to your vault and queued for review." });
         setDocName("");
         setDocType("");
         if (fileRef.current) fileRef.current.value = "";

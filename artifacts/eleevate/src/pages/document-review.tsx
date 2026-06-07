@@ -36,10 +36,10 @@ const DOC_TYPE_LABELS: Record<DocType, string> = {
 };
 
 const STATUS_CONFIG: Record<DocStatus, { label: string; color: string; icon: typeof Clock; actions: DocStatus[] }> = {
-  pending: { label: "Pending", color: "bg-gray-100 text-gray-700", icon: Clock, actions: ["under_review", "approved", "rejected"] },
-  under_review: { label: "Under Review", color: "bg-yellow-100 text-yellow-700", icon: AlertCircle, actions: ["approved", "rejected"] },
-  approved: { label: "Approved", color: "bg-green-100 text-green-700", icon: CheckCircle2, actions: ["under_review"] },
-  rejected: { label: "Rejected", color: "bg-red-100 text-red-700", icon: XCircle, actions: ["under_review", "approved"] },
+  pending: { label: "Pending", color: "bg-gray-700 text-white", icon: Clock, actions: ["under_review", "approved", "rejected"] },
+  under_review: { label: "Under Review", color: "bg-yellow-600 text-white", icon: AlertCircle, actions: ["approved", "rejected"] },
+  approved: { label: "Approved", color: "bg-green-700 text-white", icon: CheckCircle2, actions: ["under_review"] },
+  rejected: { label: "Rejected", color: "bg-red-700 text-white", icon: XCircle, actions: ["under_review", "approved"] },
 };
 
 const ACTION_LABELS: Partial<Record<DocStatus, { label: string; color: string }>> = {
@@ -48,37 +48,7 @@ const ACTION_LABELS: Partial<Record<DocStatus, { label: string; color: string }>
   rejected: { label: "Reject", color: "text-red-700" },
 };
 
-const DEMO_REVIEW_DOCS: Document[] = [
-  {
-    id: "demo-review-sop",
-    userId: "demo-student",
-    type: "sop",
-    name: "Jehan - SOP v2",
-    url: "#",
-    status: "under_review",
-    notes: "Needs a stronger career-goal paragraph and one measurable project outcome.",
-    createdAt: "2026-05-21T09:00:00.000Z",
-  },
-  {
-    id: "demo-review-finance",
-    userId: "demo-student",
-    type: "financial_proof",
-    name: "Sponsor letter and bank statement",
-    url: "#",
-    status: "pending",
-    notes: "Check source of funds and 28-day balance trail.",
-    createdAt: "2026-05-20T13:00:00.000Z",
-  },
-  {
-    id: "demo-review-passport",
-    userId: "demo-student",
-    type: "passport",
-    name: "Passport identity page",
-    url: "#",
-    status: "approved",
-    createdAt: "2026-05-18T10:00:00.000Z",
-  },
-];
+const DEMO_REVIEW_DOCS: Document[] = [];
 
 async function fetchDocuments(): Promise<Document[]> {
   const res = await fetch("/api/consultant/doc-review");

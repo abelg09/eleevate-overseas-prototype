@@ -4,21 +4,21 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { PageHeader, SectionHeader } from "@/components/common/page-shell";
-import { addDemoLedgerEvent, useDemoJourneyState } from "@/lib/demo-journey";
+import { addDemoLedgerEvent } from "@/lib/demo-journey";
 import { cn } from "@/lib/utils";
 
 const remittanceKpis = [
-  { label: "Tuition due", value: "$18.4k", detail: "University of Toronto", tone: "border-l-primary" },
-  { label: "Living funds", value: "$8.2k", detail: "Q1 proof target", tone: "border-l-[#F8B133]" },
-  { label: "Receipts stored", value: "6/8", detail: "Document vault sync", tone: "border-l-emerald-400" },
-  { label: "Compliance status", value: "Ready", detail: "LRS checklist complete", tone: "border-l-emerald-400" },
+  { label: "Tuition due", value: "Not added", detail: "Add offer or invoice", tone: "border-l-primary" },
+  { label: "Living funds", value: "Not planned", detail: "Add route and visa proof", tone: "border-l-[#F8B133]" },
+  { label: "Receipts stored", value: "0", detail: "Document vault sync", tone: "border-l-emerald-400" },
+  { label: "Compliance status", value: "Pending", detail: "Checklist starts after amount", tone: "border-l-emerald-400" },
 ];
 
 const paymentMilestones = [
-  { item: "Application fees", owner: "Student", due: "Done", status: "Completed", progress: 100 },
-  { item: "Tuition deposit", owner: "Family", due: "3 Jun", status: "Ready to send", progress: 76 },
-  { item: "GIC / living funds", owner: "Sponsor", due: "12 Jun", status: "Docs pending", progress: 52 },
-  { item: "Insurance premium", owner: "System", due: "After visa filing", status: "Queued", progress: 24 },
+  { item: "Application fees", owner: "Student", due: "After shortlist", status: "Not started", progress: 0 },
+  { item: "Tuition deposit", owner: "Family", due: "After offer", status: "Not started", progress: 0 },
+  { item: "Living funds", owner: "Sponsor", due: "After route", status: "Not started", progress: 0 },
+  { item: "Insurance premium", owner: "System", due: "After visa filing", status: "Not started", progress: 0 },
 ];
 
 const checklist = [
@@ -31,15 +31,12 @@ const checklist = [
 ];
 
 export default function RemittancePage() {
-  const demoJourney = useDemoJourneyState();
-  const lockedCountry = demoJourney.countryLock;
-
   const handlePlanRemittance = () => {
     addDemoLedgerEvent({
       id: "ledger-remittance-action",
       source: "Remittance",
       event: "Tuition remittance plan confirmed",
-      studentView: "University of Toronto tuition deposit, LRS checklist, and receipt evidence are queued.",
+      studentView: "Tuition deposit, compliance checklist, and receipt evidence are queued.",
       consultantView: "Finance desk receives receipt-follow-up task for the visa proof stack.",
       revenue: "Forex Margin",
       status: "Ready",
@@ -61,12 +58,6 @@ export default function RemittancePage() {
           </div>
         }
       />
-
-      {lockedCountry && (
-        <div className="mb-4 rounded-lg border border-primary/20 bg-primary/5 p-4 text-sm leading-6 text-foreground">
-          Route locked to {lockedCountry.countryName}: tuition deposit, living funds, and receipts are prepared for {lockedCountry.cities.join(" and ")}.
-        </div>
-      )}
 
       <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
         {remittanceKpis.map((kpi) => (

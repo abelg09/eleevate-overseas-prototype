@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { ShoppingCart, Clock, Star, CheckCircle, Package, FileText, Globe, BookOpen, UserCheck, DollarSign } from "lucide-react";
 import { toast } from "sonner";
 import { isDemoMode, listFromApi } from "@/lib/demo-mode";
-import { addDemoLedgerEvent, useDemoJourneyState } from "@/lib/demo-journey";
+import { addDemoLedgerEvent } from "@/lib/demo-journey";
 
 type ServiceItem = {
   id: string;
@@ -44,12 +44,12 @@ const CATEGORY_ICONS: Record<string, React.ElementType> = {
 };
 
 const STATUS_COLORS: Record<string, string> = {
-  pending: "bg-yellow-100 text-yellow-700",
-  paid: "bg-blue-100 text-blue-700",
-  in_delivery: "bg-orange-100 text-orange-700",
-  completed: "bg-green-100 text-green-700",
-  refunded: "bg-red-100 text-red-700",
-  canceled: "bg-slate-100 text-slate-700",
+  pending: "bg-yellow-600 text-white",
+  paid: "bg-blue-700 text-white",
+  in_delivery: "bg-orange-600 text-white",
+  completed: "bg-green-700 text-white",
+  refunded: "bg-red-700 text-white",
+  canceled: "bg-slate-700 text-white",
 };
 
 const DEMO_SERVICES: ServiceItem[] = [
@@ -93,11 +93,11 @@ const DEMO_SERVICES: ServiceItem[] = [
   },
   {
     id: "demo-service-accommodation",
-    name: "Canada Accommodation Launch Desk",
+    name: "Accommodation Launch Desk",
     price: 6900,
     currency: "USD",
     category: "accommodation",
-    description: "Shortlist Toronto and Vancouver housing options, arrival timeline, rent proof, and parent visibility.",
+    description: "Shortlist city housing options, arrival timeline, rent proof, and parent visibility after a route is selected.",
     deliveryDays: 5,
     popular: true,
   },
@@ -121,26 +121,7 @@ const DEMO_SERVICES: ServiceItem[] = [
   },
 ];
 
-const DEMO_ORDERS: ServiceOrderItem[] = [
-  {
-    id: "demo-order-1",
-    serviceId: "demo-service-doc-audit",
-    serviceName: "Document Readiness Audit",
-    amount: 7900,
-    currency: "USD",
-    status: "in_delivery",
-    createdAt: "2026-05-20T10:00:00.000Z",
-  },
-  {
-    id: "demo-order-2",
-    serviceId: "demo-service-test",
-    serviceName: "IELTS Writing Review",
-    amount: 3900,
-    currency: "USD",
-    status: "completed",
-    createdAt: "2026-05-12T10:00:00.000Z",
-  },
-];
+const DEMO_ORDERS: ServiceOrderItem[] = [];
 
 export default function MarketplacePage() {
   const { getToken } = useAuth();
@@ -150,8 +131,6 @@ export default function MarketplacePage() {
   const [confirming, setConfirming] = useState(false);
   const [category, setCategory] = useState("all");
   const [demoOrders, setDemoOrders] = useState<ServiceOrderItem[]>(DEMO_ORDERS);
-  const demoJourney = useDemoJourneyState();
-  const lockedCountry = demoJourney.countryLock;
 
   const { data: services } = useQuery({
     queryKey: ["services"],
@@ -220,12 +199,12 @@ export default function MarketplacePage() {
         id: `ledger-service-${service.id}`,
         source: service.category === "accommodation" ? "Accommodation" : "Services",
         event: `${service.name} ordered`,
-        studentView: `${service.name} added to Jehan's ${lockedCountry?.countryName ?? "study-abroad"} service queue.`,
+        studentView: `${service.name} added to the student's service queue.`,
         consultantView: "Service order routed to consultant workbench with delivery owner and revenue line.",
         revenue: service.category === "accommodation" ? "Accommodation Partner Fee" : "Service Order Revenue",
         status: "Queued",
       });
-      toast.success("Order placed successfully. Demo order added to your services queue.");
+      toast.success("Order placed successfully. Order added to your services queue.");
       return;
     }
 
@@ -237,7 +216,7 @@ export default function MarketplacePage() {
       <div>
         <h1 className="text-3xl font-bold flex items-center gap-2"><ShoppingCart className="h-8 w-8 text-primary" />Service Marketplace</h1>
         <p className="text-muted-foreground mt-1">
-          Expert services to boost your study abroad application{lockedCountry ? `, scoped to the ${lockedCountry.countryName} route` : ""}.
+          Expert services to boost your study abroad application, documents, visa, finance, and arrival plan.
         </p>
       </div>
 

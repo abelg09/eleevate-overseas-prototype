@@ -3,9 +3,25 @@ import { Link, useLocation } from "wouter";
 import { useUser, useClerk } from "@clerk/react";
 import { useGetMe } from "@workspace/api-client-react";
 import {
+  Bot,
+  BriefcaseBusiness,
+  ClipboardList,
+  Command,
+  FileCheck2,
+  FolderCheck,
+  GraduationCap,
+  LayoutDashboard,
+  LineChart,
   LogOut,
   Menu,
+  Network,
+  Receipt,
+  SearchCheck,
+  Sparkles,
+  UsersRound,
+  WalletCards,
   X,
+  type LucideIcon,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -16,6 +32,7 @@ import { clearDemoAuth } from "@/lib/demo-auth";
 interface NavItem {
   href: string;
   label: string;
+  icon: LucideIcon;
 }
 
 interface NavGroup {
@@ -25,100 +42,56 @@ interface NavGroup {
 
 const studentGroups: NavGroup[] = [
   {
-    label: "Journey",
-    items: [
-      { href: "/dashboard", label: "Dashboard" },
-      { href: "/journey-map", label: "Journey Map" },
-      { href: "/profile", label: "Profile" },
-      { href: "/elee-report", label: "ELEE Report" },
-      { href: "/assessment", label: "Psychometric Test" },
-      { href: "/applications", label: "Applications" },
-    ],
-  },
-  {
     label: "Discovery",
     items: [
-      { href: "/universities", label: "Universities" },
-      { href: "/course-finder", label: "Course Finder" },
-      { href: "/shortlist", label: "Shortlist" },
-      { href: "/countries", label: "City Guides" },
-      { href: "/news", label: "News & Newsletter" },
+      { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+      { href: "/profile", label: "AI Profile & Test", icon: Bot },
+      { href: "/universities", label: "University Finder", icon: SearchCheck },
     ],
   },
   {
-    label: "Docs & Visa",
+    label: "Execution",
     items: [
-      { href: "/documents", label: "Document Vault" },
-      { href: "/sop-studio", label: "SOP Studio" },
-      { href: "/visa-center", label: "Visa Center" },
-      { href: "/support", label: "Support" },
-    ],
-  },
-  {
-    label: "Upskilling & Careers",
-    items: [
-      { href: "/upskilling", label: "Upskilling Hub" },
-      { href: "/test-prep", label: "Test Prep" },
-      { href: "/mock-test", label: "Mock Test" },
-      { href: "/language-hub", label: "Language Lab" },
-      { href: "/careers", label: "Careers" },
-      { href: "/job-board", label: "Job Board" },
-      { href: "/alumni", label: "Alumni Network" },
+      { href: "/applications", label: "Applications", icon: ClipboardList },
+      { href: "/documents", label: "Docs & Visa", icon: FolderCheck },
     ],
   },
   {
     label: "Finance",
     items: [
-      { href: "/financial-hub", label: "Financial Hub" },
-      { href: "/scholarships", label: "Scholarships" },
-      { href: "/loans", label: "Edu Loans" },
-      { href: "/remittance", label: "Remittance" },
-      { href: "/forex-card", label: "Forex Card" },
-      { href: "/forex", label: "Forex" },
-      { href: "/insurance", label: "Insurance" },
-      { href: "/subscription", label: "Subscription" },
-      { href: "/rewards", label: "Rewards" },
+      { href: "/financial-hub", label: "Financial Hub", icon: WalletCards },
+    ],
+  },
+  {
+    label: "Outcomes",
+    items: [
+      { href: "/upskilling", label: "Career & Community", icon: GraduationCap },
+      { href: "/journey-map", label: "Journey Map", icon: Network },
     ],
   },
 ];
 
 const consultantGroups: NavGroup[] = [
   {
-    label: "Workbench",
+    label: "Workspace",
     items: [
-      { href: "/consultant/dashboard", label: "Command Center" },
-      { href: "/consultant/crm", label: "Lead Pipeline" },
-      { href: "/consultant/counselling", label: "Counselling" },
-      { href: "/consultant/chatbot", label: "AI Assistant" },
+      { href: "/consultant/dashboard", label: "Command Center", icon: Command },
+      { href: "/consultant/crm", label: "Student Pipeline", icon: LineChart },
     ],
   },
   {
-    label: "Applications",
+    label: "AI Task Engine",
     items: [
-      { href: "/consultant/doc-review", label: "Doc Review" },
-      { href: "/consultant/sop", label: "SOP Builder" },
-      { href: "/consultant/lms", label: "LMS Builder" },
-      { href: "/consultant/invoicing", label: "Invoicing" },
+      { href: "/consultant/doc-review", label: "Doc & SOP AI", icon: FileCheck2 },
+      { href: "/consultant/chatbot", label: "AI Assistant", icon: Sparkles },
     ],
   },
   {
-    label: "Network",
+    label: "Network & Admin",
     items: [
-      { href: "/universities", label: "Universities" },
-      { href: "/forex", label: "Forex" },
-      { href: "/upskilling", label: "Upskilling" },
-      { href: "/alumni", label: "Alumni Network" },
-      { href: "/news", label: "News & Newsletter" },
-      { href: "/subscription", label: "Subscription" },
-    ],
-  },
-  {
-    label: "Admin & Settings",
-    items: [
-      { href: "/consultant/team", label: "Team" },
-      { href: "/consultant/partners", label: "Partners" },
-      { href: "/consultant/branding", label: "Branding" },
-      { href: "/consultant/profile", label: "My Profile" },
+      { href: "/consultant/invoicing", label: "Invoicing & Partners", icon: Receipt },
+      { href: "/consultant/team", label: "Team & LMS", icon: UsersRound },
+      { href: "/consultant/counselling", label: "Counselling", icon: BriefcaseBusiness },
     ],
   },
 ];
@@ -136,7 +109,7 @@ function DemoSidebar() {
   const [location, setLocation] = useLocation();
   const role = useDemoRole(location);
   const user = role === "consultant" ? demoUser.consultant : demoUser.student;
-  const userName = [user.firstName, user.lastName].filter(Boolean).join(" ");
+  const userName = [user.firstName, user.lastName].filter(Boolean).join(" ") || (role === "consultant" ? "Consultant" : "Student");
   const initials = [user.firstName, user.lastName].filter(Boolean).map((name) => name[0]).join("") || "U";
 
   return (
@@ -151,7 +124,6 @@ function DemoSidebar() {
         clearDemoAuth();
         setLocation("/");
       }}
-      demo
     />
   );
 }
@@ -185,7 +157,6 @@ function SidebarShell({
   initials,
   role,
   onSignOut,
-  demo = false,
 }: {
   location: string;
   groups: NavGroup[];
@@ -194,7 +165,6 @@ function SidebarShell({
   initials: string;
   role: "student" | "consultant";
   onSignOut?: () => void;
-  demo?: boolean;
 }) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -208,13 +178,8 @@ function SidebarShell({
         </Link>
         <div className="mt-4 flex items-center gap-2">
           <Badge className="brand-gradient-bg rounded-full px-3 py-1 text-white hover:opacity-95">
-            {role === "consultant" ? "Workbench" : "Journey OS"}
+            {role === "consultant" ? "Command OS" : "AI Journey OS"}
           </Badge>
-          {demo && (
-            <Badge variant="outline" className="rounded-full border-emerald-200 bg-emerald-50 px-3 py-1 text-emerald-700">
-              Demo
-            </Badge>
-          )}
         </div>
       </div>
 
@@ -227,6 +192,7 @@ function SidebarShell({
             <div className="space-y-0.5">
               {group.items.map((item) => {
                 const active = location === item.href || (item.href !== "/" && location.startsWith(`${item.href}/`));
+                const Icon = item.icon;
                 return (
                   <Link key={item.href} href={item.href} onClick={() => setMobileOpen(false)}>
                     <div
@@ -240,10 +206,12 @@ function SidebarShell({
                     >
                       <span
                         className={cn(
-                          "h-1.5 w-1.5 flex-shrink-0 rounded-full",
-                          active ? "bg-white/90" : "bg-sidebar-foreground/25 group-hover:bg-primary",
+                          "flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-md border transition-all",
+                          active ? "border-white/20 bg-white/15 text-white" : "border-sidebar-border bg-white text-sidebar-foreground/70 group-hover:border-primary/30 group-hover:text-primary",
                         )}
-                      />
+                      >
+                        <Icon className="h-4 w-4" />
+                      </span>
                       <span className="min-w-0 flex-1 truncate">{item.label}</span>
                     </div>
                   </Link>

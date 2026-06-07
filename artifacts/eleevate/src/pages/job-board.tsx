@@ -11,6 +11,7 @@ import { Briefcase, MapPin, Clock, Search, Building, ExternalLink, SendHorizonal
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useStudentWorkspaceProfile } from "@/lib/student-workspace";
 
 // Seeded job listings visible on fresh install
 const SEED_JOBS = [
@@ -71,6 +72,8 @@ export default function JobBoardPage() {
   const [applyDialogOpen, setApplyDialogOpen] = useState(false);
   const [coverLetter, setCoverLetter] = useState("");
   const [appliedIds, setAppliedIds] = useState<Set<string>>(new Set());
+  const profile = useStudentWorkspaceProfile();
+  const careerReady = Boolean(profile?.careerGoal || profile?.studyLevel);
 
   const { data: apiJobs } = useQuery<Job[]>({
     queryKey: ["jobs"],
@@ -125,18 +128,18 @@ export default function JobBoardPage() {
   ]);
 
   const typeColors: Record<string, string> = {
-    "full-time": "bg-blue-100 text-blue-700",
-    "internship": "bg-green-100 text-green-700",
-    "part-time": "bg-orange-100 text-orange-700",
-    "contract": "bg-purple-100 text-purple-700",
+    "full-time": "bg-blue-700 text-white",
+    "internship": "bg-green-700 text-white",
+    "part-time": "bg-orange-600 text-white",
+    "contract": "bg-purple-700 text-white",
   };
 
   const statusColors: Record<string, string> = {
-    applied: "bg-blue-100 text-blue-700",
-    reviewing: "bg-yellow-100 text-yellow-700",
-    shortlisted: "bg-green-100 text-green-700",
-    rejected: "bg-red-100 text-red-700",
-    hired: "bg-emerald-100 text-emerald-700",
+    applied: "bg-blue-700 text-white",
+    reviewing: "bg-yellow-600 text-white",
+    shortlisted: "bg-green-700 text-white",
+    rejected: "bg-red-700 text-white",
+    hired: "bg-emerald-700 text-white",
   };
 
   return (
@@ -183,12 +186,16 @@ export default function JobBoardPage() {
                       </div>
                     </div>
                     <div className="flex flex-col items-end gap-1.5">
-                      <Badge className="border-0 bg-secondary text-white text-xs flex-shrink-0">{getJobMatchScore(job)}% ELEE Match</Badge>
+                      <Badge className="border-0 bg-secondary text-white text-xs flex-shrink-0">
+                        {careerReady ? `${getJobMatchScore(job)}% ELEE Match` : "Profile needed"}
+                      </Badge>
                       <Badge className={`${typeColors[job.type] ?? ""} border-0 text-xs flex-shrink-0`}>{job.type}</Badge>
                     </div>
                   </div>
                   <div className="rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-xs font-semibold text-primary">
-                    Match with Jehan&apos;s MSc Computer Science profile and AI product career direction.
+                    {careerReady
+                      ? `Matched against ${profile?.careerGoal || profile?.studyLevel || "your saved career direction"}.`
+                      : "Complete AI Profile & Test to calculate job fit from study level, skills, and career direction."}
                   </div>
                   <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
                     {job.location && <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{job.location}</span>}
@@ -354,7 +361,9 @@ export default function JobBoardPage() {
               </DialogHeader>
               <div className="space-y-4">
                 <div className="flex flex-wrap gap-2">
-                  <Badge className="border-0 bg-secondary text-white">{getJobMatchScore(selectedJob)}% Match with MSc Computer Science profile</Badge>
+                  <Badge className="border-0 bg-secondary text-white">
+                    {careerReady ? `${getJobMatchScore(selectedJob)}% Match with saved career profile` : "Complete profile to calculate ELEE Match"}
+                  </Badge>
                   <Badge className={`${typeColors[selectedJob.type] ?? ""} border-0`}>{selectedJob.type}</Badge>
                   {selectedJob.location && <Badge variant="outline" className="gap-1"><MapPin className="h-3 w-3" />{selectedJob.location}</Badge>}
                   {selectedJob.salary && <Badge variant="secondary">{selectedJob.salary}</Badge>}

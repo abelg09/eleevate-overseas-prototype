@@ -15,9 +15,7 @@ import {
   communicationSignals,
   consultantStages,
   consultantTasks,
-  serviceOrders,
 } from "@/lib/demo-data";
-import { demoUser } from "@/lib/demo-mode";
 import { useDemoJourneyState } from "@/lib/demo-journey";
 import { cn } from "@/lib/utils";
 
@@ -29,7 +27,6 @@ const stageBarStyles = {
 };
 
 export default function ConsultantDashboardPage() {
-  const user = demoUser.consultant;
   const demoJourney = useDemoJourneyState();
   const ledgerEvents = demoJourney.ledgerEvents.slice(0, 3);
 
@@ -38,7 +35,7 @@ export default function ConsultantDashboardPage() {
       <div data-testid="consultant-dashboard">
         <PageHeader
           eyebrow="Consultant Command Center"
-          title={`Welcome back, ${user.firstName}`}
+          title="Command center"
           description="A daily intelligent operating system for leads, documents, university communication, SOP/LOR/resume work, interviews, offers, visa strategy, and post-visa advocacy."
           actions={
             <>
@@ -126,36 +123,30 @@ export default function ConsultantDashboardPage() {
           <Card className="app-card p-4">
             <SectionHeader title="Revenue and services" description="Student actions routed into consultant follow-up and revenue lines." href="/consultant/invoicing" />
             <div className="space-y-3">
-              {ledgerEvents.map((event) => (
-                <div key={event.id} className="rounded-lg border border-primary/20 bg-primary/5 p-3">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <div className="text-sm font-semibold text-foreground">{event.event}</div>
-                      <div className="text-xs text-muted-foreground">{event.consultantView}</div>
+              {ledgerEvents.length > 0 ? (
+                ledgerEvents.map((event) => (
+                  <div key={event.id} className="rounded-lg border border-primary/20 bg-primary/5 p-3">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <div className="text-sm font-semibold text-foreground">{event.event}</div>
+                        <div className="text-xs text-muted-foreground">{event.consultantView}</div>
+                      </div>
+                      <Badge variant="outline" className="capitalize">{event.status}</Badge>
                     </div>
-                    <Badge variant="outline" className="capitalize">{event.status}</Badge>
-                  </div>
-                  <div className="mt-3 flex items-center justify-between text-sm">
-                    <span className="font-semibold text-foreground">{event.revenue}</span>
-                    <span className="text-xs text-muted-foreground">{event.source}</span>
-                  </div>
-                </div>
-              ))}
-              {serviceOrders.map((order) => (
-                <div key={order.id} className="rounded-lg border border-border bg-white p-3">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <div className="text-sm font-semibold text-foreground">{order.service}</div>
-                      <div className="text-xs text-muted-foreground">{order.student} · {order.owner}</div>
+                    <div className="mt-3 flex items-center justify-between text-sm">
+                      <span className="font-semibold text-foreground">{event.revenue}</span>
+                      <span className="text-xs text-muted-foreground">{event.source}</span>
                     </div>
-                    <Badge variant="outline" className="capitalize">{order.status.replace("_", " ")}</Badge>
                   </div>
-                  <div className="mt-3 flex items-center justify-between text-sm">
-                    <span className="font-semibold text-foreground">{order.amount}</span>
-                    <span className="text-xs text-muted-foreground">{order.id}</span>
-                  </div>
+                ))
+              ) : (
+                <div className="rounded-lg border border-dashed border-border bg-muted/20 p-5">
+                  <div className="font-serif text-base font-bold text-foreground">No system events yet.</div>
+                  <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                    Student actions such as shortlisting, document uploads, loan submissions, remittance, forex, insurance, and service requests will appear here.
+                  </p>
                 </div>
-              ))}
+              )}
             </div>
           </Card>
         </div>

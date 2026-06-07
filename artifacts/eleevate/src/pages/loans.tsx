@@ -10,14 +10,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { isDemoMode } from "@/lib/demo-mode";
-import { addDemoLedgerEvent, useDemoJourneyState } from "@/lib/demo-journey";
+import { addDemoLedgerEvent } from "@/lib/demo-journey";
+import { hasStudentWorkspaceProfile, useStudentWorkspaceProfile } from "@/lib/student-workspace";
 
 const STATUS_COLORS: Record<string, string> = {
-  submitted: "bg-blue-100 text-blue-700",
-  under_review: "bg-yellow-100 text-yellow-700",
-  approved: "bg-green-100 text-green-700",
-  rejected: "bg-red-100 text-red-700",
-  disbursed: "bg-emerald-100 text-emerald-700",
+  submitted: "bg-blue-700 text-white",
+  under_review: "bg-yellow-600 text-white",
+  approved: "bg-green-700 text-white",
+  rejected: "bg-red-700 text-white",
+  disbursed: "bg-emerald-700 text-white",
 };
 
 const DEMO_LOAN_PRODUCTS = [
@@ -66,36 +67,34 @@ const DEMO_LOAN_PRODUCTS = [
   },
 ];
 
-const DEMO_LOAN_APPLICATIONS = [
-  {
-    id: "loan-app-demo-1",
-    lenderName: "HDFC Credila",
-    amount: 800000,
-    currency: "INR",
-    interestRate: "11.2%",
-    tenureMonths: 120,
-    status: "under_review",
-    universityName: "University of Toronto",
-    createdAt: "2026-05-21",
-  },
-];
+const DEMO_LOAN_APPLICATIONS: Array<{
+  id: string;
+  lenderName: string;
+  amount: number;
+  currency: string;
+  interestRate: string;
+  tenureMonths: number;
+  status: string;
+  universityName: string;
+  createdAt: string;
+}> = [];
 
 export default function LoansPage() {
   const { getToken } = useAuth();
   const qc = useQueryClient();
   const demoMode = isDemoMode();
-  const [loanAmount, setLoanAmount] = useState(demoMode ? "8000" : "");
+  const profile = useStudentWorkspaceProfile();
+  const hasProfile = hasStudentWorkspaceProfile(profile);
+  const [loanAmount, setLoanAmount] = useState("");
   const [tenure, setTenure] = useState("120");
-  const [universityName, setUniversityName] = useState(demoMode ? "University of Toronto" : "");
-  const [country, setCountry] = useState(demoMode ? "Canada" : "");
+  const [universityName, setUniversityName] = useState("");
+  const [country, setCountry] = useState("");
   const [repaymentMode, setRepaymentMode] = useState("deferred");
   const [calculatorRate, setCalculatorRate] = useState("11.2");
   const [processingFee, setProcessingFee] = useState("1.0");
   const [selectedLender, setSelectedLender] = useState<string | null>(null);
-  const [searched, setSearched] = useState(demoMode);
+  const [searched, setSearched] = useState(false);
   const [demoLoanApplications, setDemoLoanApplications] = useState(DEMO_LOAN_APPLICATIONS);
-  const demoJourney = useDemoJourneyState();
-  const lockedCountry = demoJourney.countryLock;
 
   const { data: products } = useQuery({
     queryKey: ["loan-products"],
@@ -147,7 +146,7 @@ export default function LoansPage() {
               interestRate: product.interestRate,
               tenureMonths: parseInt(tenure),
               status: "submitted",
-              universityName: universityName || "University of Toronto",
+              universityName: universityName || "",
               createdAt: new Date().toISOString(),
             },
             ...items.filter((item) => item.lenderName !== product.lenderName),
@@ -218,8 +217,7 @@ export default function LoansPage() {
       <div>
         <h1 className="font-serif text-2xl font-bold text-foreground">Edu Loans</h1>
         <p className="text-muted-foreground mt-1">
-          Compare and apply to leading education loan providers with ELEE funding data already synced.
-          {lockedCountry ? ` Route locked to ${lockedCountry.countryName}.` : ""}
+          Compare and apply to leading education loan providers. ELEE can suggest amounts after profile, offers, and finance evidence exist.
         </p>
       </div>
 
@@ -233,12 +231,10 @@ export default function LoansPage() {
           <Card className="route-ribbon-bg overflow-hidden border-primary/20">
             <CardHeader><CardTitle className="text-base">Find Your Best Loan Match</CardTitle><CardDescription>Enter your requirements to see eligible loan products</CardDescription></CardHeader>
             <CardContent>
-              {demoMode && (
-                <div className="mb-4 rounded-lg border border-primary/20 bg-white/90 p-3 text-sm leading-6 text-foreground">
-                  <span className="mr-2 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">Unified Ledger</span>
-                  Pre-filled based on Jehan&apos;s current ELEE Funding Gap for University of Toronto. Submitting creates a consultant NBFC commission event.
-                </div>
-              )}
+              <div className="mb-4 rounded-lg border border-primary/20 bg-white/90 p-3 text-sm leading-6 text-foreground">
+                <span className="mr-2 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">Funding planner</span>
+                {hasProfile ? "Use your saved profile context to plan a loan, then submit to create a ledger and consultant commission event." : "Complete AI Profile & Test to unlock smarter loan suggestions. You can still enter requirements manually."}
+              </div>
               <div className="mb-4 rounded-lg border border-border bg-white p-4 shadow-sm">
                 <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
                   <div>
@@ -282,7 +278,7 @@ export default function LoansPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                 <div>
                   <label className="text-sm font-medium">Loan Amount (USD) *</label>
-                  <Input type="number" placeholder="e.g. 30000" value={loanAmount} onChange={e => setLoanAmount(e.target.value)} className="mt-1" />
+                <Input type="number" placeholder={profile?.budget ? `Based on budget: ${profile.budget}` : "e.g. 30000"} value={loanAmount} onChange={e => setLoanAmount(e.target.value)} className="mt-1" />
                 </div>
                 <div>
                   <label className="text-sm font-medium">Tenure (months)</label>
@@ -295,11 +291,11 @@ export default function LoansPage() {
                 </div>
                 <div>
                   <label className="text-sm font-medium">University (optional)</label>
-                  <Input placeholder="e.g. University of Toronto" value={universityName} onChange={e => setUniversityName(e.target.value)} className="mt-1" />
+                  <Input placeholder="Add university after shortlist or offer" value={universityName} onChange={e => setUniversityName(e.target.value)} className="mt-1" />
                 </div>
                 <div>
                   <label className="text-sm font-medium">Country (optional)</label>
-                  <Input placeholder="e.g. Canada" value={country} onChange={e => setCountry(e.target.value)} className="mt-1" />
+                  <Input placeholder="e.g. UK, USA, Canada, Germany" value={country} onChange={e => setCountry(e.target.value)} className="mt-1" />
                 </div>
               </div>
               <Button className="mt-4 gap-2" onClick={() => setSearched(true)} disabled={!loanAmount}>
@@ -379,7 +375,7 @@ export default function LoansPage() {
 
         <TabsContent value="applications" className="mt-4">
           {applicationsList.length === 0 ? (
-            <div className="text-center py-16 text-muted-foreground">No loan applications yet.</div>
+            <div className="rounded-xl border border-dashed border-border py-16 text-center text-muted-foreground">No loan applications yet.</div>
           ) : (
             <div className="space-y-3">
               {applicationsList.map(app => (
@@ -388,11 +384,11 @@ export default function LoansPage() {
                     <div>
                       <div className="font-medium text-sm">{app.lenderName}</div>
                       <div className="text-xs text-muted-foreground">
-                        ${(app.amount / 100).toLocaleString()} · {app.tenureMonths} months
+                        ₹{app.amount.toLocaleString("en-IN")} · {app.tenureMonths} months
                         {app.universityName ? ` · ${app.universityName}` : ""}
                         · Applied {new Date(app.createdAt).toLocaleDateString()}
                       </div>
-                      <div className="mt-2 text-xs font-semibold text-primary">Ledger sync: HDFC Credila NBFC Commission - Processing</div>
+                      <div className="mt-2 text-xs font-semibold text-primary">Ledger sync: NBFC Commission - Processing</div>
                     </div>
                     <Badge className={`${STATUS_COLORS[app.status] ?? ""} border-0 text-xs capitalize`}>{app.status.replace("_", " ")}</Badge>
                   </CardContent>

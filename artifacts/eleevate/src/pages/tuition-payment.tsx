@@ -31,25 +31,14 @@ const STATUS_ICONS: Record<string, React.ElementType> = {
 };
 
 const STATUS_COLORS: Record<string, string> = {
-  completed: "bg-green-100 text-green-700",
-  processing: "bg-blue-100 text-blue-700",
-  pending: "bg-yellow-100 text-yellow-700",
-  failed: "bg-red-100 text-red-700",
-  refunded: "bg-slate-100 text-slate-700",
+  completed: "bg-green-700 text-white",
+  processing: "bg-blue-700 text-white",
+  pending: "bg-yellow-600 text-white",
+  failed: "bg-red-700 text-white",
+  refunded: "bg-slate-700 text-white",
 };
 
-const DEMO_PAYMENTS: TuitionPayment[] = [
-  {
-    id: "demo-payment-1",
-    type: "tuition",
-    amount: 500000,
-    currency: "CAD",
-    status: "processing",
-    description: "University of Toronto tuition deposit",
-    reference: "EO-TU-1024",
-    createdAt: "2026-05-20T10:30:00.000Z",
-  },
-];
+const DEMO_PAYMENTS: TuitionPayment[] = [];
 
 export default function TuitionPaymentPage() {
   const { getToken } = useAuth();
@@ -117,7 +106,7 @@ export default function TuitionPaymentPage() {
       setUniversity("");
       setDescription("");
       setConfirming(false);
-      toast.success("Payment initiated. Demo transaction added to history.");
+      toast.success("Payment initiated. Transaction added to history.");
       return;
     }
 

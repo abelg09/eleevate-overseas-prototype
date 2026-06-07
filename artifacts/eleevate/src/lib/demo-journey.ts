@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import type { University } from "@workspace/api-client-react";
-import { DEMO_COUNTRIES, DEMO_UNIVERSITIES } from "@/lib/demo-catalog";
+import { DEMO_UNIVERSITIES } from "@/lib/demo-catalog";
 
-export type DemoJourneyMode = "preliminary" | "canada_locked";
+export type DemoJourneyMode = "global";
 
 export interface DemoCountryLock {
   countryCode: string;
@@ -16,7 +16,7 @@ export interface DemoCountryLock {
 
 export interface DemoLedgerEvent {
   id: string;
-  source: "ELEE Report" | "Edu Loans" | "Accommodation" | "Remittance" | "Forex Card" | "Forex" | "Insurance" | "Applications" | "Services";
+  source: "ELEE Report" | "Edu Loans" | "Accommodation" | "Remittance" | "Forex Card" | "Forex" | "Insurance" | "Applications" | "Documents" | "Services";
   event: string;
   studentView: string;
   consultantView: string;
@@ -49,19 +49,9 @@ export interface DemoAgentPrompt {
   href: string;
 }
 
-export const DEMO_JOURNEY_STORAGE_KEY = "eleevate.demo.journey.mode";
-export const DEMO_LEDGER_STORAGE_KEY = "eleevate.demo.ledger.events";
+export const DEMO_JOURNEY_STORAGE_KEY = "eleevate.ai.journey.mode.v2";
+export const DEMO_LEDGER_STORAGE_KEY = "eleevate.ai.ledger.events.v2";
 export const DEMO_JOURNEY_EVENT = "eleevate-demo-journey";
-
-export const CANADA_COUNTRY_LOCK: DemoCountryLock = {
-  countryCode: "CA",
-  countryName: "Canada",
-  currency: "CAD",
-  routeLabel: "Canada route locked",
-  universityIds: ["demo-uoft", "demo-ubc"],
-  cities: ["Toronto", "Vancouver"],
-  reason: "Jehan selected Canada after ELEE ranked it highest for CS fit, PGWP pathway, sponsor budget, and visa evidence confidence.",
-};
 
 export const DEMO_AGENT_PROMPTS: DemoAgentPrompt[] = [
   { id: "country", label: "Find my country", prompt: "Compare countries by profile, budget, visa risk, and future career route.", href: "/countries" },
@@ -70,58 +60,7 @@ export const DEMO_AGENT_PROMPTS: DemoAgentPrompt[] = [
   { id: "applications", label: "Start applications", prompt: "Move my saved universities into a tracked application workflow.", href: "/universities" },
 ];
 
-export const DEFAULT_DEMO_LEDGER_EVENTS: DemoLedgerEvent[] = [
-  {
-    id: "ledger-elee-gap",
-    source: "ELEE Report",
-    event: "Funding gap detected",
-    studentView: "$8k gap appears on dashboard, ELEE report, and Edu Loans.",
-    consultantView: "Finance task created for Jehan with sponsor proof required.",
-    revenue: "Loan referral opportunity",
-    status: "Live sync",
-    createdAt: "2026-05-30T10:00:00.000Z",
-  },
-  {
-    id: "ledger-loan-started",
-    source: "Edu Loans",
-    event: "HDFC Credila application started",
-    studentView: "Loan amount, Canada route, and University of Toronto are pre-filled.",
-    consultantView: "NBFC commission line appears in the consultant ledger.",
-    revenue: "NBFC Commission",
-    status: "Processing",
-    createdAt: "2026-05-30T10:05:00.000Z",
-  },
-  {
-    id: "ledger-remittance-planned",
-    source: "Remittance",
-    event: "Tuition deposit planned",
-    studentView: "Payment milestone added to fee timeline and visa proof stack.",
-    consultantView: "Receipt reminder routed to document vault.",
-    revenue: "Forex Margin",
-    status: "Ready",
-    createdAt: "2026-05-30T10:10:00.000Z",
-  },
-  {
-    id: "ledger-forex-card",
-    source: "Forex Card",
-    event: "Initial CAD load recommended",
-    studentView: "Card load amount is based on Toronto and Vancouver arrival budgets.",
-    consultantView: "Family spending controls and alerts prepared.",
-    revenue: "Card Partner Fee",
-    status: "Queued",
-    createdAt: "2026-05-30T10:12:00.000Z",
-  },
-  {
-    id: "ledger-insurance",
-    source: "Insurance",
-    event: "Visa-stage insurance package queued",
-    studentView: "Insurance prompt appears after offer upload.",
-    consultantView: "Post-offer checklist updates without manual entry.",
-    revenue: "Insurance Commission",
-    status: "Next",
-    createdAt: "2026-05-30T10:15:00.000Z",
-  },
-];
+export const DEFAULT_DEMO_LEDGER_EVENTS: DemoLedgerEvent[] = [];
 
 function canUseStorage() {
   return typeof window !== "undefined" && typeof window.localStorage !== "undefined";
@@ -132,9 +71,7 @@ function emitDemoJourneyChange() {
 }
 
 export function readDemoJourneyMode(): DemoJourneyMode {
-  if (!canUseStorage()) return "preliminary";
-  const stored = localStorage.getItem(DEMO_JOURNEY_STORAGE_KEY);
-  return stored === "canada_locked" ? "canada_locked" : "preliminary";
+  return "global";
 }
 
 export function writeDemoJourneyMode(mode: DemoJourneyMode) {
@@ -144,12 +81,12 @@ export function writeDemoJourneyMode(mode: DemoJourneyMode) {
   return mode;
 }
 
-export function isCanadaLockedDemo() {
-  return readDemoJourneyMode() === "canada_locked";
+export function isRouteScopedMode() {
+  return false;
 }
 
 export function getDemoCountryLock(): DemoCountryLock | null {
-  return isCanadaLockedDemo() ? CANADA_COUNTRY_LOCK : null;
+  return null;
 }
 
 export function getScopedDemoUniversities(universities: University[] = DEMO_UNIVERSITIES) {
@@ -160,20 +97,18 @@ export function getScopedDemoUniversities(universities: University[] = DEMO_UNIV
 }
 
 export function getScopedDemoCities() {
-  const lock = getDemoCountryLock();
-  if (!lock) return null;
-  return lock.cities;
+  return null;
 }
 
 export function getDemoModeLabel() {
-  return isCanadaLockedDemo() ? "Canada locked demo" : "Preliminary demo";
+  return "Global AI journey";
 }
 
 export function readDemoLedgerEvents(): DemoLedgerEvent[] {
   if (!canUseStorage()) return DEFAULT_DEMO_LEDGER_EVENTS;
   try {
     const stored = JSON.parse(localStorage.getItem(DEMO_LEDGER_STORAGE_KEY) ?? "null") as DemoLedgerEvent[] | null;
-    if (Array.isArray(stored) && stored.length > 0) return stored;
+    if (Array.isArray(stored)) return stored;
   } catch {
     return DEFAULT_DEMO_LEDGER_EVENTS;
   }
@@ -224,8 +159,4 @@ export function useDemoJourneyState() {
   }, []);
 
   return state;
-}
-
-export function getCanadaCountry() {
-  return DEMO_COUNTRIES.find((country) => country.code === CANADA_COUNTRY_LOCK.countryCode);
 }

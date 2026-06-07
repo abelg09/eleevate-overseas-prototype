@@ -108,9 +108,9 @@ export const DEMO_SCHOLARSHIPS: DemoScholarship[] = [
   },
   {
     id: "sch-uoft-international",
-    name: "UofT International Student Grant",
+    name: "International Student Grant",
     country: "Canada",
-    provider: "University of Toronto",
+    provider: "University partner",
     amountUsd: 6000,
     deadline: "2026-06-03",
     fitScore: 82,

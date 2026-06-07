@@ -22,10 +22,10 @@ import {
 import { isDemoMode, listFromApi } from "@/lib/demo-mode";
 
 const STATUS_CONFIG: Record<string, { label: string; className: string; icon: React.ComponentType<{ className?: string }> }> = {
-  open:        { label: "Open",        className: "bg-blue-100 text-blue-700",   icon: Clock },
-  in_progress: { label: "In Progress", className: "bg-yellow-100 text-yellow-700", icon: AlertCircle },
-  resolved:    { label: "Resolved",    className: "bg-green-100 text-green-700", icon: CheckCircle2 },
-  closed:      { label: "Closed",      className: "bg-muted text-muted-foreground", icon: XCircle },
+  open:        { label: "Open",        className: "bg-blue-700 text-white",   icon: Clock },
+  in_progress: { label: "In Progress", className: "bg-yellow-600 text-white", icon: AlertCircle },
+  resolved:    { label: "Resolved",    className: "bg-green-700 text-white", icon: CheckCircle2 },
+  closed:      { label: "Closed",      className: "bg-slate-700 text-white", icon: XCircle },
 };
 
 const FAQ = [
@@ -63,26 +63,7 @@ const FAQ = [
   },
 ];
 
-const DEMO_TICKETS: SupportTicket[] = [
-  {
-    id: "demo-ticket-1",
-    userId: "demo-student",
-    subject: "Need finance document review before Canada visa filing",
-    body: "Please confirm if the sponsor letter and bank statement are enough for the University of Toronto study permit.",
-    status: "in_progress",
-    createdAt: "2026-05-20T09:30:00.000Z",
-    updatedAt: "2026-05-21T12:00:00.000Z",
-  },
-  {
-    id: "demo-ticket-2",
-    userId: "demo-student",
-    subject: "SOP review timeline",
-    body: "I uploaded SOP v2. Can the consultant review it before the application deadline?",
-    status: "open",
-    createdAt: "2026-05-21T08:10:00.000Z",
-    updatedAt: "2026-05-21T08:10:00.000Z",
-  },
-];
+const DEMO_TICKETS: SupportTicket[] = [];
 
 export default function SupportPage() {
   const { toast } = useToast();
@@ -126,7 +107,7 @@ export default function SupportPage() {
         setSubject("");
         setBody("");
         setTab("tickets");
-        toast({ title: "Support ticket submitted!", description: "Demo ticket added to your support queue." });
+        toast({ title: "Support ticket submitted!", description: "Ticket added to your support queue." });
         return;
       }
 

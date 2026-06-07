@@ -175,7 +175,7 @@ export default function InsurancePage() {
         revenue: "Insurance Commission",
         status: "Queued",
       });
-      toast.success("Policy quote created. Demo policy added to your insurance tab.");
+      toast.success("Policy quote created. Policy added to your insurance tab.");
       return;
     }
 

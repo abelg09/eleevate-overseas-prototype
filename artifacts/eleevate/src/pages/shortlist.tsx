@@ -21,21 +21,21 @@ import {
 import { isDemoMode, listFromApi } from "@/lib/demo-mode";
 import { DEMO_UNIVERSITIES, getDemoProgramsForUniversity, getDemoUniversity } from "@/lib/demo-catalog";
 import { ensureDemoApplicationForUniversity, readDemoShortlistIds, writeDemoShortlistIds } from "@/lib/demo-flow";
-import { getScopedDemoUniversities, useDemoJourneyState } from "@/lib/demo-journey";
+import { getScopedDemoUniversities } from "@/lib/demo-journey";
 
 const DEMO_AI_RECOMMENDATIONS: AiRecommendation[] = [
   {
     universityId: "demo-ubc",
-    matchScore: 91,
-    reasons: ["Strong CS and AI research fit", "Canada pathway aligns with post-study goals", "Budget can work with loan pre-approval"],
-    concern: "Financial proof should be prepared before offer acceptance.",
+    matchScore: 0,
+    reasons: ["Complete AI Profile & Test to calculate personalized fit", "Public catalog data is available now", "Budget, visa, and outcome fit will unlock after profile"],
+    concern: "Personalized match is pending.",
     university: getDemoUniversity("demo-ubc"),
   },
   {
     universityId: "demo-leeds",
-    matchScore: 86,
-    reasons: ["One-year UK master route is efficient", "Strong university brand for AI/product careers", "Application story has project depth"],
-    concern: "SOP needs a sharper motivation arc.",
+    matchScore: 0,
+    reasons: ["Complete AI Profile & Test to calculate personalized fit", "Public catalog data is available now", "Course and city comparison can start immediately"],
+    concern: "Personalized match is pending.",
     university: getDemoUniversity("demo-leeds"),
   },
 ];
@@ -48,8 +48,6 @@ export default function ShortlistPage() {
   const [aiLoading, setAiLoading] = useState(false);
   const [demoShortlistIds, setDemoShortlistIds] = useState<Set<string>>(() => new Set(readDemoShortlistIds()));
   const demoMode = isDemoMode();
-  const demoJourney = useDemoJourneyState();
-  const lockedCountry = demoJourney.countryLock;
 
   const { data: shortlist, isLoading } = useGetShortlist({
     query: { queryKey: getGetShortlistQueryKey(), enabled: !demoMode }
@@ -98,11 +96,9 @@ export default function ShortlistPage() {
     setAiLoading(true);
     try {
       if (demoMode) {
-        const nextRecommendations = lockedCountry
-          ? DEMO_AI_RECOMMENDATIONS.filter((rec) => rec.university?.country === lockedCountry.countryName)
-          : DEMO_AI_RECOMMENDATIONS;
+        const nextRecommendations = DEMO_AI_RECOMMENDATIONS;
         setRecommendations(nextRecommendations);
-        toast({ title: "ELEE recommendations ready", description: lockedCountry ? "Canada-only matches are based on the locked ELEE route." : "Demo matches are based on the ELEE profile." });
+        toast({ title: "ELEE recommendations ready", description: "Recommendations improve after AI Profile & Test is complete." });
         return;
       }
 
@@ -124,8 +120,8 @@ export default function ShortlistPage() {
       <div data-testid="shortlist-page">
         <PageHeader
           eyebrow="Discovery"
-          title={lockedCountry ? "Canada Shortlist" : "My Shortlist"}
-          description={lockedCountry ? "Saved universities are scoped to the Canada route and feed directly into applications, city guides, finance, and visa evidence." : "Turn saved universities into applications with program clarity, deadline awareness, and document readiness."}
+          title="My Shortlist"
+          description="Turn saved universities into applications with program clarity, deadline awareness, and document readiness."
           actions={
             <Button onClick={handleAiRecommend} disabled={aiLoading} data-testid="btn-ai-recommend" className="rounded-full font-serif">
               {aiLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
@@ -139,7 +135,7 @@ export default function ShortlistPage() {
           <div className="grid gap-0 lg:grid-cols-[minmax(0,1fr)_280px]">
             <div className="p-5">
               <div className="eyebrow mb-2">Shortlist to application</div>
-              <h2 className="font-serif text-xl font-bold leading-tight text-foreground">{lockedCountry ? "Choose the Canadian program, then open the application workflow." : "Choose the right program, then open the application workflow."}</h2>
+              <h2 className="font-serif text-xl font-bold leading-tight text-foreground">Choose the right program, then open the application workflow.</h2>
               <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
                 Saved universities now carry their next action: review programs, check deadlines, and move the strongest fit into Applications.
               </p>
@@ -199,7 +195,7 @@ export default function ShortlistPage() {
                     </div>
                     <div className="flex flex-col items-end gap-1">
                       <Badge className="brand-gradient-bg text-xs text-white">
-                        <Star className="h-3 w-3 mr-1" />{rec.matchScore}% match
+                        <Star className="h-3 w-3 mr-1" />{rec.matchScore > 0 ? `${rec.matchScore}% match` : "Match pending"}
                       </Badge>
                     </div>
                   </div>

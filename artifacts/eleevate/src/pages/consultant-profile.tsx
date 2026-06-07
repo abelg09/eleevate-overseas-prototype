@@ -100,7 +100,7 @@ export default function ConsultantProfilePage() {
 
   const handleSave = async () => {
     if (demoMode) {
-      toast({ title: "Profile updated!", description: "Demo consultant preferences are saved for this review session." });
+      toast({ title: "Profile updated!", description: "Consultant preferences are saved for this review session." });
       return;
     }
 

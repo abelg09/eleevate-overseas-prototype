@@ -111,10 +111,10 @@ export interface ServiceOrder {
 }
 
 export const demoEdgeReport: EdgeReport = {
-  studentName: "Jehan",
-  generatedAt: "21 May 2026",
-  clarityScore: 82,
-  readinessBand: "Strong fit with targeted cleanup",
+  studentName: "Student",
+  generatedAt: "",
+  clarityScore: 0,
+  readinessBand: "Pending profile completion",
   preferredCountries: [
     {
       country: "Canada",
@@ -219,7 +219,7 @@ export const studentJourneyTasks: JourneyTask[] = [
   ...demoEdgeReport.actionPlan,
   {
     id: "task-application",
-    title: "Confirm University of Toronto application deadline",
+    title: "Confirm shortlisted university application deadline",
     owner: "student",
     priority: "high",
     status: "blocked",
@@ -465,7 +465,7 @@ export const demystifiedJourneyStages: DemystifiedJourneyStage[] = [
 export const consultantTasks: JourneyTask[] = [
   {
     id: "c-task-1",
-    title: "Verify Jehan's financial documents",
+    title: "Verify uploaded financial documents",
     owner: "consultant",
     priority: "high",
     status: "due",
@@ -474,7 +474,7 @@ export const consultantTasks: JourneyTask[] = [
   },
   {
     id: "c-task-2",
-    title: "Review SOP draft for University of Toronto",
+    title: "Review SOP draft for saved university",
     owner: "consultant",
     priority: "high",
     status: "in_progress",
@@ -505,7 +505,7 @@ export const serviceOrders: ServiceOrder[] = [
   {
     id: "SO-1024",
     service: "IELTS premium prep",
-    student: "Jehan",
+    student: "Student",
     amount: "$280",
     status: "active",
     owner: "Upskilling Hub",

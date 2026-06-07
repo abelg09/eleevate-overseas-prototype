@@ -18,7 +18,7 @@ import { useToast } from "@/hooks/use-toast";
 import { isDemoMode } from "@/lib/demo-mode";
 import { DEMO_APPLICATION_STORAGE_KEY, DEMO_UNIVERSITIES } from "@/lib/demo-catalog";
 import { getDemoApplicationsFromShortlist } from "@/lib/demo-flow";
-import { addDemoLedgerEvent, useDemoJourneyState } from "@/lib/demo-journey";
+import { addDemoLedgerEvent } from "@/lib/demo-journey";
 
 const ALL_STATUSES: UpdateApplicationBodyStatus[] = [
   "researching", "applied", "under_review", "conditional_offer",
@@ -45,103 +45,7 @@ const TIMELINE_STEPS: UpdateApplicationBodyStatus[] = [
   "unconditional_offer", "accepted", "visa_applied", "visa_approved", "enrolled",
 ];
 
-const DEMO_APPLICATIONS: Application[] = [
-  {
-    id: "demo-app-1",
-    studentId: "demo-student",
-    programId: "demo-program-1",
-    status: "under_review",
-    notes: "SOP submitted. Waiting for department review and scholarship decision.",
-    deadline: "2026-06-03",
-    appliedAt: "2026-05-18",
-    updatedAt: "2026-05-21",
-    program: {
-      id: "demo-program-1",
-      universityId: "demo-uni-1",
-      name: "MSc Computer Science",
-      degree: "master",
-      field: "Computer Science",
-      duration: 24,
-      durationUnit: "months",
-      tuitionUsd: 46000,
-      applicationDeadline: "2026-06-03",
-      startDate: "2026-09-01",
-      createdAt: "2026-05-21",
-      university: {
-        id: "demo-uni-1",
-        name: "University of Toronto",
-        country: "Canada",
-        city: "Toronto",
-        ranking: 21,
-        avgTuitionUsd: 46000,
-        createdAt: "2026-05-21",
-      },
-    },
-  },
-  {
-    id: "demo-app-2",
-    studentId: "demo-student",
-    programId: "demo-program-2",
-    status: "conditional_offer",
-    notes: "Conditional offer received. Finance evidence and final transcript pending.",
-    deadline: "2026-06-10",
-    appliedAt: "2026-05-12",
-    updatedAt: "2026-05-21",
-    program: {
-      id: "demo-program-2",
-      universityId: "demo-uni-2",
-      name: "MSc Artificial Intelligence",
-      degree: "master",
-      field: "Artificial Intelligence",
-      duration: 12,
-      durationUnit: "months",
-      tuitionUsd: 38500,
-      applicationDeadline: "2026-06-10",
-      startDate: "2026-09-15",
-      createdAt: "2026-05-21",
-      university: {
-        id: "demo-uni-2",
-        name: "University of Leeds",
-        country: "United Kingdom",
-        city: "Leeds",
-        ranking: 75,
-        avgTuitionUsd: 38500,
-        createdAt: "2026-05-21",
-      },
-    },
-  },
-  {
-    id: "demo-app-3",
-    studentId: "demo-student",
-    programId: "demo-program-3",
-    status: "researching",
-    notes: "Good cost profile. German language and blocked account readiness need review.",
-    deadline: "2026-07-01",
-    updatedAt: "2026-05-21",
-    program: {
-      id: "demo-program-3",
-      universityId: "demo-uni-3",
-      name: "MS Data Engineering",
-      degree: "master",
-      field: "Data Engineering",
-      duration: 24,
-      durationUnit: "months",
-      tuitionUsd: 9000,
-      applicationDeadline: "2026-07-01",
-      startDate: "2026-10-01",
-      createdAt: "2026-05-21",
-      university: {
-        id: "demo-uni-3",
-        name: "Technical University of Munich",
-        country: "Germany",
-        city: "Munich",
-        ranking: 37,
-        avgTuitionUsd: 9000,
-        createdAt: "2026-05-21",
-      },
-    },
-  },
-];
+const DEMO_APPLICATIONS: Application[] = [];
 
 function getInitialDemoApplications() {
   try {
@@ -157,7 +61,7 @@ function getInitialDemoApplications() {
 
     return merged;
   } catch {
-    return [...getDemoApplicationsFromShortlist(), ...DEMO_APPLICATIONS];
+    return getDemoApplicationsFromShortlist();
   }
 }
 
@@ -392,8 +296,6 @@ export default function ApplicationsPage() {
   const demoMode = isDemoMode();
   const [view, setView] = useState<"kanban" | "timeline">("kanban");
   const [demoApplications, setDemoApplications] = useState<Application[]>(getInitialDemoApplications);
-  const demoJourney = useDemoJourneyState();
-  const lockedCountry = demoJourney.countryLock;
 
   useEffect(() => {
     if (demoMode) {
@@ -408,12 +310,12 @@ export default function ApplicationsPage() {
 
   const result: ApplicationListResponse | undefined = data;
   const applications: Application[] = demoMode
-    ? demoApplications.filter((app) => !lockedCountry || app.program?.university?.country === lockedCountry.countryName)
+    ? demoApplications
     : result?.data ?? [];
   const activeApplications = applications.filter((app) => !["rejected", "enrolled"].includes(app.status));
   const offers = applications.filter((app) => ["conditional_offer", "unconditional_offer", "accepted"].includes(app.status));
   const visaReady = applications.filter((app) => ["accepted", "visa_applied", "visa_approved", "enrolled"].includes(app.status));
-  const documentReadiness = demoMode ? 67 : Math.min(100, 42 + applications.length * 8 + offers.length * 7);
+  const documentReadiness = Math.min(100, applications.length * 10 + offers.length * 10);
 
   const upcomingDeadlines = applications.filter(a => {
     if (!a.deadline) return false;
@@ -451,8 +353,8 @@ export default function ApplicationsPage() {
       <div data-testid="applications-page">
         <PageHeader
           eyebrow="Application Journey"
-          title={lockedCountry ? "Canada Application Command Center" : "Application Command Center"}
-          description={`${applications.length} ${lockedCountry ? "Canada " : ""}application${applications.length !== 1 ? "s" : ""} from research to offer, visa, and enrollment.`}
+          title="Application Command Center"
+          description={`${applications.length} application${applications.length !== 1 ? "s" : ""} from research to offer, visa, and enrollment. Shortlisting a university creates tracker items here.`}
           actions={
             <>
               <Link href="/documents">
@@ -471,7 +373,7 @@ export default function ApplicationsPage() {
             <div className="p-5">
               <div className="eyebrow mb-2">Journey cockpit</div>
               <h2 className="font-serif text-xl font-bold leading-tight text-foreground">
-                {lockedCountry ? "Keep Canada applications, deadlines, and document blockers in one operating view." : "Keep applications, deadlines, and document blockers in one operating view."}
+                Keep applications, deadlines, and document blockers in one operating view.
               </h2>
               <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-4">
                 {[

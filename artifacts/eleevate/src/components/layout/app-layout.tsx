@@ -2,19 +2,21 @@ import { Link, useLocation } from "wouter";
 import { Bell, Search, Sparkles, UserRoundCheck } from "lucide-react";
 import { Sidebar } from "./sidebar";
 import { EleeBuddy } from "@/components/common/elee-buddy";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { demoUser, isDemoMode } from "@/lib/demo-mode";
-import { useDemoJourneyState } from "@/lib/demo-journey";
+import { useStudentWorkspaceProfile } from "@/lib/student-workspace";
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
   const consultant = location.startsWith("/consultant");
   const user = consultant ? demoUser.consultant : demoUser.student;
   const section = consultant ? "Consultant workbench" : "Student journey";
-  const userName = [user.firstName, user.lastName].filter(Boolean).join(" ");
-  const demoJourney = useDemoJourneyState();
+  const userName = [user.firstName, user.lastName].filter(Boolean).join(" ") || (consultant ? "Consultant" : "Student");
+  const profile = useStudentWorkspaceProfile();
+  const nextAction = !profile
+    ? { label: "Next best action", title: "Complete AI Profile & Test", href: "/profile", detail: "ELEE needs academics, budget, goals, and test status before it can calculate route fit." }
+    : { label: "Next best action", title: "Generate ELEE Report", href: "/elee-report", detail: "Turn your saved profile into country, university, document, visa, and finance recommendations." };
 
   return (
     <div className="app-shell-bg flex min-h-screen">
@@ -31,7 +33,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
 
             <div className="hidden min-w-64 items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-xs text-muted-foreground md:flex">
               <Search className="h-4 w-4" />
-              <span className="truncate">Search students, documents, universities</span>
+              <span className="truncate">Search universities, documents, tasks</span>
             </div>
 
             <div className="hidden items-center gap-2 xl:flex">
@@ -59,39 +61,25 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
               <Bell className="h-4 w-4" />
             </button>
 
-            {isDemoMode() && (
-              <Badge variant="outline" className="hidden border-emerald-200 bg-emerald-50 text-emerald-700 sm:inline-flex">
-                {demoJourney.mode === "canada_locked" ? "Canada demo" : "Preliminary demo"}
-              </Badge>
-            )}
+            <div className="hidden rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-800 sm:block">
+              Global
+            </div>
           </div>
         </header>
 
-        {isDemoMode() && (
-          <div className="border-b border-border bg-white/80 backdrop-blur">
+        {!consultant && (
+          <div className="border-b border-border bg-[#fffaf2]/90 backdrop-blur">
             <div className="mx-auto flex max-w-[1180px] flex-col gap-3 px-4 py-3 pl-16 text-sm sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-6 lg:pl-6">
               <div className="min-w-0">
-                <div className="font-serif text-sm font-bold text-foreground">
-                  {demoJourney.countryLock ? demoJourney.countryLock.routeLabel : "Preliminary discovery mode"}
-                </div>
-                <p className="mt-0.5 text-xs leading-5 text-muted-foreground">
-                  {demoJourney.countryLock
-                    ? `${demoJourney.countryLock.countryName} only: ${demoJourney.countryLock.cities.join(", ")} city guides, ${demoJourney.countryLock.universityIds.length} selected universities, and ${demoJourney.ledgerEvents.length} live ledger events.`
-                    : "Broad first-arrival demo: countries, universities, finance, services, and consultant tools stay open for exploration."}
-                </p>
+                <div className="eyebrow text-[11px] text-[#a85f36]">{nextAction.label}</div>
+                <p className="mt-0.5 text-sm font-bold text-foreground">{nextAction.title}</p>
+                <p className="mt-0.5 text-xs leading-5 text-muted-foreground">{nextAction.detail}</p>
               </div>
-              <div className="flex flex-wrap gap-2">
-                <Link href="/demo/preliminary">
-                  <Button variant={demoJourney.mode === "preliminary" ? "default" : "outline"} size="sm" className="rounded-full">
-                    Preliminary
-                  </Button>
-                </Link>
-                <Link href="/demo/canada">
-                  <Button variant={demoJourney.mode === "canada_locked" ? "default" : "outline"} size="sm" className="rounded-full">
-                    Canada locked
-                  </Button>
-                </Link>
-              </div>
+              <Link href={nextAction.href}>
+                <Button size="sm" className="w-fit rounded-full px-5 font-serif">
+                  Continue
+                </Button>
+              </Link>
             </div>
           </div>
         )}

@@ -21,7 +21,8 @@ import { useToast } from "@/hooks/use-toast";
 import { isDemoMode, listFromApi } from "@/lib/demo-mode";
 import { DEMO_UNIVERSITIES } from "@/lib/demo-catalog";
 import { ensureDemoApplicationForUniversity, readDemoShortlistIds, writeDemoShortlistIds } from "@/lib/demo-flow";
-import { getScopedDemoUniversities, useDemoJourneyState } from "@/lib/demo-journey";
+import { addDemoLedgerEvent } from "@/lib/demo-journey";
+import { hasStudentWorkspaceProfile, useStudentWorkspaceProfile } from "@/lib/student-workspace";
 import { cn } from "@/lib/utils";
 
 const COUNTRIES = ["All", "GB", "US", "CA", "AU", "DE", "NL", "SG", "IE"];
@@ -79,10 +80,10 @@ export default function UniversitiesPage() {
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS);
   const [demoSavedIds, setDemoSavedIds] = useState<Set<string>>(() => new Set(readDemoShortlistIds()));
-  const demoJourney = useDemoJourneyState();
-  const lockedCountry = demoJourney.countryLock;
-  const effectiveCountry = lockedCountry ? lockedCountry.countryCode : country;
-  const countryOptions = lockedCountry ? [lockedCountry.countryCode] : COUNTRIES;
+  const profile = useStudentWorkspaceProfile();
+  const matchReady = hasStudentWorkspaceProfile(profile);
+  const effectiveCountry = country;
+  const countryOptions = COUNTRIES;
 
   const params = {
     search: search || undefined,
@@ -128,7 +129,7 @@ export default function UniversitiesPage() {
   };
 
   const apiUnis = result?.data ?? [];
-  const demoUniversities = lockedCountry ? getScopedDemoUniversities(DEMO_UNIVERSITIES) : DEMO_UNIVERSITIES;
+  const demoUniversities = DEMO_UNIVERSITIES;
   const filteredDemoUnis = demoUniversities
     .filter(matchesSearch)
     .filter(matchesCountry)
@@ -143,7 +144,7 @@ export default function UniversitiesPage() {
 
   const activeFiltersCount = Object.values(filters).filter(Boolean).length;
   const catalogue = demoMode ? filteredDemoUnis : filteredApiUnis;
-  const topMatch = [...catalogue].sort((a, b) => getElleMatchScore(b) - getElleMatchScore(a))[0];
+  const topMatch = matchReady ? [...catalogue].sort((a, b) => getElleMatchScore(b) - getElleMatchScore(a))[0] : catalogue[0];
   const affordableCount = catalogue.filter((uni) => (uni.avgTuitionUsd ?? 0) > 0 && (uni.avgTuitionUsd ?? 0) <= 35000).length;
   const countryCount = new Set(catalogue.map((uni) => uni.country)).size;
   const savedCount = savedIds.size;
@@ -159,6 +160,14 @@ export default function UniversitiesPage() {
         else {
           next.add(uniId);
           ensureDemoApplicationForUniversity(uniId, "shortlist");
+          addDemoLedgerEvent({
+            source: "Applications",
+            event: "University shortlisted",
+            studentView: "A research-stage application tracker item was created from the saved university.",
+            consultantView: "Student pipeline receives a new university follow-up task.",
+            revenue: "Application service opportunity",
+            status: "Live sync",
+          });
         }
         return new Set(writeDemoShortlistIds(next));
       });
@@ -185,8 +194,8 @@ export default function UniversitiesPage() {
       <div data-testid="universities-page">
         <PageHeader
           eyebrow="Discovery"
-          title={lockedCountry ? "Canada University Finder" : "University Finder"}
-          description={lockedCountry ? "Canada route is locked, so recommendations now focus on selected Canadian universities and cities only." : "Search, compare, shortlist, and move directly into applications with demo-ready data for every key study destination."}
+          title="University Finder"
+          description="Search global universities, shortlist good options, and open application trackers. ELEE Match appears after AI Profile & Test is complete."
           actions={
             <Link href="/shortlist">
               <Button variant="outline" className="rounded-full" data-testid="btn-view-shortlist">
@@ -242,11 +251,6 @@ export default function UniversitiesPage() {
                     {c === "All" ? "All destinations" : COUNTRY_NAMES[c]}
                   </button>
                 ))}
-                {lockedCountry && (
-                  <Badge variant="outline" className="rounded-full border-primary/20 bg-primary/5 px-3 py-1.5 text-xs text-primary">
-                    {lockedCountry.routeLabel}
-                  </Badge>
-                )}
               </div>
             </div>
 
@@ -267,9 +271,9 @@ export default function UniversitiesPage() {
               </div>
               {topMatch && (
                 <div className="mt-3 rounded-lg border border-primary/20 bg-primary/5 p-3">
-                  <div className="text-[10px] font-semibold uppercase tracking-wide text-primary">Best ELEE match in view</div>
+                  <div className="text-[10px] font-semibold uppercase tracking-wide text-primary">{matchReady ? "Best ELEE match in view" : "ELEE match pending"}</div>
                   <div className="mt-1 text-sm font-semibold leading-5 text-foreground">{topMatch.name}</div>
-                  <div className="mt-1 text-xs text-muted-foreground">{getElleMatchScore(topMatch)}% profile fit · {topMatch.city}</div>
+                  <div className="mt-1 text-xs text-muted-foreground">{matchReady ? `${getElleMatchScore(topMatch)}% profile fit` : "Complete AI Profile & Test to calculate"} · {topMatch.city}</div>
                 </div>
               )}
             </aside>
@@ -372,7 +376,9 @@ export default function UniversitiesPage() {
                         <UniversityLogo name={uni.name} website={uni.website} className="h-12 w-12" imageClassName="h-8 w-8" />
                         <div className="min-w-0 flex-1">
                           <div className="flex flex-wrap items-center gap-2">
-                            <Badge className="rounded-full bg-secondary text-white hover:bg-secondary text-xs">{matchScore}% ELEE Match</Badge>
+                            <Badge className="rounded-full bg-secondary text-white hover:bg-secondary text-xs">
+                              {matchReady ? `${matchScore}% ELEE Match` : "ELEE Match pending"}
+                            </Badge>
                             {uni.ranking != null && <Badge variant="outline" className="rounded-full text-xs">Rank #{uni.ranking}</Badge>}
                             <Badge variant="outline" className="rounded-full text-xs">{uni.country}</Badge>
                           </div>

@@ -35,43 +35,18 @@ interface SopDocument {
 }
 
 const TYPE_CONFIG: Record<SopType, { label: string; color: string; icon: typeof FileText; description: string }> = {
-  sop: { label: "Statement of Purpose", color: "bg-blue-100 text-blue-700", icon: FileText, description: "Articulate your goals and motivation" },
-  lor: { label: "Letter of Recommendation", color: "bg-purple-100 text-purple-700", icon: BookOpen, description: "Recommendation letter template" },
-  resume: { label: "Resume / CV", color: "bg-green-100 text-green-700", icon: CheckCircle2, description: "Academic and professional CV" },
+  sop: { label: "Statement of Purpose", color: "bg-blue-700 text-white", icon: FileText, description: "Articulate your goals and motivation" },
+  lor: { label: "Letter of Recommendation", color: "bg-purple-700 text-white", icon: BookOpen, description: "Recommendation letter template" },
+  resume: { label: "Resume / CV", color: "bg-green-700 text-white", icon: CheckCircle2, description: "Academic and professional CV" },
 };
 
 const STATUS_CONFIG: Record<SopStatus, { label: string; color: string }> = {
-  draft: { label: "Draft", color: "bg-yellow-100 text-yellow-700" },
-  review: { label: "In Review", color: "bg-blue-100 text-blue-700" },
-  final: { label: "Final", color: "bg-green-100 text-green-700" },
+  draft: { label: "Draft", color: "bg-yellow-600 text-white" },
+  review: { label: "In Review", color: "bg-blue-700 text-white" },
+  final: { label: "Final", color: "bg-green-700 text-white" },
 };
 
-const DEMO_SOP_DOCS: SopDocument[] = [
-  {
-    id: "demo-sop-1",
-    type: "sop",
-    title: "SOP - University of Toronto MSc Computer Science",
-    targetUniversity: "University of Toronto",
-    targetProgram: "MSc Computer Science",
-    content: "My academic and professional journey has consistently moved toward building responsible, useful AI systems. Through undergraduate work in computer science, applied projects in data analytics, and product-focused internships, I have learned that strong technical work becomes meaningful only when it is tied to real user problems.\n\nThe MSc Computer Science pathway at the University of Toronto is a strong fit because of its research depth, international environment, and proximity to Canada's technology ecosystem. I am especially interested in machine learning systems, human-computer interaction, and applied data products.\n\nAfter graduation, my goal is to work as a machine learning engineer or data product lead, then build products that improve access to education and career mobility.",
-    version: 2,
-    status: "review",
-    createdAt: "2026-05-18T10:00:00.000Z",
-    updatedAt: "2026-05-21T09:00:00.000Z",
-  },
-  {
-    id: "demo-resume-1",
-    type: "resume",
-    title: "Graduate Resume - Data/Product Track",
-    targetUniversity: "University of Leeds",
-    targetProgram: "MSc International Business",
-    content: "Jehan\nData Analyst and Product Intern\n\nEducation\nBSc Computer Science, GPA 3.72\n\nExperience\nProduct Analytics Intern - built dashboards, improved onboarding funnel insights, and documented weekly product metrics.\n\nProjects\nAI course recommender, finance readiness calculator, and student document tracker.\n\nSkills\nPython, SQL, Power BI, React, stakeholder communication.",
-    version: 1,
-    status: "final",
-    createdAt: "2026-05-17T10:00:00.000Z",
-    updatedAt: "2026-05-20T12:00:00.000Z",
-  },
-];
+const DEMO_SOP_DOCS: SopDocument[] = [];
 
 async function fetchDocs(): Promise<{ data: SopDocument[]; total: number }> {
   const res = await fetch("/api/consultant/sop");
@@ -224,7 +199,7 @@ function DocumentEditor({ doc, onBack, demoMode, onSaveDoc }: { doc: SopDocument
         const draft = `${doc.type === "resume" ? "Professional Summary" : "Opening Direction"}\n\n${genForm.academicBackground || "BSc Computer Science with strong academic performance and applied project experience."}\n\n${genForm.workExperience || "Practical experience across analytics, product thinking, and stakeholder communication."}\n\n${doc.type === "sop" ? `${genForm.whyThisProgram || `I am drawn to ${doc.targetProgram || "this program"} because it combines academic depth with practical outcomes.`}\n\n${genForm.careerGoals || "My goal is to build an international career in technology and contribute to products that improve student mobility."}` : "This draft can now be refined for tone, evidence, and target university alignment."}`;
         setContent(draft);
         setShowGenForm(false);
-        toast({ title: "AI draft generated!", description: "Demo draft created for review." });
+        toast({ title: "AI draft generated!", description: "Draft created for review." });
         return;
       }
 

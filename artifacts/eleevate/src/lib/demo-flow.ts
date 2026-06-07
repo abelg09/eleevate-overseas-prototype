@@ -6,14 +6,9 @@ import {
   getDemoUniversity,
 } from "@/lib/demo-catalog";
 
-export const DEMO_SHORTLIST_STORAGE_KEY = "eleevate.demo.shortlist";
+export const DEMO_SHORTLIST_STORAGE_KEY = "eleevate.ai.shortlist.v2";
 
-export const DEFAULT_DEMO_SHORTLIST_IDS = [
-  "demo-uoft",
-  "demo-manchester",
-  "demo-melbourne",
-  "demo-tum",
-];
+export const DEFAULT_DEMO_SHORTLIST_IDS: string[] = [];
 
 export function readDemoShortlistIds() {
   try {

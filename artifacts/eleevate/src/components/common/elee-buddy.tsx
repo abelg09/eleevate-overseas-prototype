@@ -4,7 +4,20 @@ import { ArrowRight, MessageCircle, Sparkles, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DEMO_AGENT_PROMPTS, useDemoJourneyState } from "@/lib/demo-journey";
-import { isDemoMode } from "@/lib/demo-mode";
+
+const ROUTE_STEPS = [
+  { match: ["/dashboard"], label: "Dashboard", next: "Complete AI Profile & Test", href: "/profile" },
+  { match: ["/profile", "/assessment"], label: "AI Profile & Test", next: "Generate ELEE Report", href: "/elee-report" },
+  { match: ["/elee-report"], label: "ELEE Report", next: "Find matching universities", href: "/universities" },
+  { match: ["/universities", "/countries", "/course-finder", "/shortlist"], label: "University Finder", next: "Track applications", href: "/applications" },
+  { match: ["/applications"], label: "Applications", next: "Prepare documents and visa", href: "/documents" },
+  { match: ["/documents", "/visa-center"], label: "Docs & Visa", next: "Plan finance and arrival", href: "/financial-hub" },
+  { match: ["/financial-hub", "/loans", "/remittance", "/forex-card", "/forex", "/insurance"], label: "Financial Hub", next: "Review journey map", href: "/journey-map" },
+];
+
+function getRouteStep(location: string) {
+  return ROUTE_STEPS.find((step) => step.match.some((path) => location === path || location.startsWith(`${path}/`))) ?? ROUTE_STEPS[0];
+}
 
 const PRODUCT_PROMPTS = [
   { id: "courses", label: "Find my course", prompt: "Search programs by fit, tuition, intake, and career signal.", href: "/course-finder" },
@@ -17,6 +30,7 @@ export function EleeBuddy({ compact = false }: { compact?: boolean }) {
   const [open, setOpen] = useState(false);
   const [location] = useLocation();
   const demoJourney = useDemoJourneyState();
+  const routeStep = getRouteStep(location);
   const prompts = useMemo(() => {
     const base = location === "/product" || location === "/" ? PRODUCT_PROMPTS : [...PRODUCT_PROMPTS, ...DEMO_AGENT_PROMPTS].slice(0, 6);
     return base;
@@ -33,9 +47,7 @@ export function EleeBuddy({ compact = false }: { compact?: boolean }) {
                   <Sparkles className="h-4 w-4" />
                   <div className="font-serif text-base font-bold">ELEE AI Buddy</div>
                 </div>
-                <p className="mt-1 text-xs leading-5 text-white/80">
-                  Ask a question or jump into the next product action.
-                </p>
+                <p className="mt-1 text-xs leading-5 text-white/80">A page-aware guide for the global student journey.</p>
               </div>
               <button onClick={() => setOpen(false)} className="rounded-md p-1 text-white/80 hover:bg-white/10 hover:text-white" aria-label="Close ELEE AI Buddy">
                 <X className="h-4 w-4" />
@@ -44,19 +56,26 @@ export function EleeBuddy({ compact = false }: { compact?: boolean }) {
           </div>
 
           <div className="p-4">
-            {isDemoMode() && (
-              <div className="mb-3 rounded-lg border border-primary/20 bg-primary/5 p-3">
-                <div className="flex items-center justify-between gap-3">
-                  <div className="font-serif text-sm font-bold text-foreground">
-                    {demoJourney.countryLock ? demoJourney.countryLock.routeLabel : "Preliminary discovery"}
-                  </div>
-                  <Badge variant="outline" className="rounded-full text-xs">{demoJourney.ledgerEvents.length} events</Badge>
+            <div className="mb-3 rounded-lg border border-primary/20 bg-primary/5 p-3">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <div className="text-[11px] font-bold uppercase tracking-[0.16em] text-primary">You are here</div>
+                  <div className="mt-1 font-serif text-sm font-bold text-foreground">{routeStep.label}</div>
                 </div>
-                <p className="mt-1 text-xs leading-5 text-muted-foreground">
-                  Every action can update the report, applications, consultant queue, and ledger.
-                </p>
+                <Badge variant="outline" className="rounded-full border-primary/30 bg-white text-xs font-bold text-primary">
+                  {demoJourney.ledgerEvents.length} events
+                </Badge>
               </div>
-            )}
+              <p className="mt-2 text-xs leading-5 text-muted-foreground">Next: {routeStep.next}. Each action can update applications, ledger status, and consultant work queues.</p>
+              <div className="mt-3 flex gap-2">
+                <Link href={routeStep.href}>
+                  <Button size="sm" className="h-8 rounded-full px-3 text-xs">Continue</Button>
+                </Link>
+                <Link href="/journey-map">
+                  <Button size="sm" variant="outline" className="h-8 rounded-full px-3 text-xs">Journey Map</Button>
+                </Link>
+              </div>
+            </div>
 
             <div className="space-y-2">
               {prompts.map((prompt) => (

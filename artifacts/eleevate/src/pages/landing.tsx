@@ -38,9 +38,9 @@ import { assetUrl } from "@/lib/utils";
 
 const STATS = [
   { value: "2 Apps", label: "Student + consultant" },
-  { value: "40+ Modules", label: "Full journey surface" },
-  { value: "1 Ledger", label: "Finance and services" },
-  { value: "ELEE AI", label: "Readiness and next action" },
+  { value: "7 Hubs", label: "Guided student lifecycle" },
+  { value: "1 Ledger", label: "Finance and service sync" },
+  { value: "ELEE AI", label: "Profile-led recommendations" },
 ];
 
 const PRODUCT_MODULES = [
@@ -79,7 +79,7 @@ const PRODUCT_MODULES = [
   },
   {
     title: "Unified Finance Ledger",
-    desc: "Edu loans, remittance, forex card, forex, insurance, subscription, rewards, and service commission events.",
+    desc: "Edu loans, remittance, forex card, forex, insurance, accommodation, and service commission events.",
     meta: "Revenue layer",
     icon: WalletCards,
     gradient: "linear-gradient(135deg, #0B3A4B 0%, #009FE3 45%, #F6A623 100%)",
@@ -146,12 +146,12 @@ const JOURNEY_MAP_STAGES = [
     student: "Compares Canada, UK, USA, Australia, Germany, and Netherlands with practical signals.",
     automation: "Budget, visa, city, employability, and intake signals update the route decision.",
     handoff: "Team gets a country-specific counselling script and risk notes.",
-    impact: "Route locked or exploratory",
+    impact: "Route readiness pending",
   },
   {
     id: "shortlist-apply",
     phase: "Shortlist to Apply",
-    status: "Demo",
+    status: "Build",
     student: "Saves universities and opens program-level application flows.",
     automation: "Saved universities create applications, deadlines, document requests, and SOP prompts.",
     handoff: "Consultant receives review queue, university communication tasks, and offer-tracking stage.",
@@ -160,7 +160,7 @@ const JOURNEY_MAP_STAGES = [
   {
     id: "documents-visa",
     phase: "Documents & Visa",
-    status: "Demo",
+    status: "Build",
     student: "Uploads marksheets, passport, finance proof, SOP/LOR/resume, and visa files.",
     automation: "Validation checks missing fields, country rules, sponsor proof, and interview readiness.",
     handoff: "Document reviewer approves packets and flags visa strategy blockers.",
@@ -207,23 +207,22 @@ const COUNTRY_VISUALS: Record<string, string> = {
 };
 
 const COUNTRY_ROUTE_INSIGHTS: Record<string, {
-  score: number;
   budget: string;
   visa: string;
   cities: string;
   bestFor: string;
   intake: string;
 }> = {
-  CA: { score: 88, budget: "$38k-$46k", visa: "Medium", cities: "Toronto, Vancouver", bestFor: "PR-aware routes", intake: "Sep 2026" },
-  GB: { score: 84, budget: "$32k-$42k", visa: "Strong", cities: "London, Manchester", bestFor: "Fast master's", intake: "Sep 2026" },
-  US: { score: 81, budget: "$45k-$62k", visa: "Review", cities: "Boston, Phoenix", bestFor: "STEM + scale", intake: "Aug 2026" },
-  AU: { score: 79, budget: "$36k-$48k", visa: "Medium", cities: "Melbourne, Sydney", bestFor: "Work rights", intake: "Jul 2026" },
-  DE: { score: 76, budget: "$18k-$30k", visa: "Checklist", cities: "Munich, Berlin", bestFor: "Low tuition", intake: "Oct 2026" },
-  NL: { score: 73, budget: "$28k-$40k", visa: "Strong", cities: "Delft, Amsterdam", bestFor: "Applied tech", intake: "Sep 2026" },
-  FR: { score: 72, budget: "$24k-$36k", visa: "Strong", cities: "Paris, Lyon", bestFor: "Business + design", intake: "Sep 2026" },
-  IE: { score: 78, budget: "$30k-$44k", visa: "Strong", cities: "Dublin, Galway", bestFor: "Tech careers", intake: "Sep 2026" },
-  SG: { score: 75, budget: "$34k-$50k", visa: "Strong", cities: "Singapore", bestFor: "Asia hub", intake: "Aug 2026" },
-  AE: { score: 71, budget: "$20k-$32k", visa: "Strong", cities: "Dubai", bestFor: "Regional access", intake: "Sep 2026" },
+  CA: { budget: "$38k-$46k", visa: "Medium", cities: "Toronto, Vancouver", bestFor: "PR-aware routes", intake: "Sep 2026" },
+  GB: { budget: "$32k-$42k", visa: "Strong", cities: "London, Manchester", bestFor: "Fast master's", intake: "Sep 2026" },
+  US: { budget: "$45k-$62k", visa: "Review", cities: "Boston, Phoenix", bestFor: "STEM + scale", intake: "Aug 2026" },
+  AU: { budget: "$36k-$48k", visa: "Medium", cities: "Melbourne, Sydney", bestFor: "Work rights", intake: "Jul 2026" },
+  DE: { budget: "$18k-$30k", visa: "Checklist", cities: "Munich, Berlin", bestFor: "Low tuition", intake: "Oct 2026" },
+  NL: { budget: "$28k-$40k", visa: "Strong", cities: "Delft, Amsterdam", bestFor: "Applied tech", intake: "Sep 2026" },
+  FR: { budget: "$24k-$36k", visa: "Strong", cities: "Paris, Lyon", bestFor: "Business + design", intake: "Sep 2026" },
+  IE: { budget: "$30k-$44k", visa: "Strong", cities: "Dublin, Galway", bestFor: "Tech careers", intake: "Sep 2026" },
+  SG: { budget: "$34k-$50k", visa: "Strong", cities: "Singapore", bestFor: "Asia hub", intake: "Aug 2026" },
+  AE: { budget: "$20k-$32k", visa: "Strong", cities: "Dubai", bestFor: "Regional access", intake: "Sep 2026" },
 };
 
 export default function LandingPage() {
@@ -240,26 +239,11 @@ export default function LandingPage() {
   const apiCountries = listFromApi<Country>(countries);
   const unis = demoMode || apiUnis.length === 0 ? DEMO_UNIVERSITIES.slice(0, 4) : apiUnis.slice(0, 4);
   const countriesList = demoMode || apiCountries.length === 0 ? DEMO_COUNTRIES.slice(0, 6) : apiCountries.slice(0, 6);
-  const primaryCtaHref = demoMode ? "/demo/preliminary" : "/sign-up";
-  const canadaDemoHref = demoMode ? "/demo/canada" : "/universities";
+  const primaryCtaHref = demoMode ? "/login?redirect=/dashboard" : "/sign-up";
+  const consultantHref = demoMode ? "/login?redirect=/consultant/dashboard" : "/sign-in";
   const journeyMapHref = demoMode ? "/login?redirect=/journey-map" : "/sign-up";
   const showUniversitySkeletons = !demoMode && unisLoading;
   const showCountries = demoMode || (!countriesLoading && countriesList.length > 0);
-
-  const demoTiles = [
-    {
-      label: "Preliminary Demo",
-      detail: "Broad country discovery, university fit, services, and first-arrival onboarding.",
-      href: primaryCtaHref,
-      meta: "Route explorer",
-    },
-    {
-      label: "Canada Locked Demo",
-      detail: "Dashboard, universities, finance, visa, city guides, services, and applications speak to Canada only.",
-      href: canadaDemoHref,
-      meta: "Investor flow",
-    },
-  ];
 
   return (
     <div className="min-h-screen bg-white text-foreground">
@@ -270,14 +254,14 @@ export default function LandingPage() {
           </Link>
           <div className="hidden items-center gap-7 font-serif text-sm font-bold text-[#637199] lg:flex">
             <a href="#product-modules" className="transition-colors hover:text-foreground">Product</a>
-            <a href="#demo-entry" className="transition-colors hover:text-foreground">Demos</a>
+            <a href="#entry" className="transition-colors hover:text-foreground">Entry</a>
             <a href="#live-updates" className="transition-colors hover:text-foreground">Autonomy</a>
             <Link href={journeyMapHref} className="transition-colors hover:text-foreground">Journey OS</Link>
             <Link href="/elee-report" className="transition-colors hover:text-foreground">ELEE Report</Link>
             <Link href="/consultant/dashboard" className="transition-colors hover:text-foreground">Consultants</Link>
           </div>
           <Link href={primaryCtaHref} data-testid="nav-get-started">
-            <Button className="rounded-full px-6 font-serif">{demoMode ? "Launch Product Demo" : "Request Demo"}</Button>
+            <Button className="rounded-full px-6 font-serif">Start AI-guided portal</Button>
           </Link>
         </div>
       </nav>
@@ -299,26 +283,45 @@ export default function LandingPage() {
                 EleevateOverseas Journey OS
               </div>
               <p className="mt-7 font-serif text-sm font-extrabold uppercase tracking-[0.18em] text-[#8DE68A]">
-                Product landing page
+                Autonomous OS
               </p>
               <h1 className="mt-3 font-serif text-4xl font-bold leading-[1.05] text-white md:text-6xl lg:text-[68px]">
-                The study-abroad super-app for students, families, and consultants.
+                A global study-abroad operating system that starts blank and learns from every action.
               </h1>
               <p className="mt-6 max-w-2xl text-base leading-8 text-white/82 md:text-lg">
-                A dedicated product experience powered by ELEE AI: profile clarity, university fit, documents, visa, finance, services, learning, alumni, and consultant operations in one connected journey.
+                ELEE AI turns profile, assessment, university discovery, applications, documents, visa, finance, services, and consultant operations into one connected journey without prefilled student assumptions.
               </p>
 
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Link href={primaryCtaHref} data-testid="hero-cta-primary">
                   <Button size="lg" className="rounded-full px-7 font-serif">
-                    Launch product demo <ArrowRight className="h-4 w-4" />
+                    Start AI-guided portal <ArrowRight className="h-4 w-4" />
                   </Button>
                 </Link>
-                <Link href={canadaDemoHref} data-testid="hero-cta-secondary">
+                <Link href={consultantHref} data-testid="hero-cta-secondary">
                   <Button variant="outline" size="lg" className="rounded-full border-white/45 bg-white/10 px-7 font-serif text-white hover:bg-white hover:text-foreground">
-                    View Canada investor flow
+                    View consultant command center
                   </Button>
                 </Link>
+              </div>
+
+              <div className="mt-8 overflow-hidden rounded-lg border border-white/15 bg-white/10 p-4 backdrop-blur-md">
+                <svg viewBox="0 0 760 110" className="h-24 w-full" aria-label="AI journey route ribbon">
+                  <path d="M18 72 C135 24 205 24 298 66 S480 110 560 54 S682 18 742 44" fill="none" stroke="rgba(255,255,255,0.30)" strokeWidth="18" strokeLinecap="round" />
+                  <path d="M18 72 C135 24 205 24 298 66 S480 110 560 54 S682 18 742 44" fill="none" stroke="#102044" strokeWidth="10" strokeLinecap="round" />
+                  <path d="M300 66 C400 102 474 102 560 54" fill="none" stroke="#C9784A" strokeWidth="5" strokeLinecap="round" />
+                  {["Profile", "Match", "Apply", "Docs", "Finance", "Arrive"].map((label, index) => {
+                    const x = [20, 165, 300, 445, 560, 720][index];
+                    const y = [72, 35, 66, 88, 54, 44][index];
+                    return (
+                      <g key={label}>
+                        <circle cx={x} cy={y} r="13" fill="#ffffff" />
+                        <circle cx={x} cy={y} r="6" fill={index === 3 ? "#C9784A" : "#39B54A"} />
+                        <text x={x} y={y - 22} textAnchor="middle" fill="#ffffff" fontSize="13" fontWeight="700">{label}</text>
+                      </g>
+                    );
+                  })}
+                </svg>
               </div>
             </div>
 
@@ -333,18 +336,21 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section id="demo-entry" className="border-b border-border bg-white px-4 py-6 sm:px-6 lg:px-8" data-testid="demo-entry-section">
-          <div className="mx-auto grid max-w-7xl gap-4 lg:grid-cols-[0.8fr_1.2fr] lg:items-stretch">
-            <div className="rounded-lg border border-border bg-[#F7FBFF] p-5">
-              <div className="eyebrow">Product demo paths</div>
-              <h2 className="mt-2 font-serif text-2xl font-bold leading-tight text-foreground">Choose the landing-to-app walkthrough.</h2>
+        <section id="entry" className="border-b border-border bg-[#fffaf2] px-4 py-8 sm:px-6 lg:px-8" data-testid="entry-section">
+          <div className="mx-auto grid max-w-7xl gap-4 lg:grid-cols-[0.85fr_1.15fr] lg:items-stretch">
+            <div className="rounded-lg border border-[#ead8c4] bg-white p-5 shadow-sm">
+              <div className="eyebrow text-[#a85f36]">Blank-safe entry</div>
+              <h2 className="mt-2 font-serif text-2xl font-bold leading-tight text-foreground">Start with no assumptions, then let actions create the journey.</h2>
               <p className="mt-3 text-sm leading-6 text-muted-foreground">
-                This page is intentionally separate from the signed-in portal, so investors and internal teams can understand the product before entering the app.
+                Student-owned data stays empty until the student completes profile, takes the assessment, shortlists universities, uploads documents, or requests finance/services.
               </p>
             </div>
             <div className="grid gap-4 md:grid-cols-2">
-              {demoTiles.map((tile) => (
-                <Link key={tile.label} href={tile.href} data-testid={`demo-tile-${tile.label.toLowerCase().replace(/\s+/g, "-")}`}>
+              {[
+                { label: "Student AI workspace", detail: "Enter the blank student OS and let ELEE guide profile, report, university fit, applications, docs, visa, and finance.", href: primaryCtaHref, meta: "Student" },
+                { label: "Consultant command center", detail: "Review how student actions become operational tasks, revenue events, document queues, and follow-up work.", href: consultantHref, meta: "Advisor" },
+              ].map((tile) => (
+                <Link key={tile.label} href={tile.href} data-testid={`entry-tile-${tile.label.toLowerCase().replace(/\s+/g, "-")}`}>
                   <div className="group h-full rounded-lg border border-border bg-white p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-md">
                     <div className="flex items-start justify-between gap-4">
                       <div>
@@ -364,12 +370,12 @@ export default function LandingPage() {
         <section id="product-modules" className="px-4 py-16 sm:px-6 lg:px-8" data-testid="product-modules-section">
           <div className="mx-auto max-w-7xl">
             <div className="max-w-3xl">
-              <div className="eyebrow">Product architecture</div>
+              <div className="eyebrow">Autonomous architecture</div>
               <h2 className="mt-3 font-serif text-3xl font-bold leading-tight text-foreground md:text-5xl">
-                One product, four operating layers.
+                One connected OS, four visible proof layers.
               </h2>
               <p className="mt-4 text-base leading-8 text-muted-foreground">
-                The landing page now explains the product itself before showing destination content: student experience, ELEE intelligence, consultant workflow, and monetizable services.
+                The AI version shows how student experience, ELEE intelligence, consultant workflow, and monetizable services stay connected without preloading private student values.
               </p>
             </div>
 
@@ -472,7 +478,6 @@ export default function LandingPage() {
               <div className="mt-10 grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
                 {countriesList.map((country) => {
                   const insight = COUNTRY_ROUTE_INSIGHTS[country.code] ?? {
-                    score: 70,
                     budget: "Profile based",
                     visa: "Review",
                     cities: "Top student cities",
@@ -483,11 +488,11 @@ export default function LandingPage() {
                   return (
                     <Link href="/countries" key={country.code} data-testid={`country-chip-${country.code}`}>
                       <Card className="app-card group h-full overflow-hidden p-0 transition-all hover:-translate-y-1 hover:border-primary/35 hover:shadow-md">
-                        <div className="brand-gradient-bg h-1.5" />
+                        <div className="h-1.5 bg-[linear-gradient(90deg,#102044_0%,#102044_55%,#C9784A_55%,#C9784A_72%,#39B54A_72%,#39B54A_100%)]" />
                         <div className="p-5">
                           <div className="flex items-start justify-between gap-5">
                             <div className="min-w-0">
-                              <div className="text-xs font-bold uppercase tracking-[0.16em] text-primary">Route score</div>
+                              <div className="text-xs font-bold uppercase tracking-[0.16em] text-primary">Public route signals</div>
                               <h3 className="mt-2 font-serif text-2xl font-bold leading-tight text-foreground">{country.name}</h3>
                               <p className="mt-2 text-sm text-muted-foreground">{insight.bestFor} · {insight.intake}</p>
                             </div>
@@ -503,13 +508,13 @@ export default function LandingPage() {
                           <div className="mt-6">
                             <div className="flex items-end justify-between gap-4">
                               <div>
-                                <div className="font-serif text-4xl font-bold text-foreground">{insight.score}%</div>
-                                <div className="mt-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">ELEE fit confidence</div>
+                                <div className="font-serif text-2xl font-bold text-foreground">Calculate after profile</div>
+                                <div className="mt-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">ELEE match pending</div>
                               </div>
-                              <Badge className="rounded-full bg-secondary text-white hover:bg-secondary">{insight.visa} visa</Badge>
+                              <Badge className="rounded-full bg-secondary text-white hover:bg-secondary">{insight.visa} visa signal</Badge>
                             </div>
                             <div className="mt-4 h-2 overflow-hidden rounded-full bg-muted">
-                              <div className="brand-gradient-bg h-full rounded-full" style={{ width: `${insight.score}%` }} />
+                              <div className="h-full w-2/5 rounded-full bg-[linear-gradient(90deg,#102044,#C9784A)]" />
                             </div>
                           </div>
 
@@ -744,7 +749,8 @@ export default function LandingPage() {
                         </div>
                       </div>
                       <div className="mt-5 flex flex-wrap gap-2">
-                        {uni.ranking && <Badge variant="secondary">#{uni.ranking} QS</Badge>}
+                        <Badge className="rounded-full bg-secondary text-white hover:bg-secondary">ELEE Match pending</Badge>
+                        {uni.ranking && <Badge variant="outline">#{uni.ranking} QS</Badge>}
                         {uni.programCount && <Badge variant="outline">{uni.programCount}+ programs</Badge>}
                       </div>
                     </Card>
@@ -813,7 +819,7 @@ export default function LandingPage() {
             <BadgeCheck className="mx-auto h-10 w-10 text-accent" />
             <h2 className="mt-5 font-serif text-4xl font-bold text-foreground">Ready to write your future?</h2>
             <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
-              Start with the demo Journey OS now, then connect the final database once the product flow is locked.
+              Start inside a blank AI-guided workspace, then let each real student action create profile clarity, applications, documents, finance status, and consultant handoffs.
             </p>
             <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
               <Link href={primaryCtaHref} data-testid="cta-get-started">
