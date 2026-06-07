@@ -58,7 +58,24 @@ jobs:
           mkdir -p "$current_dist/ai-superapp"
           cp -a "$archive_dist/." "$current_dist/ai-superapp/"
 
-          for route in product dashboard journey-map elee-report universities applications documents financial-hub consultant/dashboard; do
+          ai_routes=(
+            product
+            login sign-in sign-up onboarding
+            dashboard more journey-map
+            elee-report elle-report edge-report
+            profile assessment
+            countries universities course-finder shortlist applications
+            documents sop-studio visa-center
+            language-hub test-prep mock-test upskilling e-learning
+            careers job-board alumni news rewards support
+            financial-hub loans remittance forex-card forex insurance tuition-payment
+            marketplace services scholarships subscription
+            consultant/dashboard consultant/profile consultant/crm consultant/counselling
+            consultant/chatbot consultant/sop consultant/doc-review consultant/team
+            consultant/partners consultant/branding consultant/lms consultant/invoicing
+          )
+
+          for route in "${ai_routes[@]}"; do
             mkdir -p "$current_dist/ai-superapp/$route"
             cp "$archive_dist/index.html" "$current_dist/ai-superapp/$route/index.html"
           done
