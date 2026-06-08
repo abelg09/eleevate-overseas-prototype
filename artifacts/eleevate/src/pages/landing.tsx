@@ -286,7 +286,7 @@ export default function LandingPage() {
                 Autonomous OS
               </p>
               <h1 className="mt-3 font-serif text-4xl font-bold leading-[1.05] text-white md:text-6xl lg:text-[68px]">
-                A global study-abroad operating system that starts blank and learns from every action.
+                From profile to arrival, ELEE guides every study-abroad decision.
               </h1>
               <p className="mt-6 max-w-2xl text-base leading-8 text-white/82 md:text-lg">
                 ELEE AI turns profile, assessment, university discovery, applications, documents, visa, finance, services, and consultant operations into one connected journey without prefilled student assumptions.
