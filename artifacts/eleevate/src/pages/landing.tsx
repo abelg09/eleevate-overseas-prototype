@@ -390,7 +390,7 @@ export default function LandingPage() {
                     role="button"
                     tabIndex={0}
                     aria-pressed={isFlipped}
-                    className="group min-h-[390px] cursor-pointer [perspective:1400px]"
+                    className="group min-h-[500px] cursor-pointer [perspective:1400px] xl:min-h-[520px]"
                     onClick={() => setFlippedModule(isFlipped ? null : module.title)}
                     onKeyDown={(event) => {
                       if (event.key === "Enter" || event.key === " ") {
@@ -399,7 +399,7 @@ export default function LandingPage() {
                       }
                     }}
                   >
-                    <div className={`relative h-full min-h-[390px] rounded-lg transition-transform duration-700 [transform-style:preserve-3d] group-hover:[transform:rotateY(180deg)] ${isFlipped ? "[transform:rotateY(180deg)]" : ""}`}>
+                    <div className={`relative h-full min-h-[500px] rounded-lg transition-transform duration-700 [transform-style:preserve-3d] group-hover:[transform:rotateY(180deg)] xl:min-h-[520px] ${isFlipped ? "[transform:rotateY(180deg)]" : ""}`}>
                       <Card className={`absolute inset-0 overflow-hidden border-border p-0 shadow-md [backface-visibility:hidden] ${module.soft}`}>
                         <div className="h-2" style={{ background: module.gradient }} />
                         <div className="flex h-full flex-col p-6">
@@ -422,7 +422,7 @@ export default function LandingPage() {
                       </Card>
 
                       <Card
-                        className="absolute inset-0 overflow-hidden border-0 p-6 text-white shadow-lg [backface-visibility:hidden] [transform:rotateY(180deg)]"
+                        className="absolute inset-0 overflow-hidden border-0 p-5 text-white shadow-lg [backface-visibility:hidden] [transform:rotateY(180deg)] sm:p-6"
                         style={{ background: module.gradient }}
                       >
                         <div className="flex h-full flex-col">
@@ -432,9 +432,9 @@ export default function LandingPage() {
                             </div>
                             <ModuleIcon className="h-7 w-7 text-white" />
                           </div>
-                          <h3 className="mt-7 font-serif text-2xl font-bold leading-tight">{module.title}</h3>
-                          <p className="mt-4 text-sm leading-6 text-white/82">{module.proof}</p>
-                          <div className="mt-6 space-y-2">
+                          <h3 className="mt-6 font-serif text-2xl font-bold leading-tight">{module.title}</h3>
+                          <p className="mt-3 text-sm leading-6 text-white/86">{module.proof}</p>
+                          <div className="mt-5 space-y-2">
                             {module.updates.map((update) => (
                               <div key={update} className="flex items-center gap-3 rounded-lg border border-white/14 bg-white/12 px-3 py-2 text-sm font-semibold text-white">
                                 <BadgeCheck className="h-4 w-4 flex-shrink-0 text-white" />
@@ -442,7 +442,7 @@ export default function LandingPage() {
                               </div>
                             ))}
                           </div>
-                          <div className="mt-auto rounded-lg border border-white/14 bg-white/12 p-3 text-xs leading-5 text-white/76">
+                          <div className="mt-auto rounded-lg border border-white/14 bg-white/12 p-3 text-xs leading-5 text-white/82">
                             Tap or press Enter again to return.
                           </div>
                         </div>
