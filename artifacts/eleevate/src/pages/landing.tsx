@@ -19,7 +19,6 @@ import {
   Landmark,
   LayoutDashboard,
   MessageCircle,
-  ShieldCheck,
   Sparkles,
   UserRound,
   Users,
@@ -33,164 +32,178 @@ import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { isDemoMode, listFromApi } from "@/lib/demo-mode";
 import { DEMO_COUNTRIES, DEMO_UNIVERSITIES } from "@/lib/demo-catalog";
-import { DEMO_AGENT_PROMPTS } from "@/lib/demo-journey";
 import { assetUrl } from "@/lib/utils";
 
 const STATS = [
-  { value: "2 Apps", label: "Student + consultant" },
-  { value: "7 Hubs", label: "Guided student lifecycle" },
-  { value: "1 Ledger", label: "Finance and service sync" },
-  { value: "ELEE AI", label: "Profile-led recommendations" },
+  { value: "1200+", label: "Universities" },
+  { value: "15+", label: "Countries" },
+  { value: "50+", label: "Scholarships" },
+  { value: "1", label: "Autonomous counsellor" },
 ];
 
 const PRODUCT_MODULES = [
   {
-    title: "Student Journey OS",
-    desc: "Dashboard, profile, shortlist, applications, document vault, visa center, city guides, support, and rewards.",
+    title: "Your Study Abroad Dashboard",
+    desc: "Build your profile, shortlist universities, manage applications, upload documents, track visa steps, explore city guides, get 24/7 support, and unlock rewards in one place.",
     meta: "Student app",
     icon: LayoutDashboard,
     gradient: "linear-gradient(135deg, #009FE3 0%, #1AB7CF 48%, #3AAA35 100%)",
     soft: "bg-[#EAF8FF]",
     accent: "text-[#009FE3]",
-    proof: "Actions create visible journey state across dashboard, applications, documents, and next best action.",
-    updates: ["Profile status", "Shortlist tasks", "Visa timeline"],
+    proof: "Your dashboard keeps the full journey visible so you always know what is complete, blocked, and next.",
+    updates: ["Profile progress", "Application tasks", "Visa timeline"],
   },
   {
-    title: "ELEE Clarity Report",
-    desc: "Readiness score, route decision, profile blockers, family readiness, financial gap, and action plan.",
-    meta: "AI report",
+    title: "Know Where You Stand",
+    desc: "Complete your psychometric evaluation and ELEE Report to understand readiness, best routes, profile gaps, family readiness, finance planning, and next actions.",
+    meta: "ELEE report",
     icon: FileSearch,
     gradient: "linear-gradient(135deg, #172A5A 0%, #285BD8 48%, #009FE3 100%)",
     soft: "bg-[#EEF5FF]",
     accent: "text-[#285BD8]",
-    proof: "The report updates whenever country, course, finance, or document evidence changes.",
-    updates: ["Route decision", "Funding gap", "Family readiness"],
+    proof: "ELEE turns your academics, goals, personality signals, budget, tests, and family readiness into a clearer route plan.",
+    updates: ["Psychometric fit", "Route clarity", "Action plan"],
   },
   {
-    title: "Consultant Workbench",
-    desc: "CRM, counselling queue, SOP/LOR/resume flow, document review, team tasks, partners, and invoicing.",
-    meta: "Team ops",
-    icon: BriefcaseBusiness,
+    title: "AI Counsellor Connect",
+    desc: "Stay connected with your AI counsellor for SOPs, LORs, test prep, document reviews, reminders, follow-ups, and every next step in your journey.",
+    meta: "AI counsellor",
+    icon: MessageCircle,
     gradient: "linear-gradient(135deg, #402B74 0%, #7C55C7 48%, #009FE3 100%)",
     soft: "bg-[#F5F0FF]",
     accent: "text-[#6B4BB7]",
-    proof: "Student actions become counsellor queues, review stages, interview prep, and partner follow-ups.",
-    updates: ["Daily queue", "Document review", "Offer tracking"],
+    proof: "ELEE learns your goals, writing style, and personality so guidance feels personal, practical, and timely.",
+    updates: ["SOP direction", "Interview prep", "Smart reminders"],
   },
   {
-    title: "Unified Finance Ledger",
-    desc: "Edu loans, remittance, forex card, forex, insurance, accommodation, and service commission events.",
-    meta: "Revenue layer",
+    title: "Everything You Need Abroad",
+    desc: "Access education loans, remittance, forex cards, insurance, accommodation support, scholarships, career prep, and trusted services that make your move easier.",
+    meta: "Finance & services",
     icon: WalletCards,
     gradient: "linear-gradient(135deg, #0B3A4B 0%, #009FE3 45%, #F6A623 100%)",
     soft: "bg-[#FFF7E8]",
     accent: "text-[#C77700]",
-    proof: "Service actions create student status updates and consultant-facing revenue/commission events.",
-    updates: ["Loan event", "Forex card", "Insurance status"],
+    proof: "Finance, accommodation, visa support, and career preparation stay connected to your application stage.",
+    updates: ["Education loan", "Accommodation", "Career support"],
   },
 ];
 
 const LIVE_UPDATES = [
   {
     number: "01",
-    title: "Profile turns into clarity",
-    desc: "ELEE reads academics, budget, goals, family readiness, test status, and risk signals.",
+    title: "Understands your profile",
+    desc: "ELEE reads academics, budget, goals, family readiness, test status, personality signals, and study preferences before recommending a route.",
     icon: UserRound,
-    surface: "ELEE report",
-    event: "Readiness score recalculated",
+    surface: "AI profile",
+    event: "Personal guidance",
     tone: "from-[#EAF8FF] to-[#ECFFF2]",
   },
   {
     number: "02",
-    title: "Shortlist starts the workflow",
-    desc: "A saved university creates application tasks, document requests, and consultant follow-up.",
+    title: "Guides your writing",
+    desc: "It helps shape SOPs, LOR points, resumes, emails, and application answers around your own voice and story.",
     icon: GraduationCap,
-    surface: "Applications",
-    event: "Application packet opened",
+    surface: "SOP + LOR",
+    event: "Writing support",
     tone: "from-[#ECFFF2] to-[#F5F0FF]",
   },
   {
     number: "03",
-    title: "Finance becomes a ledger",
-    desc: "Loan, forex, insurance, remittance, and accommodation actions update student and consultant views.",
-    icon: Landmark,
-    surface: "Unified ledger",
-    event: "Service revenue event queued",
+    title: "Prepares you for interviews",
+    desc: "ELEE gives university, visa, scholarship, and career interview practice with feedback you can act on.",
+    icon: BriefcaseBusiness,
+    surface: "Interview prep",
+    event: "Practice + feedback",
     tone: "from-[#FFF7E8] to-[#EAF8FF]",
   },
   {
     number: "04",
-    title: "Counsellors get the handoff",
-    desc: "Daily queues show pending approvals, blockers, revenue events, and next best action.",
-    icon: ClipboardCheck,
-    surface: "Workbench",
-    event: "Counsellor task assigned",
+    title: "Connects you with support",
+    desc: "When you need human help, ELEE routes you to counsellors, service partners, scholarship options, and career connections.",
+    icon: Users,
+    surface: "Connections",
+    event: "Human handoff",
     tone: "from-[#F5F0FF] to-[#EEF5FF]",
   },
 ];
 
 const JOURNEY_MAP_STAGES = [
   {
-    id: "smart-start",
-    phase: "Smart Start",
-    status: "Live",
-    student: "Creates profile, selects level, destination intent, budget, tests, and timeline.",
-    automation: "ELEE generates readiness score, likely routes, first task queue, and family checklist.",
-    handoff: "Counsellor sees priority, blockers, preferred countries, and first call agenda.",
-    impact: "Profile ledger opened",
+    id: "create-profile",
+    phase: "Create Profile",
+    status: "Start",
+    student: "Add academics, study level, course interests, budget, intake, tests, work experience, and sponsor details.",
+    automation: "ELEE builds your student file and prepares your first recommended tasks.",
+    handoff: "Passport, marksheets, budget range, target intake, course area.",
+    impact: "Profile ready",
   },
   {
-    id: "country-fit",
-    phase: "Country Fit",
-    status: "Live",
-    student: "Compares Canada, UK, USA, Australia, Germany, and Netherlands with practical signals.",
-    automation: "Budget, visa, city, employability, and intake signals update the route decision.",
-    handoff: "Team gets a country-specific counselling script and risk notes.",
-    impact: "Route readiness pending",
+    id: "psychometric",
+    phase: "Psychometric Evaluation",
+    status: "Assess",
+    student: "Complete the personality, readiness, and career-fit assessment.",
+    automation: "ELEE connects your personality, learning style, goals, and route preferences.",
+    handoff: "Career interests, strengths, decision style, study preferences.",
+    impact: "Fit signals unlocked",
   },
   {
-    id: "shortlist-apply",
-    phase: "Shortlist to Apply",
-    status: "Build",
-    student: "Saves universities and opens program-level application flows.",
-    automation: "Saved universities create applications, deadlines, document requests, and SOP prompts.",
-    handoff: "Consultant receives review queue, university communication tasks, and offer-tracking stage.",
-    impact: "Application pipeline created",
+    id: "shortlisting",
+    phase: "Shortlisting",
+    status: "Choose",
+    student: "Compare countries, universities, courses, costs, cities, scholarships, and outcomes.",
+    automation: "ELEE ranks options by profile fit, affordability, intake, and visa readiness.",
+    handoff: "Preferred destinations, saved universities, course matches.",
+    impact: "Best-fit list saved",
   },
   {
-    id: "documents-visa",
-    phase: "Documents & Visa",
-    status: "Build",
-    student: "Uploads marksheets, passport, finance proof, SOP/LOR/resume, and visa files.",
-    automation: "Validation checks missing fields, country rules, sponsor proof, and interview readiness.",
-    handoff: "Document reviewer approves packets and flags visa strategy blockers.",
-    impact: "Readiness score changes",
+    id: "application",
+    phase: "Application",
+    status: "Apply",
+    student: "Prepare SOP, LOR, resume, application forms, deadlines, and document packets.",
+    automation: "ELEE tracks missing requirements, drafts writing prompts, and keeps follow-ups visible.",
+    handoff: "SOP draft, LOR inputs, resume, transcripts, application deadlines.",
+    impact: "Applications moving",
   },
   {
-    id: "finance-services",
-    phase: "Finance & Services",
-    status: "Preview",
-    student: "Applies for loan, remittance, forex card, insurance, accommodation, and subscriptions.",
-    automation: "Every service action writes a student-facing status and consultant commission event.",
-    handoff: "Finance owner sees lender/service status, payout estimate, and pending follow-up.",
-    impact: "Unified ledger updated",
+    id: "finance",
+    phase: "Finance",
+    status: "Plan",
+    student: "Plan education loan, scholarship, fee payment, remittance, forex card, insurance, and accommodation.",
+    automation: "ELEE shows what is pending and which finance documents are needed.",
+    handoff: "Funding plan, sponsor proof, loan interest, payment timeline.",
+    impact: "Finance plan ready",
   },
   {
-    id: "arrival-alumni",
-    phase: "Arrival & Alumni",
-    status: "Preview",
-    student: "Completes pre-departure, travel, city setup, alumni network, careers, and referrals.",
-    automation: "Post-visa tasks, alumni groups, job board prompts, and rewards continue after arrival.",
-    handoff: "Customer success tracks advocacy, success stories, referrals, and alumni outcomes.",
-    impact: "Lifetime journey continues",
+    id: "career",
+    phase: "Career",
+    status: "Grow",
+    student: "Prepare interviews, build skills, join alumni networks, find companies, and plan your first career steps abroad.",
+    automation: "ELEE suggests test prep, upskilling, interview practice, alumni connections, and career actions.",
+    handoff: "Skills, interview notes, target roles, company connections.",
+    impact: "Career path opened",
   },
 ];
 
 const SERVICES = [
-  { icon: MessageCircle, phase: "Guidance", title: "Counselling", desc: "Personalized student and family guidance from profile to departure." },
-  { icon: ShieldCheck, phase: "Risk", title: "Visa Strategy", desc: "Document readiness, financial proof, interview prep, and route confidence." },
-  { icon: BookOpenCheck, phase: "Growth", title: "Upskilling", desc: "IELTS, TOEFL, GRE, GMAT, mock tests, LMS, and skill progress insights." },
-  { icon: Users, phase: "Ops", title: "Consultant OS", desc: "CRM, document review, SOP workflow, invoicing, team tasks, and partner tools." },
+  { icon: MessageCircle, phase: "Guidance", title: "Book a Counsellor", desc: "Get human support when you need deeper clarity for country, course, visa, or family decisions." },
+  { icon: BookOpenCheck, phase: "Prep", title: "Test Prep", desc: "Plan IELTS, TOEFL, GRE, GMAT, mock tests, and language practice around your timeline." },
+  { icon: Landmark, phase: "Finance", title: "Education Loan", desc: "Understand funding documents, loan options, remittance, forex, insurance, and fee planning." },
+  { icon: BriefcaseBusiness, phase: "Career", title: "Interview Prep", desc: "Practice university, visa, scholarship, internship, and early career interview questions." },
+];
+
+const DASHBOARD_ACTIONS = [
+  "AI Profile",
+  "Generate ELEE Report",
+  "Find and compare countries",
+  "Find my course",
+  "Applications",
+  "Test prep",
+  "Draft SOP",
+  "Find scholarship",
+  "Education loan",
+  "Interview prep",
+  "Book a counsellor",
+  "New chats and requests",
 ];
 
 const COUNTRY_VISUALS: Record<string, string> = {
@@ -227,6 +240,8 @@ const COUNTRY_ROUTE_INSIGHTS: Record<string, {
 
 export default function LandingPage() {
   const [flippedModule, setFlippedModule] = useState<string | null>(null);
+  const [startDialog, setStartDialog] = useState<"profile" | "login" | null>(null);
+  const [eleeGreetingVisible, setEleeGreetingVisible] = useState(false);
   const demoMode = isDemoMode();
   const { data: featuredUnis, isLoading: unisLoading } = useGetFeaturedUniversities({
     query: { enabled: !demoMode, queryKey: getGetFeaturedUniversitiesQueryKey() },
@@ -239,30 +254,43 @@ export default function LandingPage() {
   const apiCountries = listFromApi<Country>(countries);
   const unis = demoMode || apiUnis.length === 0 ? DEMO_UNIVERSITIES.slice(0, 4) : apiUnis.slice(0, 4);
   const countriesList = demoMode || apiCountries.length === 0 ? DEMO_COUNTRIES.slice(0, 6) : apiCountries.slice(0, 6);
-  const primaryCtaHref = demoMode ? "/login?redirect=/dashboard" : "/sign-up";
-  const consultantHref = demoMode ? "/login?redirect=/consultant/dashboard" : "/sign-in";
+  const createProfileHref = demoMode ? "/login?redirect=/profile" : "/sign-up";
+  const studentLoginHref = demoMode ? "/login?redirect=/dashboard" : "/sign-in";
   const journeyMapHref = demoMode ? "/login?redirect=/journey-map" : "/sign-up";
   const showUniversitySkeletons = !demoMode && unisLoading;
   const showCountries = demoMode || (!countriesLoading && countriesList.length > 0);
 
+  const openStartDialog = (mode: "profile" | "login") => {
+    setStartDialog(mode);
+    setEleeGreetingVisible(true);
+  };
+
   return (
     <div className="min-h-screen bg-white text-foreground">
       <nav className="sticky top-0 z-50 border-b border-border bg-white/95 backdrop-blur-xl" data-testid="nav-bar">
-        <div className="mx-auto flex h-[132px] max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto flex h-24 max-w-7xl items-center justify-between gap-3 px-3 sm:h-[112px] sm:px-6 lg:px-8">
           <Link href="/product" data-testid="nav-logo" aria-label="EleevateOverseas product landing">
-            <img src={assetUrl("logo.webp")} alt="EleevateOverseas" className="h-28 w-28 rounded-full object-cover shadow-sm ring-1 ring-border" />
+            <img src={assetUrl("logo.webp")} alt="EleevateOverseas" className="h-20 w-20 rounded-full object-cover shadow-sm ring-1 ring-border sm:h-28 sm:w-28" />
           </Link>
-          <div className="hidden items-center gap-7 font-serif text-sm font-bold text-[#637199] lg:flex">
-            <a href="#product-modules" className="transition-colors hover:text-foreground">Product</a>
-            <a href="#entry" className="transition-colors hover:text-foreground">Entry</a>
-            <a href="#live-updates" className="transition-colors hover:text-foreground">Autonomy</a>
-            <Link href={journeyMapHref} className="transition-colors hover:text-foreground">Journey OS</Link>
-            <Link href="/elee-report" className="transition-colors hover:text-foreground">ELEE Report</Link>
-            <Link href="/consultant/dashboard" className="transition-colors hover:text-foreground">Consultants</Link>
+          <div className="flex items-center gap-3">
+            <Button
+              type="button"
+              className="rounded-full px-3 font-serif text-xs sm:px-6 sm:text-sm"
+              data-testid="nav-create-profile"
+              onClick={() => openStartDialog("profile")}
+            >
+              Create Profile
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              className="rounded-full border-secondary px-3 font-serif text-xs text-secondary sm:px-6 sm:text-sm"
+              data-testid="nav-student-login"
+              onClick={() => openStartDialog("login")}
+            >
+              Student Login
+            </Button>
           </div>
-          <Link href={primaryCtaHref} data-testid="nav-get-started">
-            <Button className="rounded-full px-6 font-serif">Start AI-guided portal</Button>
-          </Link>
         </div>
       </nav>
 
@@ -280,29 +308,25 @@ export default function LandingPage() {
             <div className="max-w-3xl">
               <div className="inline-flex items-center gap-3 rounded-full border border-white/25 bg-white/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-white/85">
                 <span className="h-2 w-2 rounded-full bg-accent" />
-                EleevateOverseas Journey OS
+                EleevateOverseas Study-Abroad Journey
               </div>
               <p className="mt-7 font-serif text-sm font-extrabold uppercase tracking-[0.18em] text-[#8DE68A]">
-                Autonomous OS
+                ELEE AI Counsellor
               </p>
               <h1 className="mt-3 font-serif text-4xl font-bold leading-[1.05] text-white md:text-6xl lg:text-[68px]">
-                From profile to arrival, ELEE guides every study-abroad decision.
+                From your first shortlist to your first day on campus and beyond, ELEE is with you.
               </h1>
               <p className="mt-6 max-w-2xl text-base leading-8 text-white/82 md:text-lg">
-                ELEE AI turns profile, assessment, university discovery, applications, documents, visa, finance, services, and consultant operations into one connected journey without prefilled student assumptions.
+                ELEE AI transforms study-abroad planning into one intelligent, connected journey, guiding you across profile assessment, university discovery, applications, documentation, finance, visa, accommodation, careers, and integrated services.
               </p>
 
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <Link href={primaryCtaHref} data-testid="hero-cta-primary">
-                  <Button size="lg" className="rounded-full px-7 font-serif">
-                    Start AI-guided portal <ArrowRight className="h-4 w-4" />
-                  </Button>
-                </Link>
-                <Link href={consultantHref} data-testid="hero-cta-secondary">
-                  <Button variant="outline" size="lg" className="rounded-full border-white/45 bg-white/10 px-7 font-serif text-white hover:bg-white hover:text-foreground">
-                    View consultant command center
-                  </Button>
-                </Link>
+                <Button size="lg" className="rounded-full px-7 font-serif" data-testid="hero-create-profile" onClick={() => openStartDialog("profile")}>
+                  Create Profile <ArrowRight className="h-4 w-4" />
+                </Button>
+                <Button variant="outline" size="lg" className="rounded-full border-white/45 bg-white/10 px-7 font-serif text-white hover:bg-white hover:text-foreground" data-testid="hero-student-login" onClick={() => openStartDialog("login")}>
+                  Student Login
+                </Button>
               </div>
 
               <div className="mt-8 overflow-hidden rounded-lg border border-white/15 bg-white/10 p-4 backdrop-blur-md">
@@ -310,7 +334,7 @@ export default function LandingPage() {
                   <path d="M18 72 C135 24 205 24 298 66 S480 110 560 54 S682 18 742 44" fill="none" stroke="rgba(255,255,255,0.30)" strokeWidth="18" strokeLinecap="round" />
                   <path d="M18 72 C135 24 205 24 298 66 S480 110 560 54 S682 18 742 44" fill="none" stroke="#102044" strokeWidth="10" strokeLinecap="round" />
                   <path d="M300 66 C400 102 474 102 560 54" fill="none" stroke="#C9784A" strokeWidth="5" strokeLinecap="round" />
-                  {["Profile", "Match", "Apply", "Docs", "Finance", "Arrive"].map((label, index) => {
+                  {["Profile", "Psychometric", "Shortlist", "Apply", "Finance", "Career"].map((label, index) => {
                     const x = [20, 165, 300, 445, 560, 720][index];
                     const y = [72, 35, 66, 88, 54, 44][index];
                     return (
@@ -336,46 +360,15 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section id="entry" className="border-b border-border bg-[#fffaf2] px-4 py-8 sm:px-6 lg:px-8" data-testid="entry-section">
-          <div className="mx-auto grid max-w-7xl gap-4 lg:grid-cols-[0.85fr_1.15fr] lg:items-stretch">
-            <div className="rounded-lg border border-[#ead8c4] bg-white p-5 shadow-sm">
-              <div className="eyebrow text-[#a85f36]">Blank-safe entry</div>
-              <h2 className="mt-2 font-serif text-2xl font-bold leading-tight text-foreground">Start with no assumptions, then let actions create the journey.</h2>
-              <p className="mt-3 text-sm leading-6 text-muted-foreground">
-                Student-owned data stays empty until the student completes profile, takes the assessment, shortlists universities, uploads documents, or requests finance/services.
-              </p>
-            </div>
-            <div className="grid gap-4 md:grid-cols-2">
-              {[
-                { label: "Student AI workspace", detail: "Enter the blank student OS and let ELEE guide profile, report, university fit, applications, docs, visa, and finance.", href: primaryCtaHref, meta: "Student" },
-                { label: "Consultant command center", detail: "Review how student actions become operational tasks, revenue events, document queues, and follow-up work.", href: consultantHref, meta: "Advisor" },
-              ].map((tile) => (
-                <Link key={tile.label} href={tile.href} data-testid={`entry-tile-${tile.label.toLowerCase().replace(/\s+/g, "-")}`}>
-                  <div className="group h-full rounded-lg border border-border bg-white p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-md">
-                    <div className="flex items-start justify-between gap-4">
-                      <div>
-                        <div className="text-xs font-bold uppercase tracking-[0.16em] text-primary">{tile.meta}</div>
-                        <h3 className="mt-2 font-serif text-xl font-bold text-foreground">{tile.label}</h3>
-                      </div>
-                      <ArrowRight className="mt-1 h-5 w-5 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-primary" />
-                    </div>
-                    <p className="mt-3 text-sm leading-6 text-muted-foreground">{tile.detail}</p>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </section>
-
         <section id="product-modules" className="px-4 py-16 sm:px-6 lg:px-8" data-testid="product-modules-section">
           <div className="mx-auto max-w-7xl">
             <div className="max-w-3xl">
-              <div className="eyebrow">Autonomous architecture</div>
+              <div className="eyebrow">Your student journey</div>
               <h2 className="mt-3 font-serif text-3xl font-bold leading-tight text-foreground md:text-5xl">
-                One connected OS, four visible proof layers.
+                Everything you need to move from confusion to campus.
               </h2>
               <p className="mt-4 text-base leading-8 text-muted-foreground">
-                The AI version shows how student experience, ELEE intelligence, consultant workflow, and monetizable services stay connected without preloading private student values.
+                ELEE keeps your profile, evaluation, shortlist, applications, documents, finance, visa, accommodation, and career preparation in one guided journey.
               </p>
             </div>
 
@@ -415,7 +408,7 @@ export default function LandingPage() {
                           <h3 className="font-serif text-2xl font-bold leading-tight text-foreground">{module.title}</h3>
                           <p className="mt-4 text-sm leading-6 text-muted-foreground">{module.desc}</p>
                           <div className="mt-auto flex items-center justify-between border-t border-border/70 pt-5">
-                            <span className={`text-xs font-bold uppercase tracking-[0.16em] ${module.accent}`}>Flip for proof</span>
+                            <span className={`text-xs font-bold uppercase tracking-[0.16em] ${module.accent}`}>See how it helps</span>
                             <ArrowRight className={`h-4 w-4 ${module.accent}`} />
                           </div>
                         </div>
@@ -428,7 +421,7 @@ export default function LandingPage() {
                         <div className="flex h-full flex-col">
                           <div className="flex items-start justify-between gap-4">
                             <div className="rounded-full border border-white/22 bg-white/15 px-3 py-1 text-xs font-bold uppercase tracking-[0.14em] text-white/82">
-                              Product proof
+                              ELEE helps you
                             </div>
                             <ModuleIcon className="h-7 w-7 text-white" />
                           </div>
@@ -460,17 +453,17 @@ export default function LandingPage() {
             <div className="mx-auto max-w-7xl">
               <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
                 <div className="max-w-3xl">
-                  <div className="eyebrow">Route intelligence</div>
+                  <div className="eyebrow">Destinations</div>
                   <h2 className="mt-3 font-serif text-3xl font-bold leading-tight text-foreground md:text-5xl">
-                    Destination discovery becomes a product workflow.
+                    Choose your destination with clarity.
                   </h2>
                   <p className="mt-4 text-base leading-8 text-muted-foreground">
-                    Country discovery becomes practical once ELEE connects route fit with budgets, city guides, visa signals, and application readiness.
+                    ELEE helps you compare countries based on your profile, budget, visa path, city preferences, application readiness, and career goals, so every study-abroad decision feels more confident.
                   </p>
                 </div>
                 <Link href="/countries">
                   <Button variant="outline" className="rounded-full border-secondary px-6 font-serif text-secondary">
-                    Compare countries <ArrowRight className="h-3.5 w-3.5" />
+                    Explore destinations <ArrowRight className="h-3.5 w-3.5" />
                   </Button>
                 </Link>
               </div>
@@ -547,19 +540,22 @@ export default function LandingPage() {
           <div className="mx-auto max-w-7xl">
             <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
               <div>
-                <div className="eyebrow">Autonomous proof</div>
+                <div className="eyebrow">ELEE AI Counsellor</div>
                 <h2 className="mt-3 font-serif text-3xl font-bold leading-tight text-foreground md:text-5xl">
-                  Every action changes the journey, not just the screen.
+                  What does ELEE do for you?
                 </h2>
                 <p className="mt-5 text-base leading-8 text-muted-foreground">
-                  This is the product promise: ELEE AI is the guidance layer, and the Journey OS proves itself when each action updates reports, applications, finance, and counsellor operations.
+                  ELEE is your study-abroad buddy. It helps you understand yourself, choose better-fit destinations, prepare stronger applications, improve your writing, practice interviews, connect with counsellors and service partners, and keep every next step visible.
+                </p>
+                <p className="mt-4 text-base leading-8 text-muted-foreground">
+                  The more you use it, the more personal it becomes: matching your personality, your writing style, your academic background, your finance situation, and your career ambition.
                 </p>
                 <div className="mt-6 grid max-w-xl grid-cols-2 gap-3">
                   {[
-                    ["Live state", "Student + team"],
-                    ["Ledger sync", "Finance + services"],
-                    ["AI handoff", "ELEE + counsellor"],
-                    ["Proof trail", "Every decision"],
+                    ["Profile", "Personal path"],
+                    ["Writing", "SOP + LOR support"],
+                    ["Interview", "Practice with feedback"],
+                    ["Connections", "Counsellors + companies"],
                   ].map(([label, value]) => (
                     <div key={label} className="rounded-lg border border-border bg-[#F7FBFF] p-3">
                       <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.14em] text-primary">
@@ -571,12 +567,8 @@ export default function LandingPage() {
                   ))}
                 </div>
                 <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                  <Link href="/elee-report">
-                    <Button className="rounded-full px-6 font-serif">Open ELEE Report</Button>
-                  </Link>
-                  <Link href="/consultant/dashboard">
-                    <Button variant="outline" className="rounded-full border-secondary px-6 font-serif text-secondary">Consultant view</Button>
-                  </Link>
+                  <Button className="rounded-full px-6 font-serif" onClick={() => openStartDialog("profile")}>Create Profile</Button>
+                  <Button variant="outline" className="rounded-full border-secondary px-6 font-serif text-secondary" onClick={() => openStartDialog("login")}>Student Login</Button>
                 </div>
               </div>
 
@@ -622,12 +614,12 @@ export default function LandingPage() {
           <div className="mx-auto max-w-7xl">
             <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
               <div className="max-w-3xl">
-                <div className="eyebrow">Journey map</div>
+                <div className="eyebrow">Journey stages</div>
                 <h2 className="mt-3 font-serif text-3xl font-bold leading-tight text-foreground md:text-5xl">
-                  One map from first intent to alumni advocacy.
+                  A simpler path from profile to career.
                 </h2>
                 <p className="mt-4 text-base leading-8 text-muted-foreground">
-                  The map shows what the student does, what ELEE updates, where the consultant steps in, and which ledger/status event changes in the background.
+                  Each stage gives the student one clear job, one set of requirements, and one next action, so the journey feels guided instead of overwhelming.
                 </p>
               </div>
               <Link href={journeyMapHref}>
@@ -642,9 +634,9 @@ export default function LandingPage() {
                 <div className="mb-4 hidden grid-cols-[88px_minmax(0,1.1fr)_minmax(0,1.1fr)_minmax(0,1fr)_150px] gap-3 px-4 text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground lg:grid">
                   <div>Step</div>
                   <div>Student action</div>
-                  <div>ELEE automation</div>
-                  <div>Consultant handoff</div>
-                  <div>Status impact</div>
+                  <div>ELEE helps with</div>
+                  <div>Required</div>
+                  <div>Outcome</div>
                 </div>
 
                 <div className="space-y-4">
@@ -667,12 +659,12 @@ export default function LandingPage() {
                         </div>
 
                         <div className="rounded-lg border border-primary/15 bg-primary/5 p-3">
-                          <div className="text-[10px] font-bold uppercase tracking-wide text-primary">ELEE updates</div>
+                          <div className="text-[10px] font-bold uppercase tracking-wide text-primary">ELEE helps with</div>
                           <p className="mt-2 text-xs leading-5 text-foreground">{stage.automation}</p>
                         </div>
 
                         <div className="rounded-lg border border-accent/20 bg-accent/5 p-3">
-                          <div className="text-[10px] font-bold uppercase tracking-wide text-accent">Team handoff</div>
+                          <div className="text-[10px] font-bold uppercase tracking-wide text-accent">Required</div>
                           <p className="mt-2 text-xs leading-5 text-foreground">{stage.handoff}</p>
                         </div>
 
@@ -687,18 +679,18 @@ export default function LandingPage() {
               </div>
 
               <aside className="rounded-lg border border-border bg-secondary p-5 text-white shadow-sm">
-                <div className="text-xs font-bold uppercase tracking-[0.18em] text-[#8DE68A]">Map logic</div>
-                <h3 className="mt-3 font-serif text-2xl font-bold leading-tight">The journey is not a checklist. It is a state engine.</h3>
+                <div className="text-xs font-bold uppercase tracking-[0.18em] text-[#8DE68A]">ELEE stays with you</div>
+                <h3 className="mt-3 font-serif text-2xl font-bold leading-tight">Your next step should always feel obvious.</h3>
                 <p className="mt-4 text-sm leading-7 text-white/72">
-                  Each stage changes multiple product surfaces: the student dashboard, ELEE report, application tracker, consultant queue, and unified ledger.
+                  ELEE keeps track of what you have done, what is missing, what needs expert review, and what you should handle next.
                 </p>
 
                 <div className="mt-6 space-y-3">
                   {[
-                    ["Report", "Score, blockers, route decision"],
-                    ["Applications", "Deadlines, university tasks, offers"],
-                    ["Documents", "Validation, missing proof, review status"],
-                    ["Ledger", "Loan, forex, insurance, remittance events"],
+                    ["Profile", "Academics, tests, goals, budget"],
+                    ["Report", "Psychometric fit and route clarity"],
+                    ["Applications", "Deadlines, SOP, LOR, offers"],
+                    ["Finance", "Loans, scholarships, forex, insurance"],
                   ].map(([label, detail]) => (
                     <div key={label} className="rounded-lg border border-white/12 bg-white/[0.08] p-3">
                       <div className="font-serif text-sm font-bold text-white">{label}</div>
@@ -709,7 +701,7 @@ export default function LandingPage() {
 
                 <Link href={journeyMapHref}>
                   <Button className="mt-6 w-full rounded-full bg-white font-serif text-secondary hover:bg-white/90">
-                    Open full Journey OS <ArrowRight className="h-3.5 w-3.5" />
+                    Open Journey Map <ArrowRight className="h-3.5 w-3.5" />
                   </Button>
                 </Link>
               </aside>
@@ -763,28 +755,29 @@ export default function LandingPage() {
         <section className="px-4 py-16 sm:px-6 lg:px-8" data-testid="elee-intents-section">
           <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
             <div>
-              <div className="eyebrow">ELEE AI counsellor</div>
+              <div className="eyebrow">Student dashboard</div>
               <h2 className="mt-3 font-serif text-3xl font-bold leading-tight text-foreground md:text-5xl">
-                Start with a student question. End with a changed plan.
+                Your dashboard should feel like a command center for one student.
               </h2>
               <p className="mt-5 text-base leading-8 text-muted-foreground">
-                Inspired by AI buddy patterns, ELEE stays practical: it routes the student into real actions that update the dashboard, report, ledger, and consultant queue.
+                The student does not need every module at once. They need the right next action, clear notifications, counsellor access, chats, requests, connections, test prep, SOP drafting, scholarships, loans, and interview preparation in one calm place.
               </p>
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                <Button className="rounded-full px-6 font-serif" onClick={() => openStartDialog("profile")}>Create Profile</Button>
+                <Button variant="outline" className="rounded-full border-secondary px-6 font-serif text-secondary" onClick={() => openStartDialog("login")}>Student Login</Button>
+              </div>
             </div>
 
-            <div className="grid gap-3">
-              {DEMO_AGENT_PROMPTS.map((prompt) => (
-                <Link key={prompt.id} href={demoMode ? `/login?redirect=${encodeURIComponent(prompt.href)}` : prompt.href}>
-                  <div className="group rounded-lg border border-border bg-white p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-md">
-                    <div className="flex items-start justify-between gap-4">
-                      <div>
-                        <div className="font-serif text-base font-bold text-foreground">{prompt.label}</div>
-                        <p className="mt-1 text-sm leading-6 text-muted-foreground">{prompt.prompt}</p>
-                      </div>
-                      <ArrowRight className="mt-1 h-5 w-5 flex-shrink-0 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-primary" />
+            <div className="grid gap-3 sm:grid-cols-2">
+              {DASHBOARD_ACTIONS.map((action) => (
+                <div key={action} className="group rounded-lg border border-border bg-white p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-md">
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="font-serif text-base font-bold text-foreground">{action}</div>
+                    <div className="brand-gradient-bg flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full text-white">
+                      <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
                     </div>
                   </div>
-                </Link>
+                </div>
               ))}
             </div>
           </div>
@@ -794,9 +787,9 @@ export default function LandingPage() {
           <div className="mx-auto max-w-7xl">
             <div className="mb-10 max-w-3xl">
               <div className="text-xs font-bold uppercase tracking-[0.18em] text-[#8DE68A]">Services</div>
-              <h2 className="mt-4 font-serif text-3xl font-bold leading-tight md:text-5xl">Everything needed from clarity to arrival.</h2>
+              <h2 className="mt-4 font-serif text-3xl font-bold leading-tight md:text-5xl">Support for the moments students usually handle alone.</h2>
               <p className="mt-4 text-base leading-8 text-white/72">
-                The public site promise becomes a product workflow: counselling, visa, upskilling, finance, services, and consultant operations.
+                ELEE keeps the journey practical by connecting guidance, test prep, finance, documents, interviews, and career readiness to the stage the student is actually in.
               </p>
             </div>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
@@ -819,15 +812,11 @@ export default function LandingPage() {
             <BadgeCheck className="mx-auto h-10 w-10 text-accent" />
             <h2 className="mt-5 font-serif text-4xl font-bold text-foreground">Ready to write your future?</h2>
             <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
-              Start inside a blank AI-guided workspace, then let each real student action create profile clarity, applications, documents, finance status, and consultant handoffs.
+              Start with your profile, meet ELEE, and move through the study-abroad journey with clearer decisions at every step.
             </p>
             <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
-              <Link href={primaryCtaHref} data-testid="cta-get-started">
-                <Button size="lg" className="rounded-full px-8 font-serif">Start Your Journey Today</Button>
-              </Link>
-              <Link href="/consultant/dashboard">
-                <Button variant="outline" size="lg" className="rounded-full border-secondary px-8 font-serif text-secondary">Open Consultant OS</Button>
-              </Link>
+              <Button size="lg" className="rounded-full px-8 font-serif" data-testid="cta-create-profile" onClick={() => openStartDialog("profile")}>Create Profile</Button>
+              <Button variant="outline" size="lg" className="rounded-full border-secondary px-8 font-serif text-secondary" onClick={() => openStartDialog("login")}>Student Login</Button>
             </div>
           </div>
         </section>
@@ -836,15 +825,86 @@ export default function LandingPage() {
       <footer className="border-t border-border bg-white px-4 py-10 sm:px-6 lg:px-8" data-testid="footer">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 md:flex-row">
           <img src={assetUrl("logo.webp")} alt="EleevateOverseas" className="h-24 w-24 rounded-full object-cover shadow-sm ring-1 ring-border" />
-          <div className="flex flex-wrap items-center justify-center gap-6 font-serif text-sm font-bold text-[#637199]">
-            <Link href="/universities" className="hover:text-foreground">Universities</Link>
-            <Link href="/elee-report" className="hover:text-foreground">ELEE Report</Link>
-            <Link href="/services" className="hover:text-foreground">Services</Link>
-            <Link href="/consultant/dashboard" className="hover:text-foreground">Consultant OS</Link>
-          </div>
+          <div className="text-center font-serif text-sm font-bold text-[#637199]">ELEE is with you from profile to arrival.</div>
           <div className="text-xs text-muted-foreground">2026 EleevateOverseas. Write Your Future.</div>
         </div>
       </footer>
+
+      {startDialog && (
+        <div className="fixed inset-0 z-[80] flex items-center justify-center bg-secondary/70 px-4 py-6 backdrop-blur-sm" data-testid="elee-start-popup">
+          <div className="w-full max-w-2xl overflow-hidden rounded-lg bg-white shadow-2xl">
+            <div className="brand-gradient-bg px-6 py-5 text-white">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <div className="text-xs font-bold uppercase tracking-[0.18em] text-white/75">ELEE AI Counsellor</div>
+                  <h2 className="mt-2 font-serif text-3xl font-bold leading-tight">Hi, I am ELEE. Let us start your journey.</h2>
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="rounded-full border-white/40 bg-white/10 text-white hover:bg-white hover:text-secondary"
+                  onClick={() => setStartDialog(null)}
+                >
+                  Close
+                </Button>
+              </div>
+            </div>
+
+            <div className="p-6">
+              <p className="text-base leading-7 text-muted-foreground">
+                I will help you create your student file, understand your profile, compare countries and courses, prepare applications, track documents, plan finance, and get ready for interviews and arrival.
+              </p>
+
+              <div className="mt-6 grid gap-3 sm:grid-cols-2">
+                <Link href={createProfileHref} data-testid="popup-create-profile">
+                  <div className="group h-full rounded-lg border border-primary/20 bg-[#F7FBFF] p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <div className="font-serif text-lg font-bold text-foreground">Create your profile</div>
+                        <p className="mt-2 text-sm leading-6 text-muted-foreground">Start with academics, goals, budget, tests, intake, and sponsor details.</p>
+                      </div>
+                      <ArrowRight className="mt-1 h-5 w-5 text-primary transition-transform group-hover:translate-x-1" />
+                    </div>
+                  </div>
+                </Link>
+
+                <Link href={studentLoginHref} data-testid="popup-student-login">
+                  <div className="group h-full rounded-lg border border-accent/20 bg-[#ECFFF2] p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-md">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <div className="font-serif text-lg font-bold text-foreground">Student login</div>
+                        <p className="mt-2 text-sm leading-6 text-muted-foreground">Return to your dashboard, chats, requests, applications, and next actions.</p>
+                      </div>
+                      <ArrowRight className="mt-1 h-5 w-5 text-accent transition-transform group-hover:translate-x-1" />
+                    </div>
+                  </div>
+                </Link>
+              </div>
+
+              <div className="mt-5 rounded-lg border border-border bg-[#fffaf2] p-4">
+                <div className="font-serif text-sm font-bold text-foreground">First, I will ask a few simple questions.</div>
+                <p className="mt-1 text-sm leading-6 text-muted-foreground">
+                  Then I will move to the right side of your screen as your journey buddy, ready whenever you need help.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {eleeGreetingVisible && !startDialog && (
+        <div className="fixed bottom-24 right-5 z-[70] max-w-[300px] rounded-lg border border-primary/20 bg-white p-4 shadow-xl" data-testid="elee-greeting-bubble">
+          <div className="flex items-start gap-3">
+            <div className="brand-gradient-bg flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full text-white">
+              <Sparkles className="h-5 w-5" />
+            </div>
+            <div>
+              <div className="font-serif text-sm font-bold text-foreground">ELEE is here.</div>
+              <p className="mt-1 text-xs leading-5 text-muted-foreground">Open the guide whenever you want help with your next study-abroad step.</p>
+            </div>
+          </div>
+        </div>
+      )}
       <EleeBuddy />
     </div>
   );
