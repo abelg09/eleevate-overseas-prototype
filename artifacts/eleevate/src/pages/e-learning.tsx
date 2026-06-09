@@ -10,24 +10,6 @@ import { isDemoMode } from "@/lib/demo-mode";
 
 // Static starter courses so the page is populated on fresh install
 const STARTER_COURSES = [
-  { id: "sc1", title: "IELTS Band 7+ Complete Guide", description: "Master all four IELTS sections with proven strategies for high band scores.", type: "student", examType: "IELTS", level: "intermediate", category: "Language", thumbnailUrl: "", durationMinutes: 180, status: "published", certificateEnabled: true, createdById: "system", createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), chapters: [
-    { id: "c1a", courseId: "sc1", title: "Understanding the IELTS Format", videoUrl: "https://www.youtube.com/embed/KMU0tzLwhbE", content: "An overview of all four IELTS sections, scoring criteria, and test-day strategies.", orderIndex: 0, quizQuestions: [{ question: "How many sections does IELTS have?", options: ["2", "3", "4", "5"], correctIndex: 2, explanation: "IELTS has 4 sections: Listening, Reading, Writing, and Speaking." }] },
-    { id: "c1b", courseId: "sc1", title: "IELTS Listening Mastery", videoUrl: "https://www.youtube.com/embed/H1hRe_aXlcA", content: "Techniques for tackling all four listening section types including maps, forms, and MCQ.", orderIndex: 1, quizQuestions: [{ question: "What should you do before the audio plays?", options: ["Read the questions carefully", "Write your name", "Close your eyes", "None of the above"], correctIndex: 0, explanation: "Pre-reading questions gives you time to identify keywords and predict answers." }] },
-    { id: "c1c", courseId: "sc1", title: "IELTS Writing Task 2 Essays", videoUrl: "https://www.youtube.com/embed/J2SyiBkDSuY", content: "How to plan, structure, and write a Band 7+ Task 2 essay in 40 minutes.", orderIndex: 2, quizQuestions: [] },
-  ]},
-  { id: "sc2", title: "GRE Quantitative Reasoning Bootcamp", description: "From basics to advanced: master every GRE Quant question type with timed practice.", type: "student", examType: "GRE", level: "advanced", category: "Test Prep", thumbnailUrl: "", durationMinutes: 240, status: "published", certificateEnabled: true, createdById: "system", createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), chapters: [
-    { id: "c2a", courseId: "sc2", title: "Arithmetic & Number Properties", videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ", content: "Primes, factors, multiples, fractions, and percentages.", orderIndex: 0, quizQuestions: [{ question: "What is the LCM of 12 and 18?", options: ["6", "18", "36", "72"], correctIndex: 2, explanation: "LCM(12, 18) = 36. Prime factors: 12 = 2²×3, 18 = 2×3². LCM = 2²×3² = 36." }] },
-    { id: "c2b", courseId: "sc2", title: "Algebra & Equations", videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ", content: "Linear equations, inequalities, systems of equations, and quadratics.", orderIndex: 1, quizQuestions: [] },
-  ]},
-  { id: "sc3", title: "Study Abroad Counselling Certification", description: "A comprehensive certification for education consultants covering visa, admissions, and ethics.", type: "consultant", examType: null, level: "intermediate", category: "Certification", thumbnailUrl: "", durationMinutes: 300, status: "published", certificateEnabled: true, createdById: "system", createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), chapters: [
-    { id: "c3a", courseId: "sc3", title: "Foundations of Education Counselling", videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ", content: "Roles, responsibilities, ethics, and professional standards for overseas education consultants.", orderIndex: 0, quizQuestions: [{ question: "What is the primary responsibility of an education consultant?", options: ["Maximise revenue", "Act in the best interest of the student", "Promote specific universities", "Minimise visa rejections"], correctIndex: 1, explanation: "The student's best interest must always come first — this is the core ethical principle." }] },
-    { id: "c3b", courseId: "sc3", title: "UK Student Visa (CAS & Tier 4)", videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ", content: "Complete walkthrough of UK student visa requirements, CAS process, and financial evidence rules.", orderIndex: 1, quizQuestions: [] },
-    { id: "c3c", courseId: "sc3", title: "SOP & LOR Strategy", videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ", content: "How to guide students in crafting winning Statements of Purpose and securing strong LORs.", orderIndex: 2, quizQuestions: [] },
-  ]},
-  { id: "sc4", title: "TOEFL iBT Speaking & Writing", description: "Build confidence in TOEFL speaking and writing with template frameworks and practice.", type: "student", examType: "TOEFL", level: "beginner", category: "Language", thumbnailUrl: "", durationMinutes: 120, status: "published", certificateEnabled: false, createdById: "system", createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), chapters: [
-    { id: "c4a", courseId: "sc4", title: "TOEFL Speaking: The SPEAK Framework", videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ", content: "State, Points, Explain, Acknowledge, Knock out — master this structure for all speaking tasks.", orderIndex: 0, quizQuestions: [] },
-    { id: "c4b", courseId: "sc4", title: "Integrated Writing Task", videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ", content: "How to read, listen, and write effectively in the integrated task within 20 minutes.", orderIndex: 1, quizQuestions: [] },
-  ]},
   { id: "sc5", title: "Power BI for International Careers", description: "Build dashboards, model data, and present insights for part-time and graduate job readiness.", type: "student", examType: null, level: "intermediate", category: "Job Skills", thumbnailUrl: "", durationMinutes: 210, status: "published", certificateEnabled: true, createdById: "system", createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), chapters: [
     { id: "c5a", courseId: "sc5", title: "Data cleaning and modelling", content: "Create a clean student employment dataset and prepare it for reporting.", orderIndex: 0, quizQuestions: [] },
     { id: "c5b", courseId: "sc5", title: "Dashboard storytelling", content: "Turn charts into a short, interview-ready portfolio story.", orderIndex: 1, quizQuestions: [] },
@@ -80,8 +62,7 @@ export default function ELearningPage() {
   const [activeChapter, setActiveChapter] = useState<Chapter | null>(null);
   const [enrollment, setEnrollment] = useState<Enrollment | null>(null);
   const [quizAnswer, setQuizAnswer] = useState<number | null>(null);
-  const [filterType, setFilterType] = useState<"all" | "student" | "consultant">("all");
-  const [filterExam, setFilterExam] = useState("all");
+  const [filterCategory, setFilterCategory] = useState("all");
 
   const { data: apiCourses } = useQuery<CourseWithChapters[]>({
     queryKey: ["courses"],
@@ -99,11 +80,18 @@ export default function ELearningPage() {
     ...(apiCourses?.filter(c => !STARTER_COURSES.find(s => s.id === c.id)) ?? []),
   ];
 
-  const filtered = allCourses.filter(c => {
-    if (filterType !== "all" && c.type !== filterType) return false;
-    if (filterExam !== "all" && c.examType !== filterExam) return false;
+  const skillCourses = allCourses.filter((course) => {
+    if (course.type !== "student") return false;
+    if (course.examType) return false;
+    if (course.category === "Language" || course.category === "Test Prep" || course.category === "Certification") return false;
     return true;
   });
+
+  const filtered = skillCourses.filter(c => {
+    if (filterCategory !== "all" && c.category !== filterCategory) return false;
+    return true;
+  });
+  const categories = ["all", ...Array.from(new Set(skillCourses.map((course) => course.category).filter(Boolean)))] as string[];
 
   const enroll = useMutation({
     mutationFn: async (courseId: string) => {
@@ -189,7 +177,7 @@ export default function ELearningPage() {
     return (
       <div className="p-6 max-w-5xl mx-auto space-y-4">
         <button onClick={() => { setSelectedCourse(null); setActiveChapter(null); setEnrollment(null); }} className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
-          Back to upskilling
+          Back to skills
         </button>
 
         <div className="flex items-start justify-between gap-4 flex-wrap">
@@ -299,27 +287,17 @@ export default function ELearningPage() {
   return (
     <div className="p-6 max-w-5xl mx-auto space-y-6">
       <div>
-        <h1 className="font-serif text-2xl font-bold text-foreground">Upskilling Hub</h1>
-        <p className="mt-1 text-muted-foreground">Language prep, test prep, job skills, soft skills, consultant certification, and profile enhancement.</p>
+        <h1 className="font-serif text-2xl font-bold text-foreground">Upskilling</h1>
+        <p className="mt-1 text-muted-foreground">Build practical student skills for projects, portfolios, communication, and stronger applications.</p>
       </div>
 
-      <div className="flex flex-wrap gap-3">
-        <div className="flex gap-2">
-          {(["all", "student", "consultant"] as const).map(t => (
-            <button key={t} onClick={() => setFilterType(t)}
-              className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-all ${filterType === t ? "border-primary bg-primary text-primary-foreground" : "border-border hover:border-primary/50"}`}>
-              {t === "all" ? "All" : t === "student" ? "Student" : "Consultant"}
-            </button>
-          ))}
-        </div>
-        <div className="flex gap-2 flex-wrap">
-          {["all", "IELTS", "TOEFL", "GRE", "GMAT"].map(e => (
-            <button key={e} onClick={() => setFilterExam(e)}
-              className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${filterExam === e ? "border-primary bg-primary/10 text-primary" : "border-border hover:border-primary/40"}`}>
-              {e === "all" ? "Any exam" : e}
-            </button>
-          ))}
-        </div>
+      <div className="flex flex-wrap gap-2">
+        {categories.map((category) => (
+          <button key={category} onClick={() => setFilterCategory(category)}
+            className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-all ${filterCategory === category ? "border-primary bg-primary text-primary-foreground" : "border-border hover:border-primary/50"}`}>
+            {category === "all" ? "All skills" : category}
+          </button>
+        ))}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -332,8 +310,7 @@ export default function ELearningPage() {
             <CardContent className="flex-1 flex flex-col pt-4">
               <div className="flex flex-wrap gap-1.5 mb-2">
                 <Badge variant="outline" className={`text-xs ${levelColors[course.level]}`}>{course.level}</Badge>
-                {course.examType && <Badge variant="secondary" className="text-xs">{course.examType}</Badge>}
-                {course.type === "consultant" && <Badge className="text-xs bg-purple-100 text-purple-700 border-0">Consultant</Badge>}
+                {course.category && <Badge variant="secondary" className="text-xs">{course.category}</Badge>}
               </div>
               <div className="font-semibold text-sm mb-1 flex-1">{course.title}</div>
               <p className="text-xs text-muted-foreground line-clamp-2 mb-3">{course.description}</p>
@@ -347,7 +324,7 @@ export default function ELearningPage() {
           </Card>
         ))}
         {filtered.length === 0 && (
-          <div className="col-span-full text-center py-16 text-muted-foreground">No courses match your filters.</div>
+          <div className="col-span-full text-center py-16 text-muted-foreground">No skill courses match your filters.</div>
         )}
       </div>
     </div>

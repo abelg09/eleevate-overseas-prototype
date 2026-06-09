@@ -4,6 +4,7 @@ import { useUser, useClerk } from "@clerk/react";
 import { useGetMe } from "@workspace/api-client-react";
 import {
   Bot,
+  BookOpen,
   BriefcaseBusiness,
   ClipboardList,
   Command,
@@ -65,7 +66,9 @@ const studentGroups: NavGroup[] = [
   {
     label: "Outcomes",
     items: [
-      { href: "/upskilling", label: "Career & Upskilling", icon: GraduationCap },
+      { href: "/test-prep", label: "Test Prep", icon: BookOpen },
+      { href: "/upskilling", label: "Upskilling", icon: GraduationCap },
+      { href: "/careers", label: "Career", icon: BriefcaseBusiness },
       { href: "/alumni", label: "Alumni & Community", icon: UsersRound },
       { href: "/journey-map", label: "Journey Map", icon: Network },
     ],

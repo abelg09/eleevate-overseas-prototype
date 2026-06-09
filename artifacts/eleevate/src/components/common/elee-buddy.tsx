@@ -12,7 +12,10 @@ const ROUTE_STEPS = [
   { match: ["/applications"], label: "Applications", next: "Prepare documents and visa", href: "/documents" },
   { match: ["/documents", "/visa-center"], label: "Docs & Visa", next: "Plan education loan and arrival costs", href: "/financial-hub" },
   { match: ["/financial-hub", "/loans", "/remittance", "/forex-card", "/forex", "/insurance"], label: "Financial Hub", next: "Prepare test scores and interviews", href: "/test-prep" },
-  { match: ["/test-prep", "/mock-test", "/upskilling", "/careers", "/job-board", "/alumni", "/news"], label: "Career & Upskilling", next: "Review journey map", href: "/journey-map" },
+  { match: ["/test-prep", "/mock-test", "/language-hub"], label: "Test Prep", next: "Build practical student skills", href: "/upskilling" },
+  { match: ["/upskilling"], label: "Upskilling", next: "Explore career paths", href: "/careers" },
+  { match: ["/careers", "/job-board"], label: "Career", next: "Connect with alumni and community", href: "/alumni" },
+  { match: ["/alumni", "/news"], label: "Alumni & Community", next: "Review journey map", href: "/journey-map" },
 ];
 
 function getRouteStep(location: string) {
