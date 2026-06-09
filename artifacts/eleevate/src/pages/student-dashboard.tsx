@@ -33,9 +33,9 @@ export default function StudentDashboardPage() {
     <AppLayout>
       <div data-testid="student-dashboard">
         <PageHeader
-          eyebrow="Autonomous student OS"
+          eyebrow="Student command center"
           title="Your study-abroad workspace starts here."
-          description="Complete your profile first. ELEE then calculates route fit, university match, document readiness, visa signals, and finance actions from the information you provide."
+          description="Start with your AI Profile & Test. ELEE will then guide your country choices, course search, applications, documents, finance plan, and interview preparation."
           actions={
             <>
               <Link href="/profile">
@@ -64,8 +64,8 @@ export default function StudentDashboardPage() {
               </h2>
               <p className="mt-3 max-w-3xl text-sm leading-6 text-muted-foreground">
                 {profileComplete
-                  ? "ELEE has enough starting context to prepare country, course, document, visa, and finance guidance. No score is shown until the report is generated."
-                  : "Add academics, budget range, test status, preferred intake, goals, and family sponsor details. Until then, the private workspace stays blank by design."}
+                  ? "ELEE has enough starting context to prepare country, course, document, visa, finance, and interview guidance. No personal score is shown until you generate the report."
+                  : "Add academics, budget range, test status, preferred intake, goals, and family sponsor details. ELEE will not guess your route before you share the basics."}
               </p>
 
               <div className="mt-6 grid grid-cols-1 gap-3 md:grid-cols-4">
@@ -137,7 +137,7 @@ export default function StudentDashboardPage() {
         <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_380px]">
           <section className="space-y-5">
             <Card className="app-card p-5">
-              <SectionHeader title="Module handshake proof" description="Student-owned events appear only after the student acts." href="/financial-hub" />
+              <SectionHeader title="Your activity trail" description="Every action you take can create the next task in your journey." href="/financial-hub" />
               {ledgerEvents.length > 0 ? (
                 <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                   {ledgerEvents.slice(0, 4).map((event) => (
@@ -150,12 +150,12 @@ export default function StudentDashboardPage() {
                 </div>
               ) : (
                 <div className="rounded-lg border border-dashed border-border bg-[#f8fbff] p-6">
-                  <div className="font-serif text-lg font-bold text-foreground">No system events yet.</div>
+                  <div className="font-serif text-lg font-bold text-foreground">No journey actions yet.</div>
                   <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                    Shortlist a university, upload a document, or start a finance/service action to see the student dashboard, consultant queue, and unified ledger update together.
+                    Shortlist a university, upload a document, or start an education-loan plan to see your next tasks appear here.
                   </p>
                   <Link href="/universities">
-                    <Button className="mt-4 rounded-full font-serif">Create first event</Button>
+                    <Button className="mt-4 rounded-full font-serif">Start with University Finder</Button>
                   </Link>
                 </div>
               )}

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { Bot, Brain, FileText, User } from "lucide-react";
+import { Link } from "wouter";
+import { ArrowRight, Bot, Brain, ClipboardCheck, FileText, Sparkles, User } from "lucide-react";
 import { AppLayout } from "@/components/layout/app-layout";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -43,7 +44,7 @@ export default function StudentProfilePage() {
     writeStudentWorkspaceProfile(form);
     toast({
       title: "AI Profile saved",
-      description: "ELEE can now use these fields across report, university fit, applications, documents, and finance.",
+      description: "ELEE can now use these details to guide your report, university fit, applications, documents, finance, and interview prep.",
     });
   };
 
@@ -52,9 +53,9 @@ export default function StudentProfilePage() {
       <div data-testid="student-profile-page">
         <div className="mb-8">
           <div className="eyebrow">AI Profile & Test</div>
-          <h1 className="mt-2 font-serif text-3xl font-bold leading-tight text-foreground">Build the student digital twin before recommendations.</h1>
+          <h1 className="mt-2 font-serif text-3xl font-bold leading-tight text-foreground">Tell ELEE who you are before choosing a route.</h1>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">
-            ELEE should not guess. Add the basics first, then the assessment can generate target countries, study level confidence, university fit, document needs, and finance planning.
+            Add your academics, goals, budget, test status, intake, and career interests. Then ELEE can recommend countries, courses, universities, documents, and finance steps with more confidence.
           </p>
         </div>
 
@@ -83,10 +84,10 @@ export default function StudentProfilePage() {
             <Card className="border border-border p-6" data-testid="study-preferences">
               <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                 <h2 className="flex items-center gap-2 font-semibold text-foreground">
-                  <Bot className="h-4 w-4 text-primary" /> Profile inputs
+                  <Bot className="h-4 w-4 text-primary" /> Tell ELEE about you
                 </h2>
                 <Badge className="rounded-full border-[#C9784A]/25 bg-[#fff2e8] text-[#8a4b2b] hover:bg-[#fff2e8]">
-                  Recommendations unlock after assessment
+                  Recommendations appear after assessment
                 </Badge>
               </div>
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -143,6 +144,53 @@ export default function StudentProfilePage() {
                 ))}
               </div>
             </Card>
+
+            <Card className="border border-border p-6" data-testid="assessment-check">
+              <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <h2 className="flex items-center gap-2 font-semibold text-foreground">
+                  <ClipboardCheck className="h-4 w-4 text-primary" /> Assessment quick check
+                </h2>
+                <Badge variant="outline" className="w-fit rounded-full font-semibold">10 minutes</Badge>
+              </div>
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                {[
+                  "Career interests and preferred work style",
+                  "Country comfort, distance, and family readiness",
+                  "Budget confidence and sponsor evidence",
+                  "Learning style, test readiness, and interview confidence",
+                ].map((item) => (
+                  <div key={item} className="rounded-lg border border-border bg-muted/30 p-3 text-sm leading-6 text-foreground">
+                    {item}
+                  </div>
+                ))}
+              </div>
+              <Link href="/assessment">
+                <Button variant="outline" className="mt-5 rounded-full font-serif">
+                  Open assessment
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </Link>
+            </Card>
+
+            <Card className="border border-primary/20 bg-primary/5 p-6" data-testid="elee-report-preview">
+              <div className="flex items-start gap-3">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg brand-gradient-bg text-white">
+                  <Sparkles className="h-5 w-5" />
+                </div>
+                <div>
+                  <h2 className="font-serif text-xl font-bold text-foreground">ELEE Report preview</h2>
+                  <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                    After your profile and assessment are saved, ELEE turns them into country ranking, course fit, missing documents, finance readiness, and your next three actions.
+                  </p>
+                  <Link href="/elee-report">
+                    <Button className="mt-4 rounded-full font-serif">
+                      Generate ELEE report
+                      <ArrowRight className="h-4 w-4" />
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            </Card>
           </section>
 
           <aside className="space-y-6">
@@ -150,15 +198,15 @@ export default function StudentProfilePage() {
               <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[linear-gradient(135deg,#102044,#C9784A)] text-white">
                 <Brain className="h-6 w-6" />
               </div>
-              <h2 className="mt-5 font-serif text-xl font-bold text-foreground">AI-generated fields</h2>
+              <h2 className="mt-5 font-serif text-xl font-bold text-foreground">ELEE recommendations</h2>
               <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                Target countries, route ranking, and university fit remain locked until the assessment and profile evidence exist.
+                Your country suggestions, study route, city fit, and finance guidance will appear after your profile and assessment have enough information.
               </p>
               <div className="mt-5 space-y-3">
                 {["Target countries", "Study route", "Best city cluster", "Finance risk"].map((label) => (
                   <div key={label} className="rounded-lg border border-[#ead8c4] bg-white p-3">
                     <div className="text-[10px] font-bold uppercase tracking-wide text-[#8a4b2b]">{label}</div>
-                    <div className="mt-1 font-serif text-sm font-bold text-foreground">Complete assessment to unlock</div>
+                    <div className="mt-1 font-serif text-sm font-bold text-foreground">Complete assessment to view</div>
                   </div>
                 ))}
               </div>

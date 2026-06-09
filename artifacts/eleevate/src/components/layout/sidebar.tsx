@@ -65,7 +65,8 @@ const studentGroups: NavGroup[] = [
   {
     label: "Outcomes",
     items: [
-      { href: "/upskilling", label: "Career & Community", icon: GraduationCap },
+      { href: "/upskilling", label: "Career & Upskilling", icon: GraduationCap },
+      { href: "/alumni", label: "Alumni & Community", icon: UsersRound },
       { href: "/journey-map", label: "Journey Map", icon: Network },
     ],
   },
@@ -178,7 +179,7 @@ function SidebarShell({
         </Link>
         <div className="mt-4 flex items-center gap-2">
           <Badge className="brand-gradient-bg rounded-full px-3 py-1 text-white hover:opacity-95">
-            {role === "consultant" ? "Command OS" : "AI Journey OS"}
+            {role === "consultant" ? "Command OS" : "Student Journey"}
           </Badge>
         </div>
       </div>

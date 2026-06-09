@@ -15,8 +15,8 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const userName = [user.firstName, user.lastName].filter(Boolean).join(" ") || (consultant ? "Consultant" : "Student");
   const profile = useStudentWorkspaceProfile();
   const nextAction = !profile
-    ? { label: "Next best action", title: "Complete AI Profile & Test", href: "/profile", detail: "ELEE needs academics, budget, goals, and test status before it can calculate route fit." }
-    : { label: "Next best action", title: "Generate ELEE Report", href: "/elee-report", detail: "Turn your saved profile into country, university, document, visa, and finance recommendations." };
+    ? { label: "Next best action", title: "Complete AI Profile & Test", href: "/profile", detail: "Add your academics, goals, budget, test status, and intake so ELEE can guide your next step." }
+    : { label: "Next best action", title: "Generate ELEE Report", href: "/elee-report", detail: "Turn your saved profile into country, course, document, visa, finance, and interview guidance." };
 
   return (
     <div className="app-shell-bg flex min-h-screen">

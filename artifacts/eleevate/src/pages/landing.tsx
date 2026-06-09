@@ -38,7 +38,7 @@ const STATS = [
   { value: "1200+", label: "Universities" },
   { value: "15+", label: "Countries" },
   { value: "50+", label: "Scholarships" },
-  { value: "1", label: "Autonomous counsellor" },
+  { value: "1", label: "Study-abroad guide" },
 ];
 
 const PRODUCT_MODULES = [
@@ -122,7 +122,7 @@ const LIVE_UPDATES = [
     desc: "When you need human help, ELEE routes you to counsellors, service partners, scholarship options, and career connections.",
     icon: Users,
     surface: "Connections",
-    event: "Human handoff",
+    event: "Expert support",
     tone: "from-[#F5F0FF] to-[#EEF5FF]",
   },
 ];
@@ -192,7 +192,6 @@ const SERVICES = [
 ];
 
 const DASHBOARD_ACTIONS = [
-  "AI Profile",
   "Generate ELEE Report",
   "Find and compare countries",
   "Find my course",
@@ -202,8 +201,6 @@ const DASHBOARD_ACTIONS = [
   "Find scholarship",
   "Education loan",
   "Interview prep",
-  "Book a counsellor",
-  "New chats and requests",
 ];
 
 const COUNTRY_VISUALS: Record<string, string> = {

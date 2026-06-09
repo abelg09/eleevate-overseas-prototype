@@ -196,7 +196,7 @@ export default function CourseFinderPage() {
           <Card className="app-card border-primary/20 bg-primary/5 p-4">
             <div className="font-serif text-lg font-bold text-foreground">Course action updates</div>
             <p className="mt-2 text-sm leading-6 text-muted-foreground">
-              Shortlisting a course updates the shortlist, creates an application workflow, and writes an Applications ledger event for consultant review.
+              Shortlisting a course adds it to your university plan and creates the next application tasks to review.
             </p>
           </Card>
         </aside>

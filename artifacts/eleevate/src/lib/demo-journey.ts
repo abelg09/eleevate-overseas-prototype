@@ -54,10 +54,15 @@ export const DEMO_LEDGER_STORAGE_KEY = "eleevate.ai.ledger.events.v2";
 export const DEMO_JOURNEY_EVENT = "eleevate-demo-journey";
 
 export const DEMO_AGENT_PROMPTS: DemoAgentPrompt[] = [
-  { id: "country", label: "Find my country", prompt: "Compare countries by profile, budget, visa risk, and future career route.", href: "/countries" },
-  { id: "report", label: "Generate ELEE report", prompt: "Turn my profile, family readiness, and finance details into a readable action report.", href: "/elee-report" },
-  { id: "finance", label: "Check finance gap", prompt: "Show my funding gap, matching lenders, remittance, forex card, and insurance steps.", href: "/financial-hub" },
-  { id: "applications", label: "Start applications", prompt: "Move my saved universities into a tracked application workflow.", href: "/universities" },
+  { id: "report", label: "Generate ELEE report", prompt: "Turn your profile and assessment into country, document, finance, and next-step guidance.", href: "/elee-report" },
+  { id: "countries", label: "Find and compare countries", prompt: "Compare destinations by budget, visa path, city fit, work options, and application readiness.", href: "/countries?compare=true" },
+  { id: "courses", label: "Find my course", prompt: "Search programs by fit, tuition, intake, entry needs, and career outcome.", href: "/course-finder" },
+  { id: "applications", label: "Applications", prompt: "Track saved universities, requirements, deadlines, offers, and next documents.", href: "/applications" },
+  { id: "test-prep", label: "Test prep", prompt: "Plan IELTS, TOEFL, GRE, GMAT, SAT, PTE, mock tests, and score progress.", href: "/test-prep" },
+  { id: "sop", label: "Draft SOP", prompt: "Turn your story, academics, projects, and goals into a stronger SOP draft.", href: "/sop-studio" },
+  { id: "scholarships", label: "Find scholarship", prompt: "Find scholarships that match your profile, destination, deadline, and documents.", href: "/scholarships" },
+  { id: "loan", label: "Education loan", prompt: "Plan your loan amount, sponsor proof, lender options, and fee-payment timeline.", href: "/loans" },
+  { id: "interview", label: "Interview prep", prompt: "Practice university, visa, scholarship, and career interview answers with ELEE.", href: "/careers" },
 ];
 
 export const DEFAULT_DEMO_LEDGER_EVENTS: DemoLedgerEvent[] = [];

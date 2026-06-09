@@ -21,10 +21,10 @@ export default function EdgeReportPage() {
       <div data-testid="edge-report-page">
         <PageHeader
           eyebrow="ELEE Report"
-          title={hasProfile ? "Generate your route intelligence." : "Your ELEE Report is waiting for profile data."}
+          title={hasProfile ? "Generate your personalized ELEE Report." : "Your ELEE Report starts after your profile."}
           description={hasProfile
-            ? "ELEE can now convert your saved profile into country fit, university match, document needs, visa signals, and finance planning. Scores remain pending until the report is generated."
-            : "Complete AI Profile & Test first. The report does not invent a route, score, funding gap, or visa risk before you provide student-owned details."}
+            ? "ELEE can now turn your saved profile into country fit, university matches, document needs, visa guidance, finance planning, and next actions."
+            : "Complete AI Profile & Test first. ELEE will not guess your route, score, funding gap, or visa readiness before you share your details."}
           actions={
             <>
               <Link href="/profile">
@@ -51,13 +51,13 @@ export default function EdgeReportPage() {
                 </div>
                 <h2 className="mt-5 font-serif text-3xl font-bold leading-tight text-foreground">Generate your first ELEE Report.</h2>
                 <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
-                  Once the student completes profile and assessment fields, ELEE can rank routes, explain why they fit, list missing documents, show funding readiness, and create the next three actions.
+                  Once you complete your profile and assessment fields, ELEE can rank routes, explain why they fit, list missing documents, show funding readiness, and create your next three actions.
                 </p>
                 <div className="mt-6 grid grid-cols-1 gap-3 md:grid-cols-3">
                   {["Route ranking", "Document needs", "Finance readiness"].map((item) => (
                     <div key={item} className="rounded-lg border border-dashed border-border bg-[#f8fbff] p-4">
                       <div className="font-serif text-base font-bold text-foreground">{item}</div>
-                      <div className="mt-2 text-sm text-muted-foreground">Locked until profile exists</div>
+                      <div className="mt-2 text-sm text-muted-foreground">Complete your profile to view</div>
                     </div>
                   ))}
                 </div>
@@ -71,10 +71,10 @@ export default function EdgeReportPage() {
               <aside className="rounded-lg border border-[#ead8c4] bg-[#fffaf2] p-5">
                 <div className="flex items-center gap-3">
                   <AlertCircle className="h-5 w-5 text-[#a85f36]" />
-                  <div className="font-serif text-lg font-bold text-foreground">Blank-state guarantee</div>
+                  <div className="font-serif text-lg font-bold text-foreground">No guesses before your profile</div>
                 </div>
                 <p className="mt-3 text-sm leading-6 text-muted-foreground">
-                  No default country, no default score, no default student name, and no fake funding gap appear here. Public university data remains visible in discovery, but private readiness stays empty.
+                  ELEE will not show a default country, score, or funding gap until you add your own details. You can still explore public universities while your personal report is empty.
                 </p>
               </aside>
             </div>
@@ -89,10 +89,10 @@ export default function EdgeReportPage() {
                     Ready to generate
                   </Badge>
                   <h2 className="max-w-3xl font-serif text-3xl font-bold leading-tight text-foreground">
-                    ELEE has the first profile signals. Personalized scoring is pending generation.
+                    ELEE has your first profile signals. Generate the report to see personalized guidance.
                   </h2>
                   <p className="mt-3 max-w-3xl text-sm leading-6 text-muted-foreground">
-                    Study level, budget, test status, nationality, intake, and career goal can now feed route comparison and university matching. The report still avoids fake numeric confidence until the scoring step runs.
+                    Study level, budget, test status, nationality, intake, and career goal can now support country comparison, university matching, document planning, and finance preparation.
                   </p>
                   <div className="mt-6 grid grid-cols-1 gap-3 md:grid-cols-4">
                     {[

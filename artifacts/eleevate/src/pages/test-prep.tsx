@@ -119,13 +119,7 @@ const SECTION_ICONS: Record<string, React.ElementType> = {
   Math: Target, "Reading & Writing": BookOpen, "Speaking & Writing": Globe,
 };
 
-const DEMO_TEST_PREP_SCORES = [
-  { testType: "ielts", score: 6.5, takenAt: "2026-03-10" },
-  { testType: "ielts", score: 7.0, takenAt: "2026-04-14" },
-  { testType: "ielts", score: 7.5, takenAt: "2026-05-15" },
-  { testType: "gre", score: 312, takenAt: "2026-04-08" },
-  { testType: "gre", score: 318, takenAt: "2026-05-10" },
-];
+const DEMO_TEST_PREP_SCORES: { testType: string; score: number; takenAt: string }[] = [];
 
 export default function TestPrepPage() {
   const { getToken } = useAuth();
@@ -173,8 +167,8 @@ export default function TestPrepPage() {
   return (
     <div className="p-6 max-w-5xl mx-auto space-y-6">
       <div>
-        <h1 className="text-3xl font-bold flex items-center gap-2"><BookOpen className="h-8 w-8 text-primary" />Test Prep Hub</h1>
-        <p className="text-muted-foreground mt-1">Comprehensive preparation for IELTS, TOEFL, GRE, GMAT, SAT & PTE</p>
+        <h1 className="text-3xl font-bold flex items-center gap-2"><BookOpen className="h-8 w-8 text-primary" />Test Prep</h1>
+        <p className="text-muted-foreground mt-1">Plan IELTS, TOEFL, GRE, GMAT, SAT, and PTE around the universities and deadlines you are targeting.</p>
       </div>
 
       {/* Exam selector */}
@@ -281,7 +275,9 @@ export default function TestPrepPage() {
                   )}
                 </div>
               ) : (
-                <div className="text-center text-sm text-muted-foreground py-4">No scores logged yet</div>
+                <div className="text-center text-sm text-muted-foreground py-4">
+                  No scores logged yet. Add your first mock or official score so ELEE can track readiness.
+                </div>
               )}
 
               <div className="flex gap-2">

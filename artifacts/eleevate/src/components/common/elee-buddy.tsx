@@ -1,40 +1,41 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { ArrowRight, MessageCircle, Sparkles, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { DEMO_AGENT_PROMPTS, useDemoJourneyState } from "@/lib/demo-journey";
 
 const ROUTE_STEPS = [
   { match: ["/dashboard"], label: "Dashboard", next: "Complete AI Profile & Test", href: "/profile" },
-  { match: ["/profile", "/assessment"], label: "AI Profile & Test", next: "Generate ELEE Report", href: "/elee-report" },
-  { match: ["/elee-report"], label: "ELEE Report", next: "Find matching universities", href: "/universities" },
-  { match: ["/universities", "/countries", "/course-finder", "/shortlist"], label: "University Finder", next: "Track applications", href: "/applications" },
+  { match: ["/profile", "/assessment"], label: "AI Profile & Test", next: "Generate your ELEE Report", href: "/elee-report" },
+  { match: ["/elee-report"], label: "ELEE Report", next: "Find and compare countries", href: "/countries" },
+  { match: ["/countries", "/universities", "/course-finder", "/shortlist"], label: "University Finder", next: "Start applications", href: "/applications" },
   { match: ["/applications"], label: "Applications", next: "Prepare documents and visa", href: "/documents" },
-  { match: ["/documents", "/visa-center"], label: "Docs & Visa", next: "Plan finance and arrival", href: "/financial-hub" },
-  { match: ["/financial-hub", "/loans", "/remittance", "/forex-card", "/forex", "/insurance"], label: "Financial Hub", next: "Review journey map", href: "/journey-map" },
+  { match: ["/documents", "/visa-center"], label: "Docs & Visa", next: "Plan education loan and arrival costs", href: "/financial-hub" },
+  { match: ["/financial-hub", "/loans", "/remittance", "/forex-card", "/forex", "/insurance"], label: "Financial Hub", next: "Prepare test scores and interviews", href: "/test-prep" },
+  { match: ["/test-prep", "/mock-test", "/upskilling", "/careers", "/job-board", "/alumni", "/news"], label: "Career & Upskilling", next: "Review journey map", href: "/journey-map" },
 ];
 
 function getRouteStep(location: string) {
   return ROUTE_STEPS.find((step) => step.match.some((path) => location === path || location.startsWith(`${path}/`))) ?? ROUTE_STEPS[0];
 }
 
-const PRODUCT_PROMPTS = [
-  { id: "courses", label: "Find my course", prompt: "Search programs by fit, tuition, intake, and career signal.", href: "/course-finder" },
-  { id: "compare", label: "Compare countries", prompt: "Compare Canada, UK, USA, Australia, Germany, and Netherlands.", href: "/countries?compare=true" },
-  { id: "scholarships", label: "Find scholarships", prompt: "Match scholarships to my route, deadline, and missing documents.", href: "/scholarships" },
-  { id: "sop", label: "Draft my SOP", prompt: "Turn profile evidence into a program-specific SOP brief.", href: "/sop-studio" },
+const STUDENT_ACTIONS = [
+  { id: "report", label: "Generate ELEE report", prompt: "Turn your profile and assessment into country, document, finance, and next-step guidance.", href: "/elee-report" },
+  { id: "countries", label: "Find and compare countries", prompt: "Compare destinations by budget, visa path, city fit, work options, and application readiness.", href: "/countries?compare=true" },
+  { id: "courses", label: "Find my course", prompt: "Search programs by fit, tuition, intake, entry needs, and career outcome.", href: "/course-finder" },
+  { id: "applications", label: "Applications", prompt: "Track saved universities, requirements, deadlines, offers, and next documents.", href: "/applications" },
+  { id: "test-prep", label: "Test prep", prompt: "Plan IELTS, TOEFL, GRE, GMAT, SAT, PTE, mock tests, and score progress.", href: "/test-prep" },
+  { id: "sop", label: "Draft SOP", prompt: "Turn your story, academics, projects, and goals into a stronger SOP draft.", href: "/sop-studio" },
+  { id: "scholarships", label: "Find scholarship", prompt: "Find scholarships that match your profile, destination, deadline, and documents.", href: "/scholarships" },
+  { id: "loan", label: "Education loan", prompt: "Plan your loan amount, sponsor proof, lender options, and fee-payment timeline.", href: "/loans" },
+  { id: "interview", label: "Interview prep", prompt: "Practice university, visa, scholarship, and career interview answers with ELEE.", href: "/careers" },
 ];
 
 export function EleeBuddy({ compact = false }: { compact?: boolean }) {
   const [open, setOpen] = useState(false);
   const [location] = useLocation();
-  const demoJourney = useDemoJourneyState();
   const routeStep = getRouteStep(location);
-  const prompts = useMemo(() => {
-    const base = location === "/product" || location === "/" ? PRODUCT_PROMPTS : [...PRODUCT_PROMPTS, ...DEMO_AGENT_PROMPTS].slice(0, 6);
-    return base;
-  }, [location]);
+  const prompts = STUDENT_ACTIONS;
 
   return (
     <div className="fixed bottom-5 right-5 z-50" data-testid="elee-buddy">
@@ -45,9 +46,9 @@ export function EleeBuddy({ compact = false }: { compact?: boolean }) {
               <div>
                 <div className="flex items-center gap-2">
                   <Sparkles className="h-4 w-4" />
-                  <div className="font-serif text-base font-bold">ELEE AI Buddy</div>
+                  <div className="font-serif text-base font-bold">ELEE AI Guide</div>
                 </div>
-                <p className="mt-1 text-xs leading-5 text-white/80">A page-aware guide for the global student journey.</p>
+                <p className="mt-1 text-xs leading-5 text-white/80">Your study-abroad guide from profile to arrival.</p>
               </div>
               <button onClick={() => setOpen(false)} className="rounded-md p-1 text-white/80 hover:bg-white/10 hover:text-white" aria-label="Close ELEE AI Buddy">
                 <X className="h-4 w-4" />
@@ -55,7 +56,7 @@ export function EleeBuddy({ compact = false }: { compact?: boolean }) {
             </div>
           </div>
 
-          <div className="p-4">
+          <div className="max-h-[calc(100vh-7rem)] overflow-y-auto p-4">
             <div className="mb-3 rounded-lg border border-primary/20 bg-primary/5 p-3">
               <div className="flex items-center justify-between gap-3">
                 <div>
@@ -63,10 +64,12 @@ export function EleeBuddy({ compact = false }: { compact?: boolean }) {
                   <div className="mt-1 font-serif text-sm font-bold text-foreground">{routeStep.label}</div>
                 </div>
                 <Badge variant="outline" className="rounded-full border-primary/30 bg-white text-xs font-bold text-primary">
-                  {demoJourney.ledgerEvents.length} events
+                  Guided
                 </Badge>
               </div>
-              <p className="mt-2 text-xs leading-5 text-muted-foreground">Next: {routeStep.next}. Each action can update applications, ledger status, and consultant work queues.</p>
+              <p className="mt-2 text-xs leading-5 text-muted-foreground">
+                Next: {routeStep.next}. ELEE keeps your tasks, applications, documents, finance, and interview prep in the right order.
+              </p>
               <div className="mt-3 flex gap-2">
                 <Link href={routeStep.href}>
                   <Button size="sm" className="h-8 rounded-full px-3 text-xs">Continue</Button>

@@ -203,7 +203,7 @@ export default function LoansPage() {
       revenue: "NBFC Commission",
       status: "Ready",
     });
-    toast.success("Loan calculator output added to the unified ledger.");
+    toast.success("Loan calculator plan saved.");
   };
 
   const emi = (principal: number, rateStr: string, months: number) => {
@@ -233,17 +233,17 @@ export default function LoansPage() {
             <CardContent>
               <div className="mb-4 rounded-lg border border-primary/20 bg-white/90 p-3 text-sm leading-6 text-foreground">
                 <span className="mr-2 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">Funding planner</span>
-                {hasProfile ? "Use your saved profile context to plan a loan, then submit to create a ledger and consultant commission event." : "Complete AI Profile & Test to unlock smarter loan suggestions. You can still enter requirements manually."}
+                {hasProfile ? "Use your saved profile context to plan a loan, then submit it for advisor follow-up." : "Complete AI Profile & Test to unlock smarter loan suggestions. You can still enter requirements manually."}
               </div>
               <div className="mb-4 rounded-lg border border-border bg-white p-4 shadow-sm">
                 <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
                   <div>
                     <div className="eyebrow mb-1">Loan calculator</div>
                     <h2 className="font-serif text-xl font-bold text-foreground">Compare EMI, deferred repayment, and fee impact.</h2>
-                    <p className="mt-1 text-sm text-muted-foreground">Inspired by loan-calculator patterns, but connected to Eleevate&apos;s ledger and consultant handoff.</p>
+                    <p className="mt-1 text-sm text-muted-foreground">Estimate repayment before choosing a lender or submitting your plan for review.</p>
                   </div>
                   <Button variant="outline" className="rounded-full font-serif" onClick={queueCalculatorPlan} disabled={!principalInr}>
-                    Add calculator to ledger
+                    Save calculator plan
                   </Button>
                 </div>
                 <div className="grid gap-3 md:grid-cols-5">

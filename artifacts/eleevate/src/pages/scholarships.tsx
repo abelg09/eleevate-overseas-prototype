@@ -65,7 +65,7 @@ export default function ScholarshipsPage() {
         <MetricCard label="Matched scholarships" value={String(scholarships.length)} detail={lockedCountry ? "country locked" : "demo list"} />
         <MetricCard label="Potential funding" value={`$${Math.round(totalPotential / 1000)}k`} detail="before eligibility" tone="good" />
         <MetricCard label="Best fit" value={`${bestFit}%`} detail="ELEE score" />
-        <MetricCard label="Added to plan" value={String(addedIds.length)} detail="ledger events" tone="watch" />
+        <MetricCard label="Added to plan" value={String(addedIds.length)} detail="funding items" tone="watch" />
       </div>
 
       <Card className="app-card mb-5 p-4">
@@ -154,9 +154,9 @@ export default function ScholarshipsPage() {
         <aside className="space-y-4">
           <Card className="app-card p-4">
             <div className="eyebrow mb-2">Funding impact</div>
-            <h2 className="font-serif text-xl font-bold text-foreground">Scholarships should update the ELEE gap.</h2>
+            <h2 className="font-serif text-xl font-bold text-foreground">Scholarships can reduce what you need to fund.</h2>
             <p className="mt-2 text-sm leading-6 text-muted-foreground">
-              Adding a scholarship creates a ledger event and queues the required documents for consultant review.
+              Add scholarships to your funding plan, then prepare the required documents before each deadline.
             </p>
           </Card>
           <Card className="app-card p-4">

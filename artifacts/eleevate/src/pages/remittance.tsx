@@ -37,7 +37,7 @@ export default function RemittancePage() {
       source: "Remittance",
       event: "Tuition remittance plan confirmed",
       studentView: "Tuition deposit, compliance checklist, and receipt evidence are queued.",
-      consultantView: "Finance desk receives receipt-follow-up task for the visa proof stack.",
+      consultantView: "Finance desk receives a receipt follow-up task for visa fund evidence.",
       revenue: "Forex Margin",
       status: "Ready",
     });
