@@ -47,9 +47,23 @@ export default function FinancialHubPage() {
         }
       />
 
-      <section className="route-ribbon-bg mb-5 rounded-lg border border-primary/20 p-5 shadow-sm">
+      <Card className="app-card mb-5 p-5">
+        <SectionHeader title="Finance modules" description="Choose the money task you want to handle first." />
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-5">
+          {financeModules.map((module) => (
+            <Link key={module.href} href={module.href}>
+              <div className="h-full rounded-lg border border-border bg-white p-4 transition-colors hover:border-primary/35 hover:bg-primary/5">
+                <div className="font-serif text-base font-bold text-foreground">{module.label}</div>
+                <div className="mt-2 text-sm leading-6 text-muted-foreground">{module.detail}</div>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </Card>
+
+      <section className="mb-5 rounded-lg border border-border bg-white p-5 shadow-sm">
         <div className="max-w-3xl">
-          <Badge className="mb-4 rounded-full bg-secondary text-white hover:bg-secondary">Finance journey</Badge>
+          <Badge className="mb-4 rounded-full border border-primary/25 bg-primary/10 text-primary hover:bg-primary/10">Finance journey</Badge>
           <h2 className="font-serif text-3xl font-bold leading-tight text-foreground">
             Plan how you will pay, prove funds, and arrive prepared.
           </h2>
@@ -80,30 +94,30 @@ export default function FinancialHubPage() {
           {ledgerEvents.length > 0 ? (
             <div className="space-y-3">
               {ledgerEvents.map((item, index) => (
-              <div key={item.event} className="rounded-lg border border-border bg-white p-4">
-                <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-                  <div>
-                    <div className="text-[10px] font-semibold uppercase tracking-wide text-primary">Finance activity {index + 1}</div>
-                    <div className="mt-1 font-serif text-base font-bold text-foreground">{item.event}</div>
-                    <div className="mt-1 text-xs text-muted-foreground">Source: {item.source}</div>
+                <div key={item.event} className="rounded-lg border border-border bg-white p-4">
+                  <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                    <div>
+                      <div className="text-[10px] font-semibold uppercase tracking-wide text-primary">Finance activity {index + 1}</div>
+                      <div className="mt-1 font-serif text-base font-bold text-foreground">{item.event}</div>
+                      <div className="mt-1 text-xs text-muted-foreground">Source: {item.source}</div>
+                    </div>
+                    <Badge variant="outline" className="w-fit rounded-full font-semibold">{item.status}</Badge>
                   </div>
-                  <Badge variant="outline" className="w-fit rounded-full font-semibold">{item.status}</Badge>
+                  <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-3">
+                    <div className="rounded-lg border border-border bg-muted/25 p-3">
+                      <div className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Your status</div>
+                      <p className="mt-1 text-xs leading-5 text-foreground">{item.studentView}</p>
+                    </div>
+                    <div className="rounded-lg border border-border bg-muted/25 p-3">
+                      <div className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Advisor support</div>
+                      <p className="mt-1 text-xs leading-5 text-foreground">{item.consultantView}</p>
+                    </div>
+                    <div className="rounded-lg border border-border bg-muted/25 p-3">
+                      <div className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Evidence</div>
+                      <p className="mt-1 text-xs font-semibold leading-5 text-foreground">Source: {item.source}</p>
+                    </div>
+                  </div>
                 </div>
-                <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-3">
-                  <div className="rounded-lg border border-border bg-muted/25 p-3">
-                    <div className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Your status</div>
-                    <p className="mt-1 text-xs leading-5 text-foreground">{item.studentView}</p>
-                  </div>
-                  <div className="rounded-lg border border-border bg-muted/25 p-3">
-                    <div className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Advisor support</div>
-                    <p className="mt-1 text-xs leading-5 text-foreground">{item.consultantView}</p>
-                  </div>
-                  <div className="rounded-lg border border-border bg-muted/25 p-3">
-                    <div className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Evidence</div>
-                    <p className="mt-1 text-xs font-semibold leading-5 text-foreground">Source: {item.source}</p>
-                  </div>
-                </div>
-              </div>
               ))}
             </div>
           ) : (
@@ -136,20 +150,6 @@ export default function FinancialHubPage() {
                   </div>
                   <Progress value={item.value} className="h-1.5" />
                 </div>
-              ))}
-            </div>
-          </Card>
-
-          <Card className="app-card p-4">
-            <SectionHeader title="Finance modules" description="Choose the money tasks you need now." />
-            <div className="space-y-2">
-              {financeModules.map((module) => (
-                <Link key={module.href} href={module.href}>
-                  <div className="rounded-lg border border-border bg-muted/25 p-3 transition-colors hover:border-primary/30 hover:bg-primary/5">
-                    <div className="font-serif text-sm font-bold text-foreground">{module.label}</div>
-                    <div className="mt-1 text-xs text-muted-foreground">{module.detail}</div>
-                  </div>
-                </Link>
               ))}
             </div>
           </Card>
