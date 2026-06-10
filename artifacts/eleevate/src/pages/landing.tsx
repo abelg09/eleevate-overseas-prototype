@@ -38,7 +38,7 @@ const STATS = [
   { value: "1200+", label: "Universities" },
   { value: "15+", label: "Countries" },
   { value: "50+", label: "Scholarships" },
-  { value: "1", label: "Study-abroad guide" },
+  { value: "1", label: "ELEE" },
 ];
 
 const PRODUCT_MODULES = [
