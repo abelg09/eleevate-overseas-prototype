@@ -9,31 +9,33 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import {
+  clearStudentWorkspaceProfile,
   readStudentWorkspaceProfile,
   writeStudentWorkspaceProfile,
   type StudentWorkspaceProfile,
 } from "@/lib/student-workspace";
 
 const INTAKES = ["Fall 2026", "Spring 2027", "Fall 2027", "Spring 2028"];
+const EMPTY_PROFILE: StudentWorkspaceProfile = {
+  firstName: "",
+  lastName: "",
+  email: "",
+  studyLevel: "",
+  gpa: "",
+  ieltsScore: "",
+  toeflScore: "",
+  greScore: "",
+  gmatScore: "",
+  nationality: "",
+  preferredIntake: "",
+  budget: "",
+  careerGoal: "",
+};
 
 export default function StudentProfilePage() {
   const { toast } = useToast();
   const [savedProfile, setSavedProfile] = useState<StudentWorkspaceProfile | null>(() => readStudentWorkspaceProfile());
-  const [form, setForm] = useState<StudentWorkspaceProfile>({
-    firstName: "",
-    lastName: "",
-    email: "",
-    studyLevel: "",
-    gpa: "",
-    ieltsScore: "",
-    toeflScore: "",
-    greScore: "",
-    gmatScore: "",
-    nationality: "",
-    preferredIntake: "",
-    budget: "",
-    careerGoal: "",
-  });
+  const [form, setForm] = useState<StudentWorkspaceProfile>(EMPTY_PROFILE);
 
   useEffect(() => {
     if (savedProfile) setForm((current) => ({ ...current, ...savedProfile }));
@@ -50,6 +52,16 @@ export default function StudentProfilePage() {
     toast({
       title: "AI Profile saved",
       description: "ELEE can now use these details to guide your report, university fit, applications, documents, finance, and interview prep.",
+    });
+  };
+
+  const handleClear = () => {
+    clearStudentWorkspaceProfile();
+    setSavedProfile(null);
+    setForm(EMPTY_PROFILE);
+    toast({
+      title: "Saved profile cleared",
+      description: "You can enter fresh details and save again.",
     });
   };
 
@@ -256,14 +268,19 @@ export default function StudentProfilePage() {
               </div>
 
               {savedRows.length > 0 ? (
-                <div className="mt-4 space-y-2">
-                  {savedRows.map((row) => (
-                    <div key={row.label} className="rounded-lg border border-border bg-muted/25 p-3">
-                      <div className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">{row.label}</div>
-                      <div className="mt-1 break-words font-serif text-sm font-bold text-foreground">{row.value}</div>
-                    </div>
-                  ))}
-                </div>
+                <>
+                  <div className="mt-4 space-y-2">
+                    {savedRows.map((row) => (
+                      <div key={row.label} className="rounded-lg border border-border bg-muted/25 p-3">
+                        <div className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">{row.label}</div>
+                        <div className="mt-1 break-words font-serif text-sm font-bold text-foreground">{row.value}</div>
+                      </div>
+                    ))}
+                  </div>
+                  <Button variant="outline" onClick={handleClear} className="mt-4 w-full rounded-full font-serif" data-testid="btn-clear-profile">
+                    Clear saved profile
+                  </Button>
+                </>
               ) : (
                 <div className="mt-4 rounded-lg border border-dashed border-border bg-muted/25 p-4 text-sm leading-6 text-muted-foreground">
                   Add your details and click Save AI Profile to keep them for this student workspace.

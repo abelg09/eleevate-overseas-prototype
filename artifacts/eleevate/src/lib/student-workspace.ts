@@ -47,6 +47,12 @@ export function writeStudentWorkspaceProfile(profile: StudentWorkspaceProfile) {
   return profile;
 }
 
+export function clearStudentWorkspaceProfile() {
+  if (!canUseStorage()) return;
+  localStorage.removeItem(STUDENT_PROFILE_STORAGE_KEY);
+  emitWorkspaceChange();
+}
+
 export function hasStudentWorkspaceProfile(profile: StudentWorkspaceProfile | null | undefined) {
   if (!profile) return false;
   return Boolean(
