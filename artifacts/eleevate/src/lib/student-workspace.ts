@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 
 export interface StudentWorkspaceProfile {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
   studyLevel?: string;
   targetCountries?: string[];
   gpa?: string;
@@ -12,6 +15,7 @@ export interface StudentWorkspaceProfile {
   preferredIntake?: string;
   budget?: string;
   careerGoal?: string;
+  updatedAt?: string;
 }
 
 export const STUDENT_PROFILE_STORAGE_KEY = "eleevate.ai.student.profile.v2";

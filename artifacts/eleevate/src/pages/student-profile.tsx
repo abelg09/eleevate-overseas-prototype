@@ -18,8 +18,11 @@ const INTAKES = ["Fall 2026", "Spring 2027", "Fall 2027", "Spring 2028"];
 
 export default function StudentProfilePage() {
   const { toast } = useToast();
-  const savedProfile = readStudentWorkspaceProfile();
+  const [savedProfile, setSavedProfile] = useState<StudentWorkspaceProfile | null>(() => readStudentWorkspaceProfile());
   const [form, setForm] = useState<StudentWorkspaceProfile>({
+    firstName: "",
+    lastName: "",
+    email: "",
     studyLevel: "",
     gpa: "",
     ieltsScore: "",
@@ -34,19 +37,40 @@ export default function StudentProfilePage() {
 
   useEffect(() => {
     if (savedProfile) setForm((current) => ({ ...current, ...savedProfile }));
-  }, []);
+  }, [savedProfile]);
 
   const updateField = (key: keyof StudentWorkspaceProfile, value: string) => {
     setForm((current) => ({ ...current, [key]: value }));
   };
 
   const handleSave = () => {
-    writeStudentWorkspaceProfile(form);
+    const nextProfile = { ...form, updatedAt: new Date().toISOString() };
+    writeStudentWorkspaceProfile(nextProfile);
+    setSavedProfile(nextProfile);
     toast({
       title: "AI Profile saved",
       description: "ELEE can now use these details to guide your report, university fit, applications, documents, finance, and interview prep.",
     });
   };
+
+  const fullName = [savedProfile?.firstName, savedProfile?.lastName].filter(Boolean).join(" ");
+  const savedRows = [
+    { label: "Name", value: fullName },
+    { label: "Email", value: savedProfile?.email },
+    { label: "Study level", value: savedProfile?.studyLevel },
+    { label: "Preferred intake", value: savedProfile?.preferredIntake },
+    { label: "Budget", value: savedProfile?.budget },
+    { label: "Nationality", value: savedProfile?.nationality },
+    { label: "Career goal", value: savedProfile?.careerGoal },
+    { label: "GPA / percentage", value: savedProfile?.gpa },
+    { label: "IELTS", value: savedProfile?.ieltsScore },
+    { label: "TOEFL", value: savedProfile?.toeflScore },
+    { label: "GRE", value: savedProfile?.greScore },
+    { label: "GMAT", value: savedProfile?.gmatScore },
+  ].filter((row) => row.value);
+  const savedAt = savedProfile?.updatedAt
+    ? new Date(savedProfile.updatedAt).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })
+    : null;
 
   return (
     <AppLayout>
@@ -66,15 +90,15 @@ export default function StudentProfilePage() {
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <Label className="mb-1.5">First name</Label>
-              <Input placeholder="Student first name" data-testid="input-first-name" />
+              <Input value={form.firstName ?? ""} onChange={(event) => updateField("firstName", event.target.value)} placeholder="Student first name" data-testid="input-first-name" />
             </div>
             <div>
               <Label className="mb-1.5">Last name</Label>
-              <Input placeholder="Student last name" data-testid="input-last-name" />
+              <Input value={form.lastName ?? ""} onChange={(event) => updateField("lastName", event.target.value)} placeholder="Student last name" data-testid="input-last-name" />
             </div>
             <div className="sm:col-span-2">
               <Label className="mb-1.5">Email</Label>
-              <Input placeholder="student@example.com" data-testid="input-email" />
+              <Input value={form.email ?? ""} onChange={(event) => updateField("email", event.target.value)} placeholder="student@example.com" data-testid="input-email" />
             </div>
           </div>
         </Card>
@@ -215,6 +239,37 @@ export default function StudentProfilePage() {
             <Button onClick={handleSave} data-testid="btn-save-profile" className="w-full rounded-full font-serif">
               Save AI Profile
             </Button>
+
+            <Card className="border border-border bg-white p-5" data-testid="saved-profile-summary">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <h2 className="font-serif text-lg font-bold text-foreground">Saved profile</h2>
+                  <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                    {savedAt ? `Last saved ${savedAt}` : "Your saved details will appear here after you save."}
+                  </p>
+                </div>
+                {savedRows.length > 0 && (
+                  <Badge className="rounded-full border-primary/20 bg-primary/10 text-primary hover:bg-primary/10">
+                    {savedRows.length} fields
+                  </Badge>
+                )}
+              </div>
+
+              {savedRows.length > 0 ? (
+                <div className="mt-4 space-y-2">
+                  {savedRows.map((row) => (
+                    <div key={row.label} className="rounded-lg border border-border bg-muted/25 p-3">
+                      <div className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">{row.label}</div>
+                      <div className="mt-1 break-words font-serif text-sm font-bold text-foreground">{row.value}</div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="mt-4 rounded-lg border border-dashed border-border bg-muted/25 p-4 text-sm leading-6 text-muted-foreground">
+                  Add your details and click Save AI Profile to keep them for this student workspace.
+                </div>
+              )}
+            </Card>
           </aside>
         </div>
       </div>
