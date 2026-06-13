@@ -1,16 +1,17 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
-import { Bell, Search, Sparkles, UserRoundCheck } from "lucide-react";
+import { Bell } from "lucide-react";
 import { Sidebar } from "./sidebar";
 import { EleeBuddy } from "@/components/common/elee-buddy";
 import { StudentJourneyWelcomeDialog } from "@/components/common/student-journey-welcome";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { demoUser, isDemoMode } from "@/lib/demo-mode";
 import { useDemoAuthState } from "@/lib/demo-auth";
 import { resetLegacyStudentWorkspaceOnce } from "@/lib/student-session-reset";
 import { useStudentJourneySnapshot } from "@/lib/student-journey-state";
+import { getStudentPackage } from "@/lib/student-packages";
+import { useStudentWorkspaceProfile } from "@/lib/student-workspace";
 
 function notificationToneClass(tone: string) {
   return cn(
@@ -27,9 +28,18 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const consultant = location.startsWith("/consultant");
   const demoSession = useDemoAuthState();
   const journeySnapshot = useStudentJourneySnapshot();
+  const profile = useStudentWorkspaceProfile();
+  const selectedPackage = getStudentPackage(journeySnapshot.packageId);
   const user = consultant ? demoUser.consultant : demoUser.student;
   const section = consultant ? "Consultant workbench" : "Student journey";
-  const userName = [user.firstName, user.lastName].filter(Boolean).join(" ") || (consultant ? "Consultant" : "Student");
+  const profileName = [profile?.firstName, profile?.lastName].filter(Boolean).join(" ");
+  const emailName = demoSession?.email && !demoSession.email.endsWith("@eleevate.local")
+    ? demoSession.email.split("@")[0]?.replace(/[._-]+/g, " ")
+    : "";
+  const userName = consultant
+    ? [user.firstName, user.lastName].filter(Boolean).join(" ") || "Consultant"
+    : profileName || emailName || "Student";
+  const packageTier = selectedPackage?.shortName ?? "No tier";
   const showStudentWelcome = location === "/dashboard" && !consultant && (!isDemoMode() || demoSession?.role === "student");
 
   useEffect(() => {
@@ -53,36 +63,16 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                 <div className="inline-block cursor-pointer rounded-md transition-colors hover:text-primary" data-testid="header-journey-link">
                   <div className="eyebrow">{section}</div>
                   <div className="mt-0.5 truncate font-serif text-sm font-bold text-foreground">
-                    {isDemoMode() ? userName : "EleevateOverseas"}
+                    {userName}
                   </div>
                 </div>
               </Link>
             </div>
 
-            <div className="hidden min-w-64 items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-xs text-muted-foreground md:flex">
-              <Search className="h-4 w-4" />
-              <span className="truncate">{consultant ? "Search students, documents, universities" : "Search universities, documents, tasks"}</span>
-            </div>
-
-            <div className="hidden items-center gap-2 xl:flex">
-              <Link href={consultant ? "/dashboard" : "/consultant/dashboard"}>
-                <Button variant="outline" size="sm">
-                  <UserRoundCheck className="h-3.5 w-3.5" />
-                  {consultant ? "Student view" : "Consultant view"}
-                </Button>
-              </Link>
-              <Link href="/elee-report">
-                <Button variant={consultant ? "outline" : "default"} size="sm">
-                  <Sparkles className="h-3.5 w-3.5" />
-                  ELEE
-                </Button>
-              </Link>
-            </div>
-
-            {!consultant && journeySnapshot.packageName && (
+            {!consultant && (
               <Link href="/packages" className="hidden sm:block">
-                <Badge variant="outline" className="max-w-40 truncate border-primary/25 bg-primary/5 text-primary">
-                  {journeySnapshot.packageName}
+                <Badge variant="outline" className="max-w-32 truncate border-primary/25 bg-primary/5 px-4 py-1.5 font-serif text-sm font-bold text-primary">
+                  {packageTier}
                 </Badge>
               </Link>
             )}
@@ -131,10 +121,6 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                 </div>
               )}
             </div>
-
-            <Badge variant="outline" className="hidden border-emerald-200 bg-emerald-50 text-emerald-700 sm:inline-flex">
-              Global
-            </Badge>
           </div>
         </header>
 
