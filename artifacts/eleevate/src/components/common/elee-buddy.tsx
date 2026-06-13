@@ -4,6 +4,7 @@ import { ArrowRight, Compass, MapPinned, MessageCircle, Sparkles, X } from "luci
 import { Button } from "@/components/ui/button";
 import { DEMO_AGENT_PROMPTS } from "@/lib/demo-journey";
 import { findStudentGuideStep, getNextStudentGuideStep, STUDENT_GUIDE_STEPS } from "@/lib/student-guide";
+import { useStudentJourneySnapshot } from "@/lib/student-journey-state";
 
 const PRODUCT_PROMPTS = [
   { id: "courses", label: "Find my course", prompt: "Search programs by fit, tuition, intake, and career signal.", href: "/course-finder" },
@@ -18,12 +19,23 @@ export function EleeBuddy({ compact = false }: { compact?: boolean }) {
   const consultant = location.startsWith("/consultant");
   const publicPage = location === "/product" || location === "/";
   const currentStep = findStudentGuideStep(location);
-  const nextStep = getNextStudentGuideStep(location);
+  const journeySnapshot = useStudentJourneySnapshot();
+  const routeNextStep = getNextStudentGuideStep(location);
+  const nextStep = !consultant && !publicPage && journeySnapshot.nextIncompleteStep
+    ? journeySnapshot.nextIncompleteStep
+    : routeNextStep;
+  const nextStepDetail = "prompt" in nextStep ? nextStep.prompt : nextStep.detail;
   const dashboardContext = location === "/dashboard";
   const showStudentGuide = !consultant && !publicPage;
   const prompts = useMemo(() => {
     if (publicPage) return PRODUCT_PROMPTS;
     if (consultant) return DEMO_AGENT_PROMPTS.slice(0, 4);
+    const notificationPrompts = journeySnapshot.notifications.slice(0, 3).map((item) => ({
+      id: item.id,
+      label: item.title,
+      prompt: item.detail,
+      href: item.href,
+    }));
     const journeyPrompts = STUDENT_GUIDE_STEPS
       .filter((step) => step.id !== currentStep?.id)
       .slice(0, 4)
@@ -33,9 +45,15 @@ export function EleeBuddy({ compact = false }: { compact?: boolean }) {
         prompt: step.detail,
         href: step.href,
       }));
-    const base = [...journeyPrompts, ...PRODUCT_PROMPTS].slice(0, 6);
-    return base;
-  }, [consultant, currentStep?.id, publicPage]);
+    const seen = new Set<string>();
+    return [...notificationPrompts, ...journeyPrompts, ...PRODUCT_PROMPTS]
+      .filter((item) => {
+        if (seen.has(item.href)) return false;
+        seen.add(item.href);
+        return true;
+      })
+      .slice(0, 6);
+  }, [consultant, currentStep?.id, journeySnapshot.notifications, publicPage]);
 
   return (
     <div className="fixed bottom-5 right-5 z-50" data-testid="elee-buddy">
@@ -79,7 +97,7 @@ export function EleeBuddy({ compact = false }: { compact?: boolean }) {
                 <div className="rounded-lg border border-border bg-white p-3">
                   <div className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Next recommended step</div>
                   <div className="mt-1 font-serif text-sm font-bold text-foreground" data-testid="elee-guide-next-step">{nextStep.label}</div>
-                  <p className="mt-1 text-xs leading-5 text-muted-foreground">{nextStep.detail}</p>
+                  <p className="mt-1 text-xs leading-5 text-muted-foreground">{nextStepDetail}</p>
                   <div className="mt-3 flex flex-wrap gap-2">
                     <Link href={nextStep.href}>
                       <Button size="sm" className="rounded-full font-serif">

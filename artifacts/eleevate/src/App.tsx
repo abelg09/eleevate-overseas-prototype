@@ -400,7 +400,8 @@ function Router() {
         <Route path="/consultant/team" component={() => <ConsultantRoute component={TeamPage} />} />
         <Route path="/consultant/partners" component={() => <ConsultantRoute component={PartnersPage} />} />
         <Route path="/consultant/branding" component={() => <ConsultantRoute component={BrandingPage} />} />
-        <Route path="/subscription" component={() => <ProtectedRoute component={() => <WithAppLayout component={SubscriptionPage} />} />} />
+        <Route path="/packages" component={() => <StudentRoute component={() => <WithAppLayout component={SubscriptionPage} />} />} />
+        <Route path="/subscription" component={() => <StudentRoute component={() => <WithAppLayout component={SubscriptionPage} />} />} />
         <Route path="/marketplace" component={() => <StudentRoute component={() => <WithAppLayout component={MarketplacePage} />} />} />
         <Route path="/services" component={() => <StudentRoute component={() => <WithAppLayout component={MarketplacePage} />} />} />
         <Route path="/tuition-payment" component={() => <StudentRoute component={() => <WithAppLayout component={TuitionPaymentPage} />} />} />

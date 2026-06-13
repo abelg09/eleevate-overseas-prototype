@@ -135,6 +135,7 @@ function readLocalScores(): TestPrepScore[] {
 
 function writeLocalScores(scores: TestPrepScore[]) {
   localStorage.setItem(TEST_PREP_SCORE_STORAGE_KEY, JSON.stringify(scores));
+  window.dispatchEvent(new Event("eleevate-student-journey"));
   return scores;
 }
 

@@ -6,18 +6,23 @@ import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { PageHeader, SectionHeader } from "@/components/common/page-shell";
 import { STUDENT_GUIDE_STEPS } from "@/lib/student-guide";
+import { useStudentJourneySnapshot } from "@/lib/student-journey-state";
+import { useStudentWorkspaceProfile } from "@/lib/student-workspace";
 import { cn } from "@/lib/utils";
 
-function toneClass(tone: string) {
+function statusClass(status: string) {
   return cn(
-    tone === "done" && "border-emerald-200 bg-emerald-50 text-emerald-800",
-    tone === "current" && "border-primary/25 bg-primary/5 text-primary",
-    tone === "action" && "border-red-200 bg-red-50 text-red-700",
-    tone === "next" && "border-[#F8B133]/40 bg-[#F8B133]/10 text-[#7A5200]",
+    status === "complete" && "border-emerald-200 bg-emerald-50 text-emerald-800",
+    status === "current" && "border-primary/25 bg-primary/5 text-primary",
+    status === "incomplete" && "border-border bg-muted/30 text-muted-foreground",
   );
 }
 
 export default function JourneyMapPage() {
+  const snapshot = useStudentJourneySnapshot();
+  const profile = useStudentWorkspaceProfile();
+  const selectedRoute = profile?.targetCountries?.length ? profile.targetCountries.join(", ") : "Not chosen";
+
   return (
     <AppLayout>
       <div data-testid="journey-map-page">
@@ -30,7 +35,7 @@ export default function JourneyMapPage() {
               <Link href="/dashboard">
                 <Button variant="outline" className="rounded-full font-serif">Back to dashboard</Button>
               </Link>
-              <Link href="/profile">
+              <Link href={snapshot.currentStep.href}>
                 <Button className="rounded-full font-serif">Continue current step</Button>
               </Link>
             </>
@@ -41,17 +46,17 @@ export default function JourneyMapPage() {
           <div className="brand-gradient-bg h-1.5" />
           <div className="p-5 md:p-6">
             <Badge className="mb-4 rounded-full border-primary/20 bg-white px-3 text-primary hover:bg-white">
-              Current stage: Profile
+              Current stage: {snapshot.currentStep.label}
             </Badge>
             <h2 className="max-w-4xl font-serif text-3xl font-bold leading-tight text-foreground">
               The journey is simple: choose the right route, apply properly, prepare documents early, then handle visa, finance, and arrival.
             </h2>
             <div className="mt-5 grid grid-cols-1 gap-3 md:grid-cols-4">
               {[
-                { label: "Selected route", value: "Not chosen" },
-                { label: "Saved universities", value: "0" },
-                { label: "Document readiness", value: "0%" },
-                { label: "Next action", value: "Profile" },
+                { label: "Selected route", value: selectedRoute },
+                { label: "Saved universities", value: String(snapshot.shortlistedCount) },
+                { label: "Document readiness", value: `${snapshot.documentReadiness}%` },
+                { label: "Next action", value: snapshot.currentStep.label },
               ].map((item) => (
                 <div key={item.label} className="rounded-lg border border-border bg-white/85 p-4">
                   <div className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">{item.label}</div>
@@ -65,7 +70,10 @@ export default function JourneyMapPage() {
         <section className="mb-5">
           <SectionHeader title="Seven-step student journey" description="Each step has a clear job, requirement, and action button." />
           <div className="space-y-4">
-            {STUDENT_GUIDE_STEPS.map((stage, index) => (
+            {snapshot.steps.map((stage, index) => {
+              const guide = STUDENT_GUIDE_STEPS.find((item) => item.id === stage.id);
+
+              return (
               <Card key={stage.id} className="app-card overflow-hidden p-0">
                 <div className="grid gap-0 lg:grid-cols-[96px_minmax(0,1fr)_260px]">
                   <div className="brand-gradient-bg flex min-h-24 items-center justify-center text-white">
@@ -79,27 +87,28 @@ export default function JourneyMapPage() {
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                       <div>
                         <h3 className="font-serif text-xl font-bold leading-tight text-foreground">{stage.label}</h3>
-                        <p className="mt-2 text-sm leading-6 text-muted-foreground">{stage.whatStudentDoes}</p>
+                        <p className="mt-2 text-sm leading-6 text-muted-foreground">{guide?.whatStudentDoes ?? stage.prompt}</p>
                       </div>
-                      <Badge variant="outline" className={cn("w-fit rounded-full", toneClass(stage.tone))}>{stage.status}</Badge>
+                      <Badge variant="outline" className={cn("w-fit rounded-full", statusClass(stage.status))}>{stage.statusLabel}</Badge>
                     </div>
                     <div className="mt-4 rounded-lg border border-border bg-muted/25 p-3">
                       <div className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Required</div>
-                      <p className="mt-1 text-sm leading-6 text-foreground">{stage.required}</p>
+                      <p className="mt-1 text-sm leading-6 text-foreground">{guide?.required ?? stage.prompt}</p>
                     </div>
-                    <Progress value={stage.progress} className="mt-4 h-2" />
+                    <Progress value={stage.complete ? 100 : stage.status === "current" ? 40 : 0} className="mt-4 h-2" />
                   </div>
 
                   <div className="flex items-center border-t border-border bg-muted/25 p-4 lg:border-l lg:border-t-0">
                     <Link href={stage.href} className="w-full">
-                      <Button variant={stage.tone === "action" || stage.tone === "current" ? "default" : "outline"} className="w-full rounded-full font-serif">
-                        Continue
+                      <Button variant={stage.status === "current" ? "default" : "outline"} className="w-full rounded-full font-serif">
+                        {stage.complete ? "Review" : stage.cta}
                       </Button>
                     </Link>
                   </div>
                 </div>
               </Card>
-            ))}
+            );
+            })}
           </div>
         </section>
 

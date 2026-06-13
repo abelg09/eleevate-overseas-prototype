@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import { AppLayout } from "@/components/layout/app-layout";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -17,6 +17,7 @@ import type { Document } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { FileText, Upload, Trash2, CheckCircle2, Clock, XCircle, Eye, FolderOpen, Loader2, History, ChevronDown, ChevronUp } from "lucide-react";
 import { isDemoMode, listFromApi } from "@/lib/demo-mode";
+import { readStudentDocuments, writeStudentDocuments } from "@/lib/student-documents";
 
 const DOC_TYPES = [
   { value: "sop", label: "Statement of Purpose" },
@@ -110,7 +111,11 @@ export default function DocumentVaultPage() {
   const [docName, setDocName] = useState("");
   const [filterType, setFilterType] = useState("all");
   const [viewMode, setViewMode] = useState<"flat" | "grouped">("grouped");
-  const [demoDocuments, setDemoDocuments] = useState<Document[]>(DEMO_DOCUMENTS);
+  const [demoDocuments, setDemoDocuments] = useState<Document[]>(() => readStudentDocuments());
+
+  useEffect(() => {
+    if (demoMode) writeStudentDocuments(demoDocuments);
+  }, [demoDocuments, demoMode]);
 
   const { data: docs, isLoading } = useListDocuments({}, {
     query: { queryKey: getListDocumentsQueryKey({}), enabled: !demoMode }

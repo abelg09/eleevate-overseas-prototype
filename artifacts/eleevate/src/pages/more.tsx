@@ -20,7 +20,7 @@ const moreGroups = [
   },
   {
     title: "Finance & Services",
-    description: "Plan funds, loans, remittance, forex, insurance, subscriptions, and rewards.",
+    description: "Plan funds, loans, remittance, forex, insurance, student packages, and rewards.",
     icon: WalletCards,
     links: [
       { href: "/financial-hub", label: "Financial Hub" },
@@ -29,7 +29,7 @@ const moreGroups = [
       { href: "/forex-card", label: "Forex Card" },
       { href: "/forex", label: "Forex" },
       { href: "/insurance", label: "Insurance" },
-      { href: "/subscription", label: "Subscription" },
+      { href: "/packages", label: "Student Packages" },
       { href: "/rewards", label: "Rewards" },
     ],
   },

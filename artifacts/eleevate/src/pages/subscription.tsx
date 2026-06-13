@@ -1,259 +1,194 @@
-import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getBaseUrl } from "@/lib/api";
-import { useAuth } from "@clerk/react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Link } from "wouter";
+import { Check, Crown, GraduationCap, Sparkles, Trophy } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Crown, Check, Zap, Building2, Users } from "lucide-react";
-import { isDemoMode } from "@/lib/demo-mode";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { PageHeader, SectionHeader } from "@/components/common/page-shell";
+import {
+  getPackageRank,
+  getStudentPackage,
+  STUDENT_PACKAGES,
+  useStudentPackageSelection,
+  writeStudentPackageSelection,
+  type StudentPackage,
+} from "@/lib/student-packages";
+import { useStudentJourneySnapshot } from "@/lib/student-journey-state";
+import { cn } from "@/lib/utils";
 
-type SubscriptionPlan = {
-  id: string; name: string; price: number; currency: string; interval: string;
-  description: string; features: string[]; popular?: boolean;
-  limits: { shortlists: number; applications: number; aiRecommendations: number };
+const tierStyles: Record<string, string> = {
+  silver: "border-slate-200 bg-slate-50 text-slate-800",
+  gold: "border-amber-200 bg-amber-50 text-amber-900",
+  platinum: "border-sky-200 bg-sky-50 text-sky-900",
 };
 
-type CurrentSubscription = { plan: string; status: string; cancelAtPeriodEnd: boolean; currentPeriodEnd: string | null };
-
-const PLAN_ICONS: Record<string, React.ElementType> = {
-  free: Zap,
-  student_pro: Crown,
-  consultant_pro: Building2,
-  agency: Users,
+const tierIcons: Record<string, React.ElementType> = {
+  silver: GraduationCap,
+  gold: Trophy,
+  platinum: Crown,
 };
 
-const PLAN_COLORS: Record<string, string> = {
-  free: "text-slate-600",
-  student_pro: "text-blue-600",
-  consultant_pro: "text-purple-600",
-  agency: "text-orange-600",
-};
+function priceInr(value: number) {
+  return `₹${value.toLocaleString("en-IN")}`;
+}
 
-const DEMO_PLANS: SubscriptionPlan[] = [
-  {
-    id: "free",
-    name: "Free",
-    price: 0,
-    currency: "USD",
-    interval: "month",
-    description: "For early exploration and basic planning.",
-    features: ["University discovery", "Basic shortlist", "ELEE preview", "Community access"],
-    limits: { shortlists: 5, applications: 1, aiRecommendations: 2 },
-  },
-  {
-    id: "student_pro",
-    name: "Student Pro",
-    price: 1900,
-    currency: "USD",
-    interval: "month",
-    description: "For students actively shortlisting and applying.",
-    features: ["Unlimited shortlist", "Application tracker", "Document vault", "AI recommendations", "Priority support"],
-    limits: { shortlists: 999, applications: 8, aiRecommendations: 20 },
-    popular: true,
-  },
-  {
-    id: "consultant_pro",
-    name: "Consultant Pro",
-    price: 4900,
-    currency: "USD",
-    interval: "month",
-    description: "For independent advisors managing student workflows.",
-    features: ["Consultant CRM", "Document review", "SOP workflow", "Invoicing", "Student pipeline"],
-    limits: { shortlists: 999, applications: 50, aiRecommendations: 100 },
-  },
-  {
-    id: "agency",
-    name: "Agency",
-    price: 14900,
-    currency: "USD",
-    interval: "month",
-    description: "For teams and education agencies.",
-    features: ["Team roles", "Partner branding", "Advanced reporting", "Bulk student imports", "Dedicated support"],
-    limits: { shortlists: 999, applications: 500, aiRecommendations: 500 },
-  },
-];
-
-const DEMO_SUBSCRIPTION: CurrentSubscription = {
-  plan: "student_pro",
-  status: "active",
-  cancelAtPeriodEnd: false,
-  currentPeriodEnd: "2026-06-21",
-};
-
-export default function SubscriptionPage() {
-  const { getToken } = useAuth();
-  const qc = useQueryClient();
-  const demoMode = isDemoMode();
-  const [confirming, setConfirming] = useState<string | null>(null);
-  const [demoSub, setDemoSub] = useState<CurrentSubscription>(DEMO_SUBSCRIPTION);
-
-  const { data: plans } = useQuery({
-    queryKey: ["subscription-plans"],
-    enabled: !demoMode,
-    queryFn: async () => {
-      const res = await fetch(`${getBaseUrl()}/api/subscriptions/plans`);
-      const d = await res.json();
-      return d.data as SubscriptionPlan[];
-    },
-  });
-
-  const { data: currentSub } = useQuery({
-    queryKey: ["my-subscription"],
-    enabled: !demoMode,
-    queryFn: async () => {
-      const token = await getToken();
-      const res = await fetch(`${getBaseUrl()}/api/subscriptions/me`, { headers: { Authorization: `Bearer ${token}` } });
-      return res.json() as Promise<CurrentSubscription>;
-    },
-  });
-
-  const subscribe = useMutation({
-    mutationFn: async (planId: string) => {
-      const token = await getToken();
-      const res = await fetch(`${getBaseUrl()}/api/subscriptions/checkout`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ planId }),
-      });
-      if (!res.ok) throw new Error(await res.text());
-      return res.json();
-    },
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["my-subscription"] }); setConfirming(null); },
-  });
-
-  const cancel = useMutation({
-    mutationFn: async () => {
-      const token = await getToken();
-      const res = await fetch(`${getBaseUrl()}/api/subscriptions/cancel`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!res.ok) throw new Error(await res.text());
-      return res.json();
-    },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["my-subscription"] }),
-  });
-
-  const fmt = (cents: number) => cents === 0 ? "Free" : `$${(cents / 100).toFixed(2)}`;
-  const planList = demoMode ? DEMO_PLANS : plans ?? [];
-  const activeSub = demoMode ? demoSub : currentSub;
-  const currentPlan = activeSub?.plan ?? "free";
-
-  const handleSubscribe = (planId: string) => {
-    if (demoMode) {
-      setDemoSub({
-        plan: planId,
-        status: "active",
-        cancelAtPeriodEnd: false,
-        currentPeriodEnd: "2026-06-21",
-      });
-      setConfirming(null);
-      return;
-    }
-
-    subscribe.mutate(planId);
-  };
-
-  const handleCancel = () => {
-    if (demoMode) {
-      setDemoSub((sub) => ({ ...sub, cancelAtPeriodEnd: true }));
-      return;
-    }
-
-    cancel.mutate();
-  };
+function PackageCard({
+  pack,
+  currentPackageId,
+}: {
+  pack: StudentPackage;
+  currentPackageId?: string | null;
+}) {
+  const Icon = tierIcons[pack.id] ?? Sparkles;
+  const currentRank = getPackageRank(currentPackageId);
+  const packageRank = getPackageRank(pack.id);
+  const selected = currentPackageId === pack.id;
+  const upgrade = currentRank >= 0 && packageRank > currentRank;
 
   return (
-    <div className="p-6 max-w-5xl mx-auto space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold flex items-center gap-2"><Crown className="h-8 w-8 text-primary" />Subscription Plans</h1>
-        <p className="text-muted-foreground mt-1">Choose the plan that fits your journey</p>
-      </div>
+    <Card className={cn("app-card flex h-full flex-col overflow-hidden p-0", selected && "border-primary/45 ring-1 ring-primary/25")}>
+      <div className={cn("h-1.5", pack.id === "silver" && "bg-slate-400", pack.id === "gold" && "bg-amber-400", pack.id === "platinum" && "brand-gradient-bg")} />
+      <div className="flex flex-1 flex-col p-5">
+        <div className="flex items-start justify-between gap-3">
+          <div className={cn("flex h-12 w-12 items-center justify-center rounded-lg border", tierStyles[pack.id])}>
+            <Icon className="h-5 w-5" />
+          </div>
+          <Badge className={cn("rounded-full border", tierStyles[pack.id])}>{pack.badge}</Badge>
+        </div>
 
-      {activeSub && currentPlan !== "free" && (
-        <Card className="border-primary/30 bg-primary/5">
-          <CardContent className="py-4 flex items-center justify-between flex-wrap gap-3">
-            <div className="flex items-center gap-3">
-              {(() => { const Icon = PLAN_ICONS[currentPlan] ?? Crown; return <Icon className={`h-5 w-5 ${PLAN_COLORS[currentPlan]}`} />; })()}
-              <div>
-                <div className="font-semibold">Current Plan: {planList.find(p => p.id === currentPlan)?.name ?? currentPlan}</div>
-                <div className="text-sm text-muted-foreground">
-                  Status: <Badge variant="secondary" className="capitalize">{activeSub.status}</Badge>
-                  {activeSub.currentPeriodEnd && <span className="ml-2">· Renews {new Date(activeSub.currentPeriodEnd).toLocaleDateString()}</span>}
-                  {activeSub.cancelAtPeriodEnd && <Badge variant="outline" className="ml-2 text-orange-600">Cancels at period end</Badge>}
-                </div>
-              </div>
+        <div className="mt-5">
+          <h2 className="font-serif text-2xl font-bold text-foreground">{pack.name}</h2>
+          <p className="mt-2 text-sm leading-6 text-muted-foreground">{pack.summary}</p>
+        </div>
+
+        <div className="mt-5 rounded-lg border border-border bg-muted/25 p-3">
+          <div className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">Best for</div>
+          <p className="mt-1 text-sm leading-6 text-foreground">{pack.bestFor}</p>
+        </div>
+
+        <div className="mt-5 flex items-end justify-between gap-3">
+          <div>
+            <div className="font-serif text-3xl font-bold text-foreground">{priceInr(pack.priceInr)}</div>
+            <div className="text-xs font-semibold text-muted-foreground">{pack.duration}</div>
+          </div>
+          <div className="rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary">
+            {pack.rewardMultiplier}x rewards
+          </div>
+        </div>
+
+        <div className="mt-5 space-y-2">
+          {pack.features.map((feature) => (
+            <div key={feature} className="flex gap-2 text-sm leading-5 text-foreground">
+              <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-emerald-600" />
+              <span>{feature}</span>
             </div>
-            {!activeSub.cancelAtPeriodEnd && (
-              <Button variant="outline" size="sm" onClick={handleCancel} disabled={cancel.isPending}>
-                {cancel.isPending ? "Cancelling…" : "Cancel Subscription"}
-              </Button>
-            )}
-          </CardContent>
-        </Card>
-      )}
+          ))}
+        </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        {planList.map(plan => {
-          const Icon = PLAN_ICONS[plan.id] ?? Crown;
-          const isCurrent = currentPlan === plan.id;
-          return (
-            <Card key={plan.id} className={`relative flex flex-col transition-shadow hover:shadow-md ${plan.popular ? "border-primary ring-1 ring-primary" : ""} ${isCurrent ? "bg-muted/40" : ""}`}>
-              {plan.popular && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                  <Badge className="bg-primary text-primary-foreground px-3">Most Popular</Badge>
-                </div>
-              )}
-              <CardHeader className="pb-3">
-                <div className={`${PLAN_COLORS[plan.id]} mb-2`}><Icon className="h-6 w-6" /></div>
-                <CardTitle className="text-lg">{plan.name}</CardTitle>
-                <CardDescription className="text-xs">{plan.description}</CardDescription>
-                <div className="mt-2">
-                  <span className="text-3xl font-bold">{fmt(plan.price)}</span>
-                  {plan.price > 0 && <span className="text-sm text-muted-foreground">/{plan.interval}</span>}
-                </div>
-              </CardHeader>
-              <CardContent className="flex-1 flex flex-col gap-4">
-                <ul className="space-y-2 flex-1">
-                  {plan.features.map(f => (
-                    <li key={f} className="flex items-start gap-2 text-sm">
-                      <Check className="h-4 w-4 text-green-600 flex-shrink-0 mt-0.5" />{f}
-                    </li>
-                  ))}
-                </ul>
-                {isCurrent ? (
-                  <Button variant="secondary" disabled className="w-full">Current Plan</Button>
-                ) : confirming === plan.id ? (
-                  <div className="space-y-2">
-                    <p className="text-xs text-muted-foreground text-center">Confirm switch to {plan.name}?</p>
-                    <div className="flex gap-2">
-                      <Button size="sm" className="flex-1" onClick={() => handleSubscribe(plan.id)} disabled={subscribe.isPending}>
-                        {subscribe.isPending ? "Processing…" : "Confirm"}
-                      </Button>
-                      <Button size="sm" variant="outline" className="flex-1" onClick={() => setConfirming(null)}>Cancel</Button>
-                    </div>
-                  </div>
-                ) : (
-                  <Button className="w-full" variant={plan.popular ? "default" : "outline"} onClick={() => plan.price === 0 ? handleSubscribe(plan.id) : setConfirming(plan.id)}>
-                    {plan.price === 0 ? "Downgrade to Free" : `Upgrade to ${plan.name}`}
-                  </Button>
-                )}
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
-
-      <Card>
-        <CardHeader><CardTitle className="text-base">All plans include</CardTitle></CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            {["University search & explore", "Application tracker", "Community forums", "Mobile-friendly interface", "Secure data storage", "SSL encrypted connection"].map(f => (
-              <div key={f} className="flex items-center gap-2 text-sm"><Check className="h-4 w-4 text-green-600" />{f}</div>
+        <div className="mt-5 border-t border-border pt-4">
+          <div className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">Journey support</div>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {pack.journeySupport.map((item) => (
+              <Badge key={item} variant="outline" className="rounded-full">{item}</Badge>
             ))}
           </div>
-        </CardContent>
+        </div>
+
+        <Button
+          className="mt-5 w-full rounded-full font-serif"
+          variant={selected ? "secondary" : pack.id === "platinum" ? "default" : "outline"}
+          disabled={selected}
+          onClick={() => writeStudentPackageSelection(pack.id)}
+          data-testid={`btn-select-package-${pack.id}`}
+        >
+          {selected ? "Current package" : upgrade ? `Upgrade to ${pack.shortName}` : `Choose ${pack.shortName}`}
+        </Button>
+      </div>
+    </Card>
+  );
+}
+
+export default function SubscriptionPage() {
+  const selection = useStudentPackageSelection();
+  const snapshot = useStudentJourneySnapshot();
+  const selectedPackage = getStudentPackage(selection?.packageId);
+  const nextUpgrade = selectedPackage
+    ? STUDENT_PACKAGES.find((pack) => getPackageRank(pack.id) > getPackageRank(selectedPackage.id))
+    : STUDENT_PACKAGES[0];
+
+  return (
+    <div data-testid="student-packages-page">
+      <PageHeader
+        eyebrow="Student Packages"
+        title="Choose the support level for your journey"
+        description="Pick Silver, Gold, or Platinum. ELEE will update the dashboard, rewards, notifications, and next prompts based on the package you choose."
+        actions={
+          <>
+            <Link href="/dashboard">
+              <Button variant="outline" className="rounded-full font-serif">Back to dashboard</Button>
+            </Link>
+            <Link href="/rewards">
+              <Button className="rounded-full font-serif">Open rewards</Button>
+            </Link>
+          </>
+        }
+      />
+
+      <Card className="app-card mb-5 overflow-hidden p-0">
+        <div className="brand-gradient-bg h-1.5" />
+        <div className="grid gap-0 lg:grid-cols-[minmax(0,1fr)_320px]">
+          <div className="p-5">
+            <Badge className="mb-3 rounded-full bg-primary/10 text-primary hover:bg-primary/10">
+              {selectedPackage ? `${selectedPackage.shortName} active` : "No package selected"}
+            </Badge>
+            <h2 className="font-serif text-2xl font-bold text-foreground">
+              {selectedPackage ? selectedPackage.name : "Start with the package that matches your support needs."}
+            </h2>
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">
+              {selectedPackage
+                ? `${selectedPackage.summary} Your reward multiplier is now ${selectedPackage.rewardMultiplier}x.`
+                : "Packages are based on Eleevate's exam-prep model: structured lessons, mock tests, live coaching, expert feedback, and broader study-abroad support as you upgrade."}
+            </p>
+          </div>
+          <div className="border-t border-border bg-muted/25 p-5 lg:border-l lg:border-t-0">
+            <div className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">Dashboard impact</div>
+            <div className="mt-2 font-serif text-3xl font-bold text-foreground">{snapshot.rewardPoints}</div>
+            <div className="text-sm text-muted-foreground">current reward points</div>
+            {nextUpgrade && (
+              <Button
+                className="mt-4 w-full rounded-full font-serif"
+                onClick={() => writeStudentPackageSelection(nextUpgrade.id)}
+              >
+                {selectedPackage ? `Upgrade to ${nextUpgrade.shortName}` : `Choose ${nextUpgrade.shortName}`}
+              </Button>
+            )}
+          </div>
+        </div>
+      </Card>
+
+      <div className="grid grid-cols-1 gap-5 xl:grid-cols-3">
+        {STUDENT_PACKAGES.map((pack) => (
+          <PackageCard key={pack.id} pack={pack} currentPackageId={selection?.packageId} />
+        ))}
+      </div>
+
+      <Card className="app-card mt-5 p-5">
+        <SectionHeader
+          title="How package selection changes the portal"
+          description="The selected package is not just a card. It affects rewards, dashboard prompts, and upgrade nudges."
+        />
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
+          {[
+            ["Dashboard", "Shows active package and next upgrade."],
+            ["ELEE", "Prioritizes prompts based on support level."],
+            ["Rewards", "Applies package multiplier to earned points."],
+            ["Notifications", "Shows upgrade or next-step nudges."],
+          ].map(([title, detail]) => (
+            <div key={title} className="rounded-lg border border-border bg-muted/25 p-4">
+              <div className="font-serif text-base font-bold text-foreground">{title}</div>
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">{detail}</p>
+            </div>
+          ))}
+        </div>
       </Card>
     </div>
   );

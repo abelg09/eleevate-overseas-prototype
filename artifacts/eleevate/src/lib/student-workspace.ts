@@ -19,7 +19,7 @@ export interface StudentWorkspaceProfile {
 }
 
 export const STUDENT_PROFILE_STORAGE_KEY = "eleevate.student-first.profile.v2";
-const STUDENT_WORKSPACE_EVENT = "eleevate-student-workspace";
+export const STUDENT_WORKSPACE_EVENT = "eleevate-student-workspace";
 
 function canUseStorage() {
   return typeof window !== "undefined" && typeof window.localStorage !== "undefined";

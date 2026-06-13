@@ -32,6 +32,8 @@ const studentGroups: NavGroup[] = [
       { href: "/elee-report", label: "ELEE Report" },
       { href: "/universities", label: "Universities" },
       { href: "/applications", label: "Applications" },
+      { href: "/packages", label: "Packages" },
+      { href: "/rewards", label: "Rewards" },
       { href: "/more", label: "More" },
     ],
   },
@@ -64,7 +66,7 @@ const consultantGroups: NavGroup[] = [
       { href: "/upskilling", label: "Upskilling" },
       { href: "/alumni", label: "Alumni Network" },
       { href: "/news", label: "News & Newsletter" },
-      { href: "/subscription", label: "Subscription" },
+      { href: "/packages", label: "Packages" },
     ],
   },
   {

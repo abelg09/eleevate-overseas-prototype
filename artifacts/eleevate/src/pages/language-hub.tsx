@@ -100,6 +100,7 @@ function readDemoTestScores(): TestScore[] {
 function writeDemoTestScores(scores: TestScore[]) {
   if (typeof window === "undefined") return scores;
   localStorage.setItem(DEMO_TEST_SCORES_STORAGE_KEY, JSON.stringify(scores));
+  window.dispatchEvent(new Event("eleevate-student-journey"));
   return scores;
 }
 

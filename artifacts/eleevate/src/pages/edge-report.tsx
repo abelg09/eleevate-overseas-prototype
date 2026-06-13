@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Link } from "wouter";
 import { AppLayout } from "@/components/layout/app-layout";
 import { Badge } from "@/components/ui/badge";
@@ -5,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { PageHeader, SectionHeader } from "@/components/common/page-shell";
+import { markEleeReportGenerated } from "@/lib/student-journey-state";
 import { hasStudentWorkspaceProfile, useStudentWorkspaceProfile } from "@/lib/student-workspace";
 
 const reportInputs = [
@@ -21,6 +23,10 @@ export default function EdgeReportPage() {
   const profile = useStudentWorkspaceProfile();
   const hasProfile = hasStudentWorkspaceProfile(profile);
   const preferredCountries = profile?.targetCountries ?? [];
+
+  useEffect(() => {
+    if (hasProfile) markEleeReportGenerated();
+  }, [hasProfile]);
 
   return (
     <AppLayout>

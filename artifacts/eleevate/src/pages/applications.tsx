@@ -298,6 +298,7 @@ export default function ApplicationsPage() {
   useEffect(() => {
     if (demoMode) {
       localStorage.setItem(DEMO_APPLICATION_STORAGE_KEY, JSON.stringify(demoApplications));
+      window.dispatchEvent(new Event("eleevate-student-journey"));
     }
   }, [demoApplications, demoMode]);
 

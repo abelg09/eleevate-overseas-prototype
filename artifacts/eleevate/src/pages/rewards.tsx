@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "wouter";
 import { useUser } from "@clerk/react";
 import { AppLayout } from "@/components/layout/app-layout";
 import { Card } from "@/components/ui/card";
@@ -14,6 +15,8 @@ import type { LoyaltyData, LoyaltyLedgerEntry } from "@workspace/api-client-reac
 import { useQueryClient } from "@tanstack/react-query";
 import { Star, Gift, Users, TrendingUp, Award, Zap, Copy, CheckCircle2, Lock, ShoppingBag } from "lucide-react";
 import { isDemoMode } from "@/lib/demo-mode";
+import { getStudentPackage } from "@/lib/student-packages";
+import { useStudentJourneySnapshot } from "@/lib/student-journey-state";
 
 const TIER_COLORS: Record<string, { bg: string; text: string; border: string; gradient: string }> = {
   Explorer:   { bg: "bg-blue-50",   text: "text-blue-700",   border: "border-blue-200",   gradient: "from-blue-400 to-blue-600" },
@@ -28,6 +31,7 @@ const HOW_TO_EARN = [
   { event: "application_submitted", icon: Award,      label: "Submit an application",    points: 50,  description: "Apply to a university through the platform" },
   { event: "document_uploaded",     icon: Gift,       label: "Upload a document",        points: 25,  description: "Add a file to your Document Vault" },
   { event: "test_score_logged",     icon: Zap,        label: "Log a test score",         points: 20,  description: "Record an IELTS, TOEFL, or GRE result" },
+  { event: "student_package_selected", icon: ShoppingBag, label: "Choose a package",      points: 150, description: "Select Silver, Gold, or Platinum support" },
   { event: "daily_login",           icon: CheckCircle2,label: "Daily check-in",          points: 5,   description: "Visit EleevateOverseas each day" },
 ];
 
@@ -82,13 +86,37 @@ export default function RewardsPage() {
   const [catalogFilter, setCatalogFilter] = useState<string>("All");
   const [redeemed, setRedeemed] = useState<Set<string>>(new Set());
   const [demoLoyalty, setDemoLoyalty] = useState<LoyaltyData>(DEMO_LOYALTY);
+  const journeySnapshot = useStudentJourneySnapshot();
+  const selectedPackage = getStudentPackage(journeySnapshot.packageId);
 
   const { data: loyalty, isLoading } = useGetLoyalty({
     query: { queryKey: getGetLoyaltyQueryKey(), enabled: !demoMode }
   });
   const addPoints = useAddLoyaltyPoints();
 
-  const data: LoyaltyData | undefined = demoMode ? demoLoyalty : loyalty;
+  const journeyLedger: LoyaltyLedgerEntry[] = journeySnapshot.rewardPoints > 0
+    ? [
+        {
+          id: "journey-progress-points",
+          userId: "student",
+          event: "journey_progress",
+          points: journeySnapshot.rewardPoints,
+          description: selectedPackage
+            ? `Automatic journey points with ${selectedPackage.shortName} ${selectedPackage.rewardMultiplier}x multiplier`
+            : "Automatic points from completed journey steps",
+          createdAt: new Date().toISOString(),
+        },
+      ]
+    : [];
+  const visibleDemoTotal = Math.max(0, demoLoyalty.total + journeySnapshot.rewardPoints);
+  const data: LoyaltyData | undefined = demoMode
+    ? {
+        ...demoLoyalty,
+        total: visibleDemoTotal,
+        tier: getTier(visibleDemoTotal),
+        ledger: [...journeyLedger, ...demoLoyalty.ledger],
+      }
+    : loyalty;
   const currentTier = data?.tier ?? "Explorer";
   const totalPoints = data?.total ?? 0;
   const ledger: LoyaltyLedgerEntry[] = data?.ledger ?? [];
@@ -109,10 +137,11 @@ export default function RewardsPage() {
       if (demoMode) {
         setDemoLoyalty((current) => {
           const total = current.total + points;
+          const visibleTotal = Math.max(0, total + journeySnapshot.rewardPoints);
           return {
             ...current,
             total,
-            tier: getTier(total),
+            tier: getTier(visibleTotal),
             ledger: [
               {
                 id: `demo-loyalty-${Date.now()}`,
@@ -150,11 +179,12 @@ export default function RewardsPage() {
     setRedeemed(prev => new Set(prev).add(item.id));
     if (demoMode) {
       setDemoLoyalty((current) => {
-        const total = Math.max(0, current.total - item.cost);
+        const total = current.total - item.cost;
+        const visibleTotal = Math.max(0, total + journeySnapshot.rewardPoints);
         return {
           ...current,
           total,
-          tier: getTier(total),
+          tier: getTier(visibleTotal),
           ledger: [
             {
               id: `demo-redemption-${Date.now()}`,
@@ -179,8 +209,8 @@ export default function RewardsPage() {
     <AppLayout>
       <div data-testid="rewards-page">
         <div className="mb-8">
-          <h1 className="text-2xl font-bold font-serif text-foreground">Loyalty & Rewards</h1>
-          <p className="text-muted-foreground mt-1">Earn points, unlock perks, and redeem rewards.</p>
+          <h1 className="text-2xl font-bold font-serif text-foreground">Rewards</h1>
+          <p className="text-muted-foreground mt-1">Earn points as each study-abroad step is completed. Packages can boost your earning rate.</p>
         </div>
 
         {!demoMode && isLoading ? (
@@ -256,6 +286,27 @@ export default function RewardsPage() {
                 <p className="text-xs text-muted-foreground mt-3">Points are awarded automatically when your friend completes sign-up via your link.</p>
               </Card>
             </div>
+
+            <Card className="mb-8 border border-primary/20 bg-primary/5 p-6" data-testid="package-rewards-card">
+              <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_220px] lg:items-center">
+                <div>
+                  <div className="text-xs font-semibold uppercase tracking-wide text-primary">Package rewards</div>
+                  <h2 className="mt-2 font-serif text-xl font-bold text-foreground">
+                    {selectedPackage ? `${selectedPackage.name} is boosting your journey points` : "Choose a package to boost rewards"}
+                  </h2>
+                  <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                    {selectedPackage
+                      ? `${selectedPackage.shortName} applies a ${selectedPackage.rewardMultiplier}x multiplier to eligible journey activity.`
+                      : "Silver, Gold, and Platinum packages connect exam prep, applications, documents, finance prompts, and reward earning."}
+                  </p>
+                </div>
+                <Link href="/packages">
+                  <Button className="w-full rounded-full font-serif">
+                    {selectedPackage ? "Manage package" : "Choose package"}
+                  </Button>
+                </Link>
+              </div>
+            </Card>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
               {/* How to earn */}

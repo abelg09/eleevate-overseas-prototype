@@ -7,6 +7,7 @@ import {
 } from "@/lib/demo-catalog";
 
 export const DEMO_SHORTLIST_STORAGE_KEY = "eleevate.student-first.shortlist.v1";
+const STUDENT_JOURNEY_EVENT = "eleevate-student-journey";
 
 export const DEFAULT_DEMO_SHORTLIST_IDS: string[] = [];
 
@@ -24,6 +25,7 @@ export function readDemoShortlistIds() {
 export function writeDemoShortlistIds(ids: Iterable<string>) {
   const uniqueIds = Array.from(new Set(ids));
   localStorage.setItem(DEMO_SHORTLIST_STORAGE_KEY, JSON.stringify(uniqueIds));
+  window.dispatchEvent(new Event(STUDENT_JOURNEY_EVENT));
   return uniqueIds;
 }
 
@@ -77,5 +79,6 @@ export function ensureDemoApplicationForUniversity(universityId: string, source 
   }
 
   localStorage.setItem(DEMO_APPLICATION_STORAGE_KEY, JSON.stringify([nextApplication, ...existing]));
+  window.dispatchEvent(new Event(STUDENT_JOURNEY_EVENT));
   return nextApplication;
 }
