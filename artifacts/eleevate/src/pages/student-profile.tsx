@@ -18,6 +18,8 @@ import { User, BookOpen, FileText } from "lucide-react";
 import { isDemoMode } from "@/lib/demo-mode";
 import { useDemoAuthState } from "@/lib/demo-auth";
 import {
+  clearStudentWorkspaceProfile,
+  hasStudentWorkspaceProfile,
   readStudentWorkspaceProfile,
   writeStudentWorkspaceProfile,
   type StudentWorkspaceProfile,
@@ -38,10 +40,15 @@ export default function StudentProfilePage() {
   });
 
   const updateProfile = useUpdateMyStudentProfile();
-  const p: StudentProfile | StudentWorkspaceProfile | null | undefined = demoMode ? readStudentWorkspaceProfile() : profile;
+  const storedProfile = demoMode ? readStudentWorkspaceProfile() : null;
+  const p: StudentProfile | StudentWorkspaceProfile | null | undefined = demoMode ? storedProfile : profile;
 
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
   const [studyLevel, setStudyLevel] = useState("");
   const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
+  const [courseGoal, setCourseGoal] = useState("");
   const [gpa, setGpa] = useState("");
   const [ielts, setIelts] = useState("");
   const [toefl, setToefl] = useState("");
@@ -50,11 +57,16 @@ export default function StudentProfilePage() {
   const [nationality, setNationality] = useState("");
   const [intake, setIntake] = useState("");
   const [budget, setBudget] = useState("");
+  const [, setLocalRevision] = useState(0);
 
   useEffect(() => {
     if (p) {
+      setFirstName(demoMode ? (storedProfile?.firstName ?? "") : (user?.firstName ?? ""));
+      setLastName(demoMode ? (storedProfile?.lastName ?? "") : (user?.lastName ?? ""));
+      setEmail(demoMode ? (storedProfile?.email ?? (demoSession?.email.endsWith("@eleevate.local") ? "" : demoSession?.email ?? "")) : (user?.primaryEmailAddress?.emailAddress ?? ""));
       setStudyLevel(p.studyLevel ?? "");
       setSelectedCountries(p.targetCountries ?? []);
+      setCourseGoal("courseGoal" in p ? p.courseGoal ?? "" : "");
       setGpa(p.gpa?.toString() ?? "");
       setIelts(p.ieltsScore?.toString() ?? "");
       setToefl(p.toeflScore?.toString() ?? "");
@@ -64,8 +76,12 @@ export default function StudentProfilePage() {
       setIntake(p.preferredIntake ?? "");
       setBudget(p.budget?.toString() ?? "");
     } else {
+      setFirstName(demoMode ? "" : user?.firstName ?? "");
+      setLastName(demoMode ? "" : user?.lastName ?? "");
+      setEmail(demoMode ? (demoSession?.email.endsWith("@eleevate.local") ? "" : demoSession?.email ?? "") : user?.primaryEmailAddress?.emailAddress ?? "");
       setStudyLevel("");
       setSelectedCountries([]);
+      setCourseGoal("");
       setGpa("");
       setIelts("");
       setToefl("");
@@ -75,13 +91,17 @@ export default function StudentProfilePage() {
       setIntake("");
       setBudget("");
     }
-  }, [JSON.stringify(p)]);
+  }, [JSON.stringify(p), demoMode, demoSession?.email, storedProfile?.email, storedProfile?.firstName, storedProfile?.lastName, user?.firstName, user?.lastName, user?.primaryEmailAddress?.emailAddress]);
 
   const handleSave = async () => {
     if (demoMode) {
       writeStudentWorkspaceProfile({
+        firstName,
+        lastName,
+        email,
         studyLevel,
         targetCountries: selectedCountries,
+        courseGoal,
         gpa,
         ieltsScore: ielts,
         toeflScore: toefl,
@@ -91,6 +111,7 @@ export default function StudentProfilePage() {
         preferredIntake: intake,
         budget,
       });
+      setLocalRevision(revision => revision + 1);
       toast({ title: "Profile saved", description: "Your study preferences are saved in this browser session." });
       return;
     }
@@ -113,6 +134,15 @@ export default function StudentProfilePage() {
     toast({ title: "Profile updated!", description: "Your study preferences have been saved." });
   };
 
+  const handleClear = () => {
+    clearStudentWorkspaceProfile();
+    setLocalRevision(revision => revision + 1);
+    toast({ title: "Profile cleared", description: "The local profile has been reset for a fresh student test." });
+  };
+
+  const savedProfile = demoMode ? readStudentWorkspaceProfile() : null;
+  const hasSavedProfile = hasStudentWorkspaceProfile(savedProfile);
+
   return (
     <AppLayout>
       <div data-testid="student-profile-page">
@@ -127,18 +157,73 @@ export default function StudentProfilePage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <Label className="mb-1.5">First name</Label>
-              <Input value={demoMode ? "" : user?.firstName ?? ""} disabled className="bg-muted/40" placeholder="Not set yet" data-testid="input-first-name" />
+              <Input
+                value={firstName}
+                onChange={event => setFirstName(event.target.value)}
+                disabled={!demoMode}
+                className={!demoMode ? "bg-muted/40" : undefined}
+                placeholder="Student first name"
+                data-testid="input-first-name"
+              />
             </div>
             <div>
               <Label className="mb-1.5">Last name</Label>
-              <Input value={demoMode ? "" : user?.lastName ?? ""} disabled className="bg-muted/40" placeholder="Not set yet" data-testid="input-last-name" />
+              <Input
+                value={lastName}
+                onChange={event => setLastName(event.target.value)}
+                disabled={!demoMode}
+                className={!demoMode ? "bg-muted/40" : undefined}
+                placeholder="Student last name"
+                data-testid="input-last-name"
+              />
             </div>
             <div className="sm:col-span-2">
               <Label className="mb-1.5">Email</Label>
-              <Input value={demoMode ? (demoSession?.email.endsWith("@eleevate.local") ? "" : demoSession?.email ?? "") : user?.primaryEmailAddress?.emailAddress ?? ""} disabled className="bg-muted/40" placeholder="Sign in email" data-testid="input-email" />
+              <Input
+                value={email}
+                onChange={event => setEmail(event.target.value)}
+                disabled={!demoMode}
+                className={!demoMode ? "bg-muted/40" : undefined}
+                placeholder="student@example.com"
+                data-testid="input-email"
+              />
             </div>
           </div>
         </Card>
+
+        {demoMode && hasSavedProfile && savedProfile && (
+          <Card className="mb-6 border border-primary/20 bg-primary/5 p-6" data-testid="saved-profile-summary">
+            <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+              <div>
+                <h2 className="font-semibold text-foreground">Saved profile</h2>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Last saved {savedProfile.lastSavedAt ? new Date(savedProfile.lastSavedAt).toLocaleString() : "in this browser"}
+                </p>
+              </div>
+              <Button variant="outline" className="rounded-full font-serif" onClick={handleClear} data-testid="btn-clear-profile">
+                Clear saved profile
+              </Button>
+            </div>
+            <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-3">
+              {[
+                ["Name", [savedProfile.firstName, savedProfile.lastName].filter(Boolean).join(" ") || "Not set"],
+                ["Email", savedProfile.email || "Not set"],
+                ["Study level", savedProfile.studyLevel || "Not set"],
+                ["Course goal", savedProfile.courseGoal || "Not set"],
+                ["Countries", savedProfile.targetCountries?.join(", ") || "Not set"],
+                ["Budget", savedProfile.budget ? `$${Number(savedProfile.budget).toLocaleString()}` : "Not set"],
+                ["Nationality", savedProfile.nationality || "Not set"],
+                ["GPA", savedProfile.gpa || "Not set"],
+                ["IELTS", savedProfile.ieltsScore || "Not set"],
+              ].map(([label, value]) => (
+                <div key={label} className="rounded-lg border border-border bg-white p-3">
+                  <div className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">{label}</div>
+                  <div className="mt-1 text-sm font-semibold text-foreground">{value}</div>
+                </div>
+              ))}
+            </div>
+          </Card>
+        )}
 
         {/* Study preferences */}
         {!demoMode && isLoading ? (
@@ -184,6 +269,10 @@ export default function StudentProfilePage() {
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
+                <div className="col-span-2">
+                  <Label className="mb-1.5">Course goal</Label>
+                  <Input value={courseGoal} onChange={e => setCourseGoal(e.target.value)} placeholder="e.g. Business Analytics / Management" data-testid="input-course-goal" />
+                </div>
                 <div>
                   <Label className="mb-1.5">Budget (USD/year)</Label>
                   <Input value={budget} onChange={e => setBudget(e.target.value)} placeholder="e.g. 40000" type="number" data-testid="input-budget" />

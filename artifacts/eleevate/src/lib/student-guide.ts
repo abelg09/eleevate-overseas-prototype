@@ -1,4 +1,4 @@
-export const STUDENT_GUIDE_WELCOME_STORAGE_KEY = "eleevate.student.guide.welcome.v1";
+export const STUDENT_GUIDE_WELCOME_STORAGE_KEY = "eleevate.student-first.guide.welcome.v1";
 
 export type StudentGuideTone = "done" | "current" | "action" | "next";
 

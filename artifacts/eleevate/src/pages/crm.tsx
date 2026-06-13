@@ -62,12 +62,7 @@ const SOURCE_COLORS: Record<LeadSource, string> = {
   agency: "bg-orange-100 text-orange-700", other: "bg-gray-100 text-gray-700",
 };
 
-const DEMO_LEADS: Lead[] = [
-  { id: "demo-lead-jehan", studentName: "Student", email: "jehan@example.com", phone: "+91 98765 43210", status: "active_client", source: "website", targetCountry: "Canada", targetDegree: "MSc Computer Science", notes: "ELEE score 82. Finance docs need review.", followUpAt: "2026-05-29T10:00:00.000Z", createdAt: "2026-05-18T10:00:00.000Z" },
-  { id: "demo-lead-priya", studentName: "Priya Nair", email: "priya.nair@example.com", status: "qualified", source: "referral", targetCountry: "United Kingdom", targetDegree: "MBA", notes: "Needs GMAT plan and scholarship shortlist.", createdAt: "2026-05-20T11:00:00.000Z" },
-  { id: "demo-lead-kabir", studentName: "Kabir Shah", email: "kabir.shah@example.com", status: "new", source: "event", targetCountry: "Australia", targetDegree: "Cybersecurity", createdAt: "2026-05-21T09:00:00.000Z" },
-  { id: "demo-lead-ananya", studentName: "Ananya Rao", email: "ananya.rao@example.com", status: "contacted", source: "social_media", targetCountry: "Germany", targetDegree: "Data Engineering", createdAt: "2026-05-19T08:00:00.000Z" },
-];
+const DEMO_LEADS: Lead[] = [];
 
 async function fetchLeads(): Promise<{ data: Lead[]; total: number }> {
   const res = await fetch("/api/consultant/leads");
@@ -167,7 +162,7 @@ function AddLeadDialog({ onCreated }: { onCreated: () => void }) {
             </div>
             <div>
               <Label className="mb-1.5">Target degree</Label>
-              <Input value={form.targetDegree} onChange={e => setForm(f => ({ ...f, targetDegree: e.target.value }))} placeholder="MSc Computer Science" />
+              <Input value={form.targetDegree} onChange={e => setForm(f => ({ ...f, targetDegree: e.target.value }))} placeholder="e.g. Business Analytics / Management" />
             </div>
           </div>
           <div>

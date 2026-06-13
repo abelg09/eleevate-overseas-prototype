@@ -49,8 +49,8 @@ export interface DemoAgentPrompt {
   href: string;
 }
 
-export const DEMO_JOURNEY_STORAGE_KEY = "eleevate.demo.journey.mode";
-export const DEMO_LEDGER_STORAGE_KEY = "eleevate.demo.ledger.events";
+export const DEMO_JOURNEY_STORAGE_KEY = "eleevate.student-first.journey.mode.v1";
+export const DEMO_LEDGER_STORAGE_KEY = "eleevate.student-first.ledger.events.v1";
 export const DEMO_JOURNEY_EVENT = "eleevate-demo-journey";
 
 export const DEMO_AGENT_PROMPTS: DemoAgentPrompt[] = [

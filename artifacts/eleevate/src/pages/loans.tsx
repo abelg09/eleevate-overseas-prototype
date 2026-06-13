@@ -78,6 +78,16 @@ const DEMO_LOAN_APPLICATIONS: Array<{
   createdAt: string;
 }> = [];
 
+function parseInrAmount(value: string) {
+  const normalized = value.replace(/,/g, "").trim();
+  const parsed = Number(normalized);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : 0;
+}
+
+function formatInr(value: number) {
+  return `₹${Math.round(value).toLocaleString("en-IN")}`;
+}
+
 export default function LoansPage() {
   const { getToken } = useAuth();
   const qc = useQueryClient();
@@ -125,7 +135,7 @@ export default function LoansPage() {
       const res = await fetch(`${getBaseUrl()}/api/loans/applications`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ lenderId, amount: parseFloat(loanAmount) || 20000, tenureMonths: parseInt(tenure), universityName: universityName || undefined, country: country || undefined }),
+        body: JSON.stringify({ lenderId, amount: parseInrAmount(loanAmount), tenureMonths: parseInt(tenure), universityName: universityName || undefined, country: country || undefined }),
       });
       if (!res.ok) throw new Error(await res.text());
       return res.json();
@@ -138,7 +148,7 @@ export default function LoansPage() {
             {
               id: `loan-app-${lenderId}`,
               lenderName: product.lenderName,
-              amount: Math.round((parseFloat(loanAmount) || 8000) * 83.77),
+              amount: parseInrAmount(loanAmount),
               currency: "INR",
               interestRate: product.interestRate,
               tenureMonths: parseInt(tenure),
@@ -169,15 +179,14 @@ export default function LoansPage() {
 
   const eligibleProducts = searched && loanAmount
     ? ((demoMode || !products?.length ? DEMO_LOAN_PRODUCTS : products) ?? []).filter(p => {
-        const amt = parseFloat(loanAmount) * 83.77;
+        const amt = parseInrAmount(loanAmount);
         return amt >= p.minAmount && amt <= p.maxAmount;
       })
     : [];
 
   const productsList = demoMode || !products?.length ? DEMO_LOAN_PRODUCTS : products;
   const applicationsList = demoMode ? demoLoanApplications : applications ?? [];
-  const principalUsd = parseFloat(loanAmount) || 0;
-  const principalInr = Math.round(principalUsd * 83.77);
+  const principalInr = parseInrAmount(loanAmount);
   const tenureMonths = parseInt(tenure) || 120;
   const rate = parseFloat(calculatorRate) || 11.2;
   const monthlyRate = rate / 100 / 12;
@@ -195,7 +204,7 @@ export default function LoansPage() {
       id: `ledger-loan-calculator-${repaymentMode}`,
       source: "Edu Loans",
       event: `${repaymentMode === "deferred" ? "Deferred" : "Standard"} loan plan calculated`,
-      studentView: `Estimated EMI ₹${displayedEmi.toLocaleString("en-IN")} and processing fee ₹${processingFeeInr.toLocaleString("en-IN")} added to funding plan.`,
+      studentView: `Estimated EMI ${formatInr(displayedEmi)} and processing fee ${formatInr(processingFeeInr)} added to funding plan.`,
       consultantView: "Loan desk receives calculator output and lender comparison context.",
       revenue: "NBFC Commission",
       status: "Ready",
@@ -239,7 +248,7 @@ export default function LoansPage() {
                   <div>
                     <div className="eyebrow mb-1">Loan calculator</div>
                     <h2 className="font-serif text-xl font-bold text-foreground">Compare EMI, deferred repayment, and fee impact.</h2>
-                    <p className="mt-1 text-sm text-muted-foreground">Compare repayment options and add the best plan to the student&apos;s funding checklist.</p>
+                    <p className="mt-1 text-sm text-muted-foreground">Compare repayment options in INR and add the best plan to the student&apos;s funding checklist.</p>
                   </div>
                   <Button variant="outline" className="rounded-full font-serif" onClick={queueCalculatorPlan} disabled={!principalInr}>
                     Save loan estimate
@@ -266,18 +275,18 @@ export default function LoansPage() {
                   </div>
                   <div className="rounded-lg border border-border bg-muted/35 p-3">
                     <div className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">Estimated EMI</div>
-                    <div className="mt-1 font-serif text-xl font-bold text-foreground">₹{displayedEmi.toLocaleString("en-IN")}</div>
+                    <div className="mt-1 font-serif text-xl font-bold text-foreground">{formatInr(displayedEmi)}</div>
                   </div>
                   <div className="rounded-lg border border-border bg-muted/35 p-3">
                     <div className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">Fee + moratorium</div>
-                    <div className="mt-1 font-serif text-xl font-bold text-foreground">₹{(processingFeeInr + (repaymentMode === "deferred" ? moratoriumInterest : 0)).toLocaleString("en-IN")}</div>
+                    <div className="mt-1 font-serif text-xl font-bold text-foreground">{formatInr(processingFeeInr + (repaymentMode === "deferred" ? moratoriumInterest : 0))}</div>
                   </div>
                 </div>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                 <div>
-                  <label className="text-sm font-medium">Loan Amount (USD) *</label>
-                  <Input type="number" placeholder="e.g. 30000" value={loanAmount} onChange={e => setLoanAmount(e.target.value)} className="mt-1" />
+                  <label className="text-sm font-medium">Loan Amount (INR) *</label>
+                  <Input type="number" placeholder="e.g. 3000000 for ₹30L" value={loanAmount} onChange={e => setLoanAmount(e.target.value)} className="mt-1" />
                 </div>
                 <div>
                   <label className="text-sm font-medium">Tenure (months)</label>
@@ -310,7 +319,7 @@ export default function LoansPage() {
               <div className="space-y-4">
                 <p className="text-sm text-muted-foreground">{eligibleProducts.length} eligible loan product{eligibleProducts.length !== 1 ? "s" : ""} found</p>
                 {eligibleProducts.map(product => {
-                  const principalINR = parseFloat(loanAmount) * 83.77;
+                  const principalINR = parseInrAmount(loanAmount);
                   const monthlyEmi = emi(principalINR, product.interestRate, parseInt(tenure));
                   return (
                     <Card key={product.id} className={product.popular ? "border-primary/40" : ""}>
@@ -383,7 +392,7 @@ export default function LoansPage() {
                     <div>
                       <div className="font-medium text-sm">{app.lenderName}</div>
                       <div className="text-xs text-muted-foreground">
-                        ${(app.amount / 100).toLocaleString()} · {app.tenureMonths} months
+                        {formatInr(app.amount)} · {app.tenureMonths} months
                         {app.universityName ? ` · ${app.universityName}` : ""}
                         · Applied {new Date(app.createdAt).toLocaleDateString()}
                       </div>

@@ -134,15 +134,15 @@ const COUNTRY_VISUALS: Record<string, string> = {
   SG: "https://eleevateoverseas.com/wp-content/uploads/2024/05/Study-In-Singapore-Flag-Eleevate-Overseas.svg",
 };
 
-const COUNTRY_ROUTE_INSIGHTS: Record<string, { fit: number; budget: string; cities: string; focus: string }> = {
-  CA: { fit: 88, budget: "$38k-$46k", cities: "Toronto, Vancouver", focus: "CS, AI, PGWP" },
-  GB: { fit: 84, budget: "$32k-$42k", cities: "London, Manchester", focus: "Fast master's" },
-  US: { fit: 81, budget: "$45k-$62k", cities: "Boston, Phoenix", focus: "STEM scale" },
-  AU: { fit: 79, budget: "$36k-$48k", cities: "Melbourne, Sydney", focus: "Work rights" },
-  DE: { fit: 76, budget: "$18k-$30k", cities: "Munich, Berlin", focus: "Low tuition" },
-  NL: { fit: 73, budget: "$28k-$40k", cities: "Delft, Amsterdam", focus: "Applied tech" },
-  IE: { fit: 78, budget: "$30k-$44k", cities: "Dublin, Galway", focus: "Tech careers" },
-  SG: { fit: 75, budget: "$34k-$50k", cities: "Singapore", focus: "Asia hub" },
+const COUNTRY_ROUTE_INSIGHTS: Record<string, { budget: string; cities: string; focus: string }> = {
+  CA: { budget: "$38k-$46k", cities: "Toronto, Vancouver", focus: "PGWP pathway" },
+  GB: { budget: "$32k-$42k", cities: "London, Manchester", focus: "Fast master's" },
+  US: { budget: "$45k-$62k", cities: "Boston, Phoenix", focus: "STEM scale" },
+  AU: { budget: "$36k-$48k", cities: "Melbourne, Sydney", focus: "Work rights" },
+  DE: { budget: "$18k-$30k", cities: "Munich, Berlin", focus: "Low tuition" },
+  NL: { budget: "$28k-$40k", cities: "Delft, Amsterdam", focus: "Applied tech" },
+  IE: { budget: "$30k-$44k", cities: "Dublin, Galway", focus: "Tech careers" },
+  SG: { budget: "$34k-$50k", cities: "Singapore", focus: "Asia hub" },
 };
 
 export default function LandingPage() {
@@ -303,7 +303,6 @@ export default function LandingPage() {
               <div className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
                 {countriesList.map((country) => {
                   const insight = COUNTRY_ROUTE_INSIGHTS[country.code] ?? {
-                    fit: 70,
                     budget: "Profile based",
                     cities: "Top student cities",
                     focus: "Route fit",
@@ -326,7 +325,7 @@ export default function LandingPage() {
                                 <div className="text-[10px] font-semibold uppercase tracking-wide text-primary">Study route</div>
                                 <h3 className="mt-1 font-serif text-2xl font-bold leading-tight text-foreground">{country.name}</h3>
                               </div>
-                              <Badge className="rounded-full bg-secondary text-white hover:bg-secondary">{insight.fit}% fit</Badge>
+                              <Badge className="rounded-full bg-secondary text-white hover:bg-secondary">Explore</Badge>
                             </div>
                             <div className="mt-5 grid grid-cols-2 gap-3">
                               <div className="rounded-lg border border-border bg-muted/30 p-3">

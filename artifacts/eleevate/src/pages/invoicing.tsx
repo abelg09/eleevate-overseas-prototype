@@ -31,29 +31,9 @@ const COMMISSION_COLORS: Record<string, string> = {
   paid: "bg-green-100 text-green-700",
 };
 
-const DEMO_INVOICES: Invoice[] = [
-  {
-    id: "demo-invoice-1",
-    clientName: "Student",
-    clientEmail: "jehan@example.com",
-    lineItems: [{ description: "SOP and application review", quantity: 1, unitPrice: 14900 }],
-    subtotal: 14900,
-    taxAmount: 2682,
-    total: 17582,
-    currency: "USD",
-    status: "sent",
-    notes: "Due before final submission.",
-    dueDate: "2026-06-05",
-    createdAt: "2026-05-21T09:00:00.000Z",
-  },
-];
+const DEMO_INVOICES: Invoice[] = [];
 
-const DEMO_COMMISSIONS: Commission[] = [
-  { id: "demo-commission-1", source: "university_partner", description: "University of Leeds enrolment commission", amount: 42000, currency: "USD", status: "earned", paidAt: null, createdAt: "2026-05-18T10:00:00.000Z" },
-  { id: "demo-commission-2", source: "service_order", description: "Visa strategy session", amount: 9900, currency: "USD", status: "paid", paidAt: "2026-05-20", createdAt: "2026-05-12T10:00:00.000Z" },
-  { id: "demo-commission-3", source: "nbfc_partner", description: "HDFC Credila NBFC Commission - Processing", amount: 62000, currency: "USD", status: "pending", paidAt: null, createdAt: "2026-05-30T10:00:00.000Z", revenueStream: "NBFC Commission" },
-  { id: "demo-commission-4", source: "forex_partner", description: "Tuition remittance spread - University of Toronto", amount: 8400, currency: "USD", status: "earned", paidAt: null, createdAt: "2026-05-30T10:05:00.000Z", revenueStream: "Forex Margin" },
-];
+const DEMO_COMMISSIONS: Commission[] = [];
 
 export default function InvoicingPage() {
   const { getToken } = useAuth();

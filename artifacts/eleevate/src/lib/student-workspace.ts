@@ -1,8 +1,12 @@
 import { useEffect, useState } from "react";
 
 export interface StudentWorkspaceProfile {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
   studyLevel?: string;
   targetCountries?: string[];
+  courseGoal?: string;
   gpa?: string;
   ieltsScore?: string;
   toeflScore?: string;
@@ -11,9 +15,10 @@ export interface StudentWorkspaceProfile {
   nationality?: string;
   preferredIntake?: string;
   budget?: string;
+  lastSavedAt?: string;
 }
 
-export const STUDENT_PROFILE_STORAGE_KEY = "eleevate.student.profile.v1";
+export const STUDENT_PROFILE_STORAGE_KEY = "eleevate.student-first.profile.v2";
 const STUDENT_WORKSPACE_EVENT = "eleevate-student-workspace";
 
 function canUseStorage() {
@@ -37,9 +42,19 @@ export function readStudentWorkspaceProfile(): StudentWorkspaceProfile | null {
 
 export function writeStudentWorkspaceProfile(profile: StudentWorkspaceProfile) {
   if (!canUseStorage()) return profile;
-  localStorage.setItem(STUDENT_PROFILE_STORAGE_KEY, JSON.stringify(profile));
+  const nextProfile = {
+    ...profile,
+    lastSavedAt: new Date().toISOString(),
+  };
+  localStorage.setItem(STUDENT_PROFILE_STORAGE_KEY, JSON.stringify(nextProfile));
   emitWorkspaceChange();
-  return profile;
+  return nextProfile;
+}
+
+export function clearStudentWorkspaceProfile() {
+  if (!canUseStorage()) return;
+  localStorage.removeItem(STUDENT_PROFILE_STORAGE_KEY);
+  emitWorkspaceChange();
 }
 
 export function hasStudentWorkspaceProfile(profile: StudentWorkspaceProfile | null | undefined) {
@@ -47,6 +62,7 @@ export function hasStudentWorkspaceProfile(profile: StudentWorkspaceProfile | nu
   return Boolean(
     profile.studyLevel ||
     profile.targetCountries?.length ||
+    profile.courseGoal ||
     profile.gpa ||
     profile.ieltsScore ||
     profile.toeflScore ||

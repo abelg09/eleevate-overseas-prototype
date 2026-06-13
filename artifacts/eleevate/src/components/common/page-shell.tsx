@@ -13,6 +13,12 @@ const statusStyles: Record<ModuleStatus, string> = {
   preview: "bg-[#7A5200] text-white border-[#7A5200]",
   deferred: "bg-slate-700 text-white border-slate-700",
 };
+const statusLabels: Record<ModuleStatus, string> = {
+  live: "Ready",
+  demo: "Guided",
+  preview: "Planned",
+  deferred: "Later",
+};
 
 const priorityStyles = {
   high: "bg-red-700 text-white",
@@ -85,8 +91,8 @@ export function MetricCard({
 
 export function ModuleStatusBadge({ status }: { status: ModuleStatus }) {
   return (
-    <Badge variant="outline" className={cn("capitalize", statusStyles[status])}>
-      {status}
+    <Badge variant="outline" className={cn(statusStyles[status])}>
+      {statusLabels[status]}
     </Badge>
   );
 }

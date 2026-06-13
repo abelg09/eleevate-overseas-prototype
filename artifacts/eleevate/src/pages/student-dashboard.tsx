@@ -120,16 +120,48 @@ export default function StudentDashboardPage() {
         <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_380px]">
           <section className="space-y-5">
             <Card className="app-card p-4">
-              <SectionHeader title="What needs attention" description="Your personal tasks will appear here as you complete the profile and start applications." />
-              <div className="rounded-lg border border-dashed border-border bg-muted/25 p-6 text-center">
-                <div className="font-serif text-lg font-bold text-foreground">No personal tasks yet</div>
-                <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-muted-foreground">
-                  Complete your profile first. ELEE will then create report actions, document gaps, university next steps, and finance reminders.
-                </p>
-                <Link href="/profile">
-                  <Button className="mt-4 rounded-full font-serif">Complete profile</Button>
-                </Link>
-              </div>
+              <SectionHeader
+                title="What needs attention"
+                description={hasProfile ? "Your next tasks are based on the profile saved in this browser." : "Your personal tasks will appear here as you complete the profile and start applications."}
+              />
+              {!hasProfile ? (
+                <div className="rounded-lg border border-dashed border-border bg-muted/25 p-6 text-center">
+                  <div className="font-serif text-lg font-bold text-foreground">No personal tasks yet</div>
+                  <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-muted-foreground">
+                    Complete your profile first. ELEE will then create report actions, document gaps, university next steps, and finance reminders.
+                  </p>
+                  <Link href="/profile">
+                    <Button className="mt-4 rounded-full font-serif">Complete profile</Button>
+                  </Link>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+                  {[
+                    {
+                      title: "Generate ELEE Report",
+                      detail: "Turn your saved profile into route ranking, missing documents, finance clarity, and next actions.",
+                      href: "/elee-report",
+                    },
+                    {
+                      title: "Compare universities",
+                      detail: "Use your countries, course goal, budget, and intake to shortlist suitable options.",
+                      href: "/universities",
+                    },
+                    {
+                      title: "Prepare documents",
+                      detail: "Start passport, transcripts, SOP, resume, LOR, and finance proof early.",
+                      href: "/documents",
+                    },
+                  ].map((task) => (
+                    <Link key={task.title} href={task.href}>
+                      <div className="h-full rounded-lg border border-border bg-white p-4 transition-all hover:border-primary/35 hover:bg-primary/5">
+                        <div className="font-serif text-base font-bold text-foreground">{task.title}</div>
+                        <p className="mt-2 text-sm leading-6 text-muted-foreground">{task.detail}</p>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              )}
             </Card>
 
             <Card className="app-card p-4">

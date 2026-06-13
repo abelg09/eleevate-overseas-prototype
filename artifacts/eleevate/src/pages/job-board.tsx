@@ -11,6 +11,8 @@ import { Briefcase, MapPin, Clock, Search, Building, ExternalLink, SendHorizonal
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { isDemoMode } from "@/lib/demo-mode";
+import { hasStudentWorkspaceProfile, useStudentWorkspaceProfile } from "@/lib/student-workspace";
 
 // Seeded job listings visible on fresh install
 const SEED_JOBS = [
@@ -64,6 +66,9 @@ function getJobMatchScore(job: Job): number {
 export default function JobBoardPage() {
   const { getToken } = useAuth();
   const qc = useQueryClient();
+  const demoMode = isDemoMode();
+  const profile = useStudentWorkspaceProfile();
+  const hasProfile = hasStudentWorkspaceProfile(profile);
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("all");
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
@@ -74,6 +79,7 @@ export default function JobBoardPage() {
 
   const { data: apiJobs } = useQuery<Job[]>({
     queryKey: ["jobs"],
+    enabled: !demoMode,
     queryFn: async () => {
       const token = await getToken();
       const res = await fetch(`${getBaseUrl()}/api/jobs`, { headers: { Authorization: `Bearer ${token}` } });
@@ -84,6 +90,7 @@ export default function JobBoardPage() {
 
   const { data: myApplications } = useQuery<Application[]>({
     queryKey: ["my-job-applications"],
+    enabled: !demoMode,
     queryFn: async () => {
       const token = await getToken();
       const res = await fetch(`${getBaseUrl()}/api/my-job-applications`, { headers: { Authorization: `Bearer ${token}` } });
@@ -104,6 +111,7 @@ export default function JobBoardPage() {
 
   const apply = useMutation({
     mutationFn: async ({ jobId, cl }: { jobId: string; cl: string }) => {
+      if (demoMode) return;
       const token = await getToken();
       await fetch(`${getBaseUrl()}/api/jobs/${jobId}/apply`, {
         method: "POST",
@@ -183,12 +191,16 @@ export default function JobBoardPage() {
                       </div>
                     </div>
                     <div className="flex flex-col items-end gap-1.5">
-                      <Badge className="border-0 bg-secondary text-white text-xs flex-shrink-0">{getJobMatchScore(job)}% ELEE Match</Badge>
+                      <Badge className="border-0 bg-secondary text-white text-xs flex-shrink-0">
+                        {hasProfile ? `${getJobMatchScore(job)}% ELEE Match` : "Complete profile"}
+                      </Badge>
                       <Badge className={`${typeColors[job.type] ?? ""} border-0 text-xs flex-shrink-0`}>{job.type}</Badge>
                     </div>
                   </div>
                   <div className="rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-xs font-semibold text-primary">
-                    Match with Student&apos;s MSc Computer Science profile and AI product career direction.
+                    {hasProfile
+                      ? `Profile signal: ${profile?.courseGoal || "use your saved course and career goals to compare this role."}`
+                      : "Complete your profile to calculate career match."}
                   </div>
                   <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
                     {job.location && <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{job.location}</span>}
@@ -354,7 +366,9 @@ export default function JobBoardPage() {
               </DialogHeader>
               <div className="space-y-4">
                 <div className="flex flex-wrap gap-2">
-                  <Badge className="border-0 bg-secondary text-white">{getJobMatchScore(selectedJob)}% Match with MSc Computer Science profile</Badge>
+                  <Badge className="border-0 bg-secondary text-white">
+                    {hasProfile ? `${getJobMatchScore(selectedJob)}% ELEE career match` : "Complete profile to calculate match"}
+                  </Badge>
                   <Badge className={`${typeColors[selectedJob.type] ?? ""} border-0`}>{selectedJob.type}</Badge>
                   {selectedJob.location && <Badge variant="outline" className="gap-1"><MapPin className="h-3 w-3" />{selectedJob.location}</Badge>}
                   {selectedJob.salary && <Badge variant="secondary">{selectedJob.salary}</Badge>}

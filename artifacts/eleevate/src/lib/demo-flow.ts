@@ -6,7 +6,7 @@ import {
   getDemoUniversity,
 } from "@/lib/demo-catalog";
 
-export const DEMO_SHORTLIST_STORAGE_KEY = "eleevate.demo.shortlist";
+export const DEMO_SHORTLIST_STORAGE_KEY = "eleevate.student-first.shortlist.v1";
 
 export const DEFAULT_DEMO_SHORTLIST_IDS: string[] = [];
 

@@ -1,7 +1,7 @@
 import type { Country, Program, University } from "@workspace/api-client-react";
 
 const createdAt = "2026-05-21T00:00:00.000Z";
-export const DEMO_APPLICATION_STORAGE_KEY = "eleevate.demo.applications";
+export const DEMO_APPLICATION_STORAGE_KEY = "eleevate.student-first.applications.v1";
 
 export const DEMO_COUNTRIES: Country[] = [
   {

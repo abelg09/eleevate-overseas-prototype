@@ -21,6 +21,7 @@ import { useToast } from "@/hooks/use-toast";
 import { isDemoMode, listFromApi } from "@/lib/demo-mode";
 import { DEMO_UNIVERSITIES } from "@/lib/demo-catalog";
 import { ensureDemoApplicationForUniversity, readDemoShortlistIds, writeDemoShortlistIds } from "@/lib/demo-flow";
+import { hasStudentWorkspaceProfile, useStudentWorkspaceProfile } from "@/lib/student-workspace";
 import { cn } from "@/lib/utils";
 
 const COUNTRIES = ["All", "GB", "US", "CA", "AU", "DE", "NL", "SG", "IE"];
@@ -78,6 +79,8 @@ export default function UniversitiesPage() {
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS);
   const [demoSavedIds, setDemoSavedIds] = useState<Set<string>>(() => new Set(readDemoShortlistIds()));
+  const profile = useStudentWorkspaceProfile();
+  const hasProfile = hasStudentWorkspaceProfile(profile);
 
   const params = {
     search: search || undefined,
@@ -138,7 +141,7 @@ export default function UniversitiesPage() {
 
   const activeFiltersCount = Object.values(filters).filter(Boolean).length;
   const catalogue = demoMode ? filteredDemoUnis : filteredApiUnis;
-  const topMatch = [...catalogue].sort((a, b) => getElleMatchScore(b) - getElleMatchScore(a))[0];
+  const topMatch = [...catalogue].sort((a, b) => hasProfile ? getElleMatchScore(b) - getElleMatchScore(a) : (a.ranking ?? 9999) - (b.ranking ?? 9999))[0];
   const affordableCount = catalogue.filter((uni) => (uni.avgTuitionUsd ?? 0) > 0 && (uni.avgTuitionUsd ?? 0) <= 35000).length;
   const countryCount = new Set(catalogue.map((uni) => uni.country)).size;
   const savedCount = savedIds.size;
@@ -259,7 +262,9 @@ export default function UniversitiesPage() {
                 <div className="mt-3 rounded-lg border border-primary/20 bg-primary/5 p-3">
                   <div className="text-[10px] font-semibold uppercase tracking-wide text-primary">Best ELEE match in view</div>
                   <div className="mt-1 text-sm font-semibold leading-5 text-foreground">{topMatch.name}</div>
-                  <div className="mt-1 text-xs text-muted-foreground">{getElleMatchScore(topMatch)}% profile fit · {topMatch.city}</div>
+                  <div className="mt-1 text-xs text-muted-foreground">
+                    {hasProfile ? `${getElleMatchScore(topMatch)}% profile fit` : "Complete profile to calculate fit"} · {topMatch.city}
+                  </div>
                 </div>
               )}
             </aside>
@@ -339,7 +344,7 @@ export default function UniversitiesPage() {
             ))
             : unis.map((uni: University) => {
               const isBookmarked = savedIds.has(uni.id);
-              const matchScore = getElleMatchScore(uni);
+              const matchScore = hasProfile ? getElleMatchScore(uni) : null;
               return (
                 <Link href={`/universities/${uni.id}`} key={uni.id}>
                   <Card className="group relative h-full cursor-pointer overflow-hidden border border-border bg-white p-0 transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md" data-testid={`uni-card-${uni.id}`}>
@@ -362,7 +367,9 @@ export default function UniversitiesPage() {
                         <UniversityLogo name={uni.name} website={uni.website} className="h-12 w-12" imageClassName="h-8 w-8" />
                         <div className="min-w-0 flex-1">
                           <div className="flex flex-wrap items-center gap-2">
-                            <Badge className="rounded-full bg-secondary text-white hover:bg-secondary text-xs">{matchScore}% ELEE Match</Badge>
+                            <Badge className="rounded-full bg-secondary text-white hover:bg-secondary text-xs">
+                              {matchScore != null ? `${matchScore}% ELEE Match` : "Complete profile"}
+                            </Badge>
                             {uni.ranking != null && <Badge variant="outline" className="rounded-full text-xs">Rank #{uni.ranking}</Badge>}
                             <Badge variant="outline" className="rounded-full text-xs">{uni.country}</Badge>
                           </div>

@@ -45,7 +45,7 @@ jobs:
       - name: Build archived AI super-app version
         shell: bash
         run: |
-          git fetch --depth=1 origin archive/ai-superapp-2026-06-04
+          git fetch --depth=1 origin archive/ai-superapp-2026-06-04-fix-profile
           git worktree add ../ai-superapp-worktree FETCH_HEAD
 
           pushd ../ai-superapp-worktree
@@ -65,6 +65,10 @@ jobs:
             elee-report elle-report edge-report
             profile assessment
             countries universities course-finder shortlist applications
+            universities/demo-uoft universities/demo-ubc universities/demo-manchester
+            universities/demo-leeds universities/demo-asu universities/demo-northeastern
+            universities/demo-melbourne universities/demo-monash universities/demo-tum
+            universities/demo-delft universities/demo-nus universities/demo-trinity
             documents sop-studio visa-center
             language-hub test-prep mock-test upskilling e-learning
             careers job-board alumni news rewards support

@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { PageHeader, SectionHeader } from "@/components/common/page-shell";
 import { addDemoLedgerEvent } from "@/lib/demo-journey";
+import { hasStudentWorkspaceProfile, useStudentWorkspaceProfile } from "@/lib/student-workspace";
 import { cn } from "@/lib/utils";
 
 const cardPlans = [
@@ -29,16 +30,16 @@ const cardPlans = [
     fee: "Linked add-on",
     currencies: "Home currency reload",
     fit: "Emergency reloads and parent-controlled spending guardrails.",
-    status: "Preview",
+    status: "Later",
     tone: "border-l-emerald-400",
   },
 ];
 
 const readinessSteps = [
-  { label: "Passport and admission letter", progress: 100 },
-  { label: "KYC and address proof", progress: 84 },
-  { label: "Initial load amount", progress: 68 },
-  { label: "Spending limits and alerts", progress: 42 },
+  { label: "Passport and admission letter" },
+  { label: "KYC and address proof" },
+  { label: "Initial load amount" },
+  { label: "Spending limits and alerts" },
 ];
 
 const usageControls = [
@@ -51,6 +52,9 @@ const usageControls = [
 ];
 
 export default function ForexCardPage() {
+  const profile = useStudentWorkspaceProfile();
+  const hasProfile = hasStudentWorkspaceProfile(profile);
+
   const handleQueueCard = () => {
     addDemoLedgerEvent({
       id: "ledger-forex-card-action",
@@ -81,7 +85,7 @@ export default function ForexCardPage() {
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.05fr_0.95fr]">
         <Card className="app-card p-4">
-          <SectionHeader title="Card options" description="Preview structure for partner card integrations and student comparison." />
+          <SectionHeader title="Card options" description="Planned structure for partner card integrations and student comparison." />
           <div className="space-y-3">
             {cardPlans.map((plan) => (
               <div key={plan.name} className={cn("rounded-lg border border-border border-l-4 bg-white p-4", plan.tone)}>
@@ -99,15 +103,15 @@ export default function ForexCardPage() {
         </Card>
 
         <Card className="app-card p-4">
-          <SectionHeader title="Card readiness" />
+          <SectionHeader title="Card readiness" description="These requirements start blank and should be verified before a partner card request is sent." />
           <div className="space-y-4">
             {readinessSteps.map((step) => (
-              <div key={step.label}>
+              <div key={step.label} className="rounded-lg border border-border bg-muted/25 p-3">
                 <div className="mb-2 flex items-center justify-between gap-3 text-sm">
                   <span className="font-medium text-foreground">{step.label}</span>
-                  <span className="text-xs font-semibold text-muted-foreground">{step.progress}%</span>
+                  <Badge variant="outline" className="rounded-full text-xs">{hasProfile ? "To verify" : "Profile needed"}</Badge>
                 </div>
-                <Progress value={step.progress} className="h-1.5" />
+                <Progress value={0} className="h-1.5" />
               </div>
             ))}
           </div>

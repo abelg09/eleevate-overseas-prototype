@@ -15,7 +15,6 @@ import {
   communicationSignals,
   consultantStages,
   consultantTasks,
-  serviceOrders,
 } from "@/lib/demo-data";
 import { demoUser } from "@/lib/demo-mode";
 import { useDemoJourneyState } from "@/lib/demo-journey";
@@ -141,21 +140,11 @@ export default function ConsultantDashboardPage() {
                   </div>
                 </div>
               ))}
-              {serviceOrders.map((order) => (
-                <div key={order.id} className="rounded-lg border border-border bg-white p-3">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <div className="text-sm font-semibold text-foreground">{order.service}</div>
-                      <div className="text-xs text-muted-foreground">{order.student} · {order.owner}</div>
-                    </div>
-                    <Badge variant="outline" className="capitalize">{order.status.replace("_", " ")}</Badge>
-                  </div>
-                  <div className="mt-3 flex items-center justify-between text-sm">
-                    <span className="font-semibold text-foreground">{order.amount}</span>
-                    <span className="text-xs text-muted-foreground">{order.id}</span>
-                  </div>
+              {ledgerEvents.length === 0 && (
+                <div className="rounded-lg border border-dashed border-border bg-white p-4 text-sm leading-6 text-muted-foreground">
+                  No student service events yet. Loan, remittance, insurance, scholarship, and application actions will appear here when a student starts them.
                 </div>
-              ))}
+              )}
             </div>
           </Card>
         </div>
@@ -182,7 +171,7 @@ export default function ConsultantDashboardPage() {
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div className="border-l-4 border-l-primary pl-4">
               <div>
-                <div className="font-semibold text-foreground">Automation impact preview</div>
+                <div className="font-semibold text-foreground">Automation impact</div>
                 <p className="mt-1 text-sm leading-6 text-muted-foreground">
                   AI validation and task routing are estimated to save 18 consultant hours this week across document review, university inbox follow-up, and SOP formatting.
                 </p>

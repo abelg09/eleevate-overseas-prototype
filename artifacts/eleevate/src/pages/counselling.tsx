@@ -50,31 +50,7 @@ const STATUS_CONFIG: Record<SessionStatus, { label: string; color: string; icon:
   no_show: { label: "No Show", color: "bg-orange-100 text-orange-700", icon: AlertCircle },
 };
 
-const DEMO_SESSIONS: CounsellingSession[] = [
-  {
-    id: "demo-session-1",
-    studentName: "Student",
-    studentEmail: "jehan@example.com",
-    title: "Canada finance and visa readiness call",
-    scheduledAt: "2026-05-29T10:00:00.000Z",
-    durationMinutes: 60,
-    meetLink: "https://meet.google.com/demo-eleevate",
-    preCallNotes: "Review sponsor funds, SOP progress, and University of Toronto application deadline.",
-    status: "scheduled",
-    createdAt: "2026-05-21T09:00:00.000Z",
-  },
-  {
-    id: "demo-session-2",
-    studentName: "Priya Nair",
-    studentEmail: "priya.nair@example.com",
-    title: "MBA profile building call",
-    scheduledAt: "2026-05-20T14:00:00.000Z",
-    durationMinutes: 45,
-    postCallNotes: "Recommended GMAT target 680+, UK shortlist, and scholarship essay work.",
-    status: "completed",
-    createdAt: "2026-05-18T09:00:00.000Z",
-  },
-];
+const DEMO_SESSIONS: CounsellingSession[] = [];
 
 async function fetchSessions(): Promise<{ data: CounsellingSession[]; total: number }> {
   const res = await fetch("/api/consultant/sessions");

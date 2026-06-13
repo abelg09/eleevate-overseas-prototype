@@ -7,7 +7,7 @@ import { PageHeader, SectionHeader } from "@/components/common/page-shell";
 import { cn } from "@/lib/utils";
 
 const alumniSignals = [
-  { label: "Country chapters", value: "12", detail: "Canada, UK, Germany active", tone: "border-l-primary" },
+  { label: "Country chapters", value: "12", detail: "Global student groups", tone: "border-l-primary" },
   { label: "Mentors available", value: "86", detail: "42 verified this month", tone: "border-l-emerald-400" },
   { label: "Open referrals", value: "24", detail: "Part-time and graduate roles", tone: "border-l-[#F8B133]" },
   { label: "Wellness circles", value: "9", detail: "Local support groups", tone: "border-l-primary" },
@@ -15,7 +15,7 @@ const alumniSignals = [
 
 const communities = [
   {
-    title: "Canada Computer Science",
+    title: "Canada student community",
     location: "Toronto, Waterloo, Vancouver",
     members: 118,
     focus: "Internships, housing, winter readiness, and post-study work permits.",
@@ -38,7 +38,7 @@ const communities = [
 ];
 
 const mentorQueue = [
-  { name: "Rhea Nair", role: "MSc AI, University of Toronto", status: "Available", fit: "SOP, co-op, housing" },
+  { name: "Rhea Nair", role: "Graduate mentor, Canada", status: "Available", fit: "SOP, co-op, housing" },
   { name: "Arjun Shah", role: "MBA, University of Leeds", status: "This week", fit: "Career switch, finance proof" },
   { name: "Meera Iyer", role: "MS Data Science, TU Munich", status: "Waitlist", fit: "German process, language plan" },
 ];
@@ -56,9 +56,9 @@ export default function AlumniNetworkPage() {
   return (
     <div data-testid="alumni-network-page">
       <PageHeader
-        eyebrow="Phase 6 - Post-Landing & Alumni"
+        eyebrow="Career & Community"
         title="Alumni Network"
-        description="A lifetime-value layer for students after admission: mentors, local support, employment, wellness, business opportunities, and community by country, university, and course."
+        description="Connect with alumni, local student communities, career mentors, wellness support, and arrival services after admission."
         actions={
           <Link href="/careers">
             <Button className="rounded-full font-serif">Explore careers</Button>

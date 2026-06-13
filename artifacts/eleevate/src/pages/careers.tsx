@@ -11,6 +11,7 @@ import { TrendingUp, MapPin, Users, Briefcase, Globe, Rocket, MessageCircle, Che
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { isDemoMode } from "@/lib/demo-mode";
+import { hasStudentWorkspaceProfile, useStudentWorkspaceProfile } from "@/lib/student-workspace";
 
 interface CareerPath {
   id: string;
@@ -53,14 +54,14 @@ const demandColors: Record<string, string> = {
 const DEMO_CAREER_PATHS: CareerPath[] = [
   {
     id: "career-ai",
-    field: "AI, Data and Product",
+    field: "Technology, Data and Product",
     icon: "AI",
     careers: [
       { title: "Machine Learning Engineer", salaryRange: "$95k-$160k", skills: ["Python", "ML Ops", "Cloud"], demand: "Very High" },
       { title: "Data Product Manager", salaryRange: "$90k-$150k", skills: ["Analytics", "Roadmaps", "SQL"], demand: "High" },
     ],
     topCountries: ["Canada", "UK", "Germany", "Singapore"],
-    topPrograms: ["MSc Computer Science", "MSc Data Science", "MSc AI"],
+    topPrograms: ["Computer Science", "Data Science", "Artificial Intelligence"],
     avgTimeToJob: "4-7 months",
   },
   {
@@ -105,6 +106,8 @@ export default function CareersPage() {
   const { getToken } = useAuth();
   const qc = useQueryClient();
   const demoMode = isDemoMode();
+  const profile = useStudentWorkspaceProfile();
+  const hasProfile = hasStudentWorkspaceProfile(profile);
   const [selectedPath, setSelectedPath] = useState<CareerPath | null>(null);
   const [mentorDialog, setMentorDialog] = useState<Mentor | null>(null);
   const [message, setMessage] = useState("");
@@ -179,7 +182,9 @@ export default function CareersPage() {
     <div className="p-6 max-w-5xl mx-auto space-y-6">
       <div>
         <h1 className="text-3xl font-bold flex items-center gap-2"><Rocket className="h-8 w-8 text-primary" />Careers Platform</h1>
-        <p className="text-muted-foreground mt-1">Explore career paths, connect with mentors, and find internships</p>
+        <p className="text-muted-foreground mt-1">
+          Explore career paths, connect with mentors, and find internships. {hasProfile ? "ELEE can use your saved profile to personalize this later." : "Complete your profile to personalize career guidance."}
+        </p>
       </div>
 
       <Tabs defaultValue="paths">
