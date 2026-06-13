@@ -11,6 +11,7 @@ import { Briefcase, MapPin, Clock, Search, Building, ExternalLink, SendHorizonal
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { isDemoMode } from "@/lib/demo-mode";
 import { useStudentWorkspaceProfile } from "@/lib/student-workspace";
 
 // Seeded job listings visible on fresh install
@@ -65,6 +66,7 @@ function getJobMatchScore(job: Job): number {
 export default function JobBoardPage() {
   const { getToken } = useAuth();
   const qc = useQueryClient();
+  const demoMode = isDemoMode();
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("all");
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
@@ -77,6 +79,7 @@ export default function JobBoardPage() {
 
   const { data: apiJobs } = useQuery<Job[]>({
     queryKey: ["jobs"],
+    enabled: !demoMode,
     queryFn: async () => {
       const token = await getToken();
       const res = await fetch(`${getBaseUrl()}/api/jobs`, { headers: { Authorization: `Bearer ${token}` } });
@@ -87,6 +90,7 @@ export default function JobBoardPage() {
 
   const { data: myApplications } = useQuery<Application[]>({
     queryKey: ["my-job-applications"],
+    enabled: !demoMode,
     queryFn: async () => {
       const token = await getToken();
       const res = await fetch(`${getBaseUrl()}/api/my-job-applications`, { headers: { Authorization: `Bearer ${token}` } });
@@ -107,6 +111,7 @@ export default function JobBoardPage() {
 
   const apply = useMutation({
     mutationFn: async ({ jobId, cl }: { jobId: string; cl: string }) => {
+      if (demoMode) return;
       const token = await getToken();
       await fetch(`${getBaseUrl()}/api/jobs/${jobId}/apply`, {
         method: "POST",

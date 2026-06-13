@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { DEMO_PROGRAMS } from "@/lib/demo-catalog";
 import { addDemoLedgerEvent, useDemoJourneyState } from "@/lib/demo-journey";
 import { getCourseInsight } from "@/lib/product-demo";
+import { hasStudentWorkspaceProfile, useStudentWorkspaceProfile } from "@/lib/student-workspace";
 
 const SOP_QUESTIONS = [
   "Why this course now?",
@@ -23,20 +24,26 @@ const SOP_QUESTIONS = [
 
 export default function SopStudioPage() {
   const demoJourney = useDemoJourneyState();
+  const profile = useStudentWorkspaceProfile();
+  const hasProfile = hasStudentWorkspaceProfile(profile);
   const lockedCountry = demoJourney.countryLock?.countryName;
   const availablePrograms = useMemo(() => {
     return lockedCountry ? DEMO_PROGRAMS.filter((program) => program.university?.country === lockedCountry) : DEMO_PROGRAMS;
   }, [lockedCountry]);
-  const [programId, setProgramId] = useState(availablePrograms[0]?.id ?? DEMO_PROGRAMS[0].id);
-  const [evidence, setEvidence] = useState("Built a final-year AI recommendation project, completed internship in software QA, and led a college coding club workshop.");
-  const [careerGoal, setCareerGoal] = useState("Become a product-focused AI engineer, then build education technology tools for international students.");
+  const [programId, setProgramId] = useState("");
+  const [evidence, setEvidence] = useState("");
+  const [careerGoal, setCareerGoal] = useState(profile?.careerGoal ?? "");
   const [generated, setGenerated] = useState(false);
 
-  const program = availablePrograms.find((item) => item.id === programId) ?? DEMO_PROGRAMS[0];
-  const insight = getCourseInsight(program);
-  const readiness = generated ? 82 : 64;
+  const program = availablePrograms.find((item) => item.id === programId) ?? null;
+  const insight = program ? getCourseInsight(program) : null;
+  const readiness = generated ? 82 : 0;
 
   const generateDraft = () => {
+    if (!program || !evidence.trim() || !careerGoal.trim()) {
+      toast.error("Choose a program and add your evidence before generating the SOP draft.");
+      return;
+    }
     setGenerated(true);
     addDemoLedgerEvent({
       id: `ledger-sop-${program.id}`,
@@ -65,8 +72,13 @@ export default function SopStudioPage() {
 
       <div className="mb-5 grid gap-3 md:grid-cols-4">
         <MetricCard label="Narrative readiness" value={`${readiness}%`} detail={generated ? "draft ready" : "needs draft"} />
-        <MetricCard label="ELEE course fit" value={`${insight.fitScore}%`} detail={program.university?.country} tone="good" />
-        <MetricCard label="Missing evidence" value={generated ? "2" : "5"} detail="review items" tone="watch" />
+        <MetricCard
+          label="ELEE course fit"
+          value={hasProfile && insight ? `${insight.fitScore}%` : "Pending"}
+          detail={hasProfile && program ? program.university?.country : "complete profile"}
+          tone={hasProfile && insight ? "good" : "watch"}
+        />
+        <MetricCard label="Missing evidence" value={generated ? "2" : "Not added"} detail="review items" tone="watch" />
         <MetricCard label="Consultant status" value={generated ? "Queued" : "Not sent"} detail="SOP review" />
       </div>
 
@@ -77,7 +89,7 @@ export default function SopStudioPage() {
               <div>
                 <label className="mb-2 block text-sm font-semibold text-foreground">Target program</label>
                 <Select value={programId} onValueChange={(value) => { setProgramId(value); setGenerated(false); }}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder="Choose a program after shortlisting" /></SelectTrigger>
                   <SelectContent>
                     {availablePrograms.map((item) => (
                       <SelectItem key={item.id} value={item.id}>{item.name} · {item.university?.country}</SelectItem>
@@ -87,7 +99,9 @@ export default function SopStudioPage() {
               </div>
               <div className="rounded-lg border border-primary/15 bg-primary/5 p-3">
                 <div className="text-[10px] font-bold uppercase tracking-wide text-primary">ELEE alignment</div>
-                <p className="mt-1 text-sm leading-6 text-foreground">{insight.eleeReason}</p>
+                <p className="mt-1 text-sm leading-6 text-foreground">
+                  {hasProfile && insight ? insight.eleeReason : "Complete your AI Profile & Test and choose a program to calculate SOP alignment."}
+                </p>
               </div>
             </div>
           </Card>
@@ -107,7 +121,7 @@ export default function SopStudioPage() {
                 <Textarea value={careerGoal} onChange={(event) => setCareerGoal(event.target.value)} rows={7} />
               </div>
             </div>
-            <Button onClick={generateDraft} className="mt-4 rounded-full font-serif">Generate SOP draft</Button>
+            <Button onClick={generateDraft} disabled={!program || !evidence.trim() || !careerGoal.trim()} className="mt-4 rounded-full font-serif">Generate SOP draft</Button>
           </Card>
 
           <Card className="app-card overflow-hidden p-0">
@@ -116,13 +130,13 @@ export default function SopStudioPage() {
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <div className="eyebrow mb-2">Draft preview</div>
-                  <h2 className="font-serif text-xl font-bold text-foreground">{program.name} Statement of Purpose</h2>
-                  <p className="mt-1 text-sm text-muted-foreground">{program.university?.name} · {program.field}</p>
+                  <h2 className="font-serif text-xl font-bold text-foreground">{program ? `${program.name} Statement of Purpose` : "Statement of Purpose"}</h2>
+                  <p className="mt-1 text-sm text-muted-foreground">{program ? `${program.university?.name} · ${program.field}` : "Choose a program to prepare a course-specific draft."}</p>
                 </div>
                 <Badge className="rounded-full">{generated ? "Draft ready" : "Awaiting generation"}</Badge>
               </div>
 
-              {generated ? (
+              {generated && program ? (
                 <div className="mt-5 space-y-4 text-sm leading-7 text-foreground">
                   <p>
                     My interest in {program.field} has grown through practical exposure to {evidence}
@@ -130,7 +144,7 @@ export default function SopStudioPage() {
                   </p>
                   <p>
                     I am applying to {program.name} at {program.university?.name} because the program connects academic depth with the career route I want:
-                    {careerGoal} ELEE recommends this route because {insight.eleeReason.toLowerCase()}
+                    {careerGoal} ELEE recommends this route because {insight?.eleeReason.toLowerCase()}
                   </p>
                   <p>
                     My next task is to strengthen the essay with measurable project outcomes, a clearer post-study plan, and funding context that supports the visa narrative.

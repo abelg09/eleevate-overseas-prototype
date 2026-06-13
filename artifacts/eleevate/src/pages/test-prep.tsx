@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getBaseUrl } from "@/lib/api";
 import { Button } from "@/components/ui/button";
@@ -119,7 +119,29 @@ const SECTION_ICONS: Record<string, React.ElementType> = {
   Math: Target, "Reading & Writing": BookOpen, "Speaking & Writing": Globe,
 };
 
-const DEMO_TEST_PREP_SCORES: { testType: string; score: number; takenAt: string }[] = [];
+interface LocalTestPrepScore {
+  testType: string;
+  score: number;
+  takenAt: string;
+}
+
+const DEMO_TEST_PREP_SCORES_STORAGE_KEY = "eleevate.ai.test-prep.scores.v1";
+
+function readLocalScores(): LocalTestPrepScore[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const stored = JSON.parse(localStorage.getItem(DEMO_TEST_PREP_SCORES_STORAGE_KEY) ?? "[]") as LocalTestPrepScore[];
+    return Array.isArray(stored) ? stored : [];
+  } catch {
+    return [];
+  }
+}
+
+function writeLocalScores(scores: LocalTestPrepScore[]) {
+  if (typeof window === "undefined") return scores;
+  localStorage.setItem(DEMO_TEST_PREP_SCORES_STORAGE_KEY, JSON.stringify(scores));
+  return scores;
+}
 
 export default function TestPrepPage() {
   const { getToken } = useAuth();
@@ -129,8 +151,12 @@ export default function TestPrepPage() {
   const [flashcardIdx, setFlashcardIdx] = useState(0);
   const [showFlashcardBack, setShowFlashcardBack] = useState(false);
   const [newScore, setNewScore] = useState("");
-  const [demoScores, setDemoScores] = useState(DEMO_TEST_PREP_SCORES);
+  const [demoScores, setDemoScores] = useState<LocalTestPrepScore[]>(() => readLocalScores());
   const exam = EXAMS.find(e => e.id === activeExam)!;
+
+  useEffect(() => {
+    if (demoMode) writeLocalScores(demoScores);
+  }, [demoMode, demoScores]);
 
   const { data: scores } = useQuery({
     queryKey: ["test-scores"],

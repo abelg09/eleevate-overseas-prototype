@@ -87,6 +87,12 @@ function stripBase(path: string): string {
     : path;
 }
 
+function scrollToRouteTop() {
+  window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  document.scrollingElement?.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  document.querySelector<HTMLElement>("[data-route-scroll-container]")?.scrollTo({ top: 0, left: 0, behavior: "auto" });
+}
+
 if (!demoMode && !clerkPubKey) {
   throw new Error("Missing VITE_CLERK_PUBLISHABLE_KEY");
 }
@@ -312,10 +318,47 @@ function WithAppLayout({ component: Component }: { component: React.ComponentTyp
   );
 }
 
+function RouteScrollToTop() {
+  const [location] = useLocation();
+
+  useEffect(() => {
+    requestAnimationFrame(scrollToRouteTop);
+  }, [location]);
+
+  useEffect(() => {
+    const handleInternalLinkClick = (event: MouseEvent) => {
+      if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+
+      const target = event.target instanceof Element ? event.target : null;
+      const anchor = target?.closest("a[href]");
+      if (!(anchor instanceof HTMLAnchorElement)) return;
+      if (anchor.target && anchor.target !== "_self") return;
+
+      const url = new URL(anchor.href, window.location.href);
+      if (url.origin !== window.location.origin) return;
+
+      const samePageHashLink =
+        Boolean(url.hash) &&
+        url.pathname === window.location.pathname &&
+        url.search === window.location.search;
+      if (samePageHashLink) return;
+
+      window.setTimeout(scrollToRouteTop, 0);
+    };
+
+    document.addEventListener("click", handleInternalLinkClick);
+    return () => document.removeEventListener("click", handleInternalLinkClick);
+  }, []);
+
+  return null;
+}
+
 function Router() {
   return (
-    <Switch>
-      <Route path="/" component={HomeRedirect} />
+    <>
+      <RouteScrollToTop />
+      <Switch>
+        <Route path="/" component={HomeRedirect} />
       <Route path="/product" component={LandingPage} />
       <Route path="/demo/preliminary" component={DemoEntryRoute} />
       <Route path="/demo/canada" component={DemoEntryRoute} />
@@ -373,8 +416,9 @@ function Router() {
       <Route path="/forex" component={() => <ProtectedRoute component={() => <WithAppLayout component={ForexPage} />} />} />
       <Route path="/insurance" component={() => <StudentRoute component={() => <WithAppLayout component={InsurancePage} />} />} />
       <Route path="/consultant/invoicing" component={() => <ConsultantRoute component={() => <WithAppLayout component={InvoicingPage} />} />} />
-      <Route component={NotFound} />
-    </Switch>
+        <Route component={NotFound} />
+      </Switch>
+    </>
   );
 }
 

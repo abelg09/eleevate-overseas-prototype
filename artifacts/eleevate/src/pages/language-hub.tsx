@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AppLayout } from "@/components/layout/app-layout";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -85,14 +85,23 @@ const COLOR_CLASSES: Record<string, { bg: string; text: string; border: string; 
   emerald: { bg: "bg-emerald-100", text: "text-emerald-700", border: "border-emerald-200", chart: "#10b981" },
 };
 
-const DEMO_TEST_SCORES: TestScore[] = [
-  { id: "demo-score-ielts-1", studentId: "demo-student", testType: "ielts", score: 6.5, takenAt: "2026-03-12", createdAt: "2026-03-12T10:00:00.000Z" },
-  { id: "demo-score-ielts-2", studentId: "demo-student", testType: "ielts", score: 7.0, takenAt: "2026-04-16", createdAt: "2026-04-16T10:00:00.000Z" },
-  { id: "demo-score-ielts-3", studentId: "demo-student", testType: "ielts", score: 7.5, takenAt: "2026-05-14", createdAt: "2026-05-14T10:00:00.000Z" },
-  { id: "demo-score-gre-1", studentId: "demo-student", testType: "gre", score: 312, takenAt: "2026-04-08", createdAt: "2026-04-08T10:00:00.000Z" },
-  { id: "demo-score-gre-2", studentId: "demo-student", testType: "gre", score: 318, takenAt: "2026-05-10", createdAt: "2026-05-10T10:00:00.000Z" },
-  { id: "demo-score-pte-1", studentId: "demo-student", testType: "pte", score: 72, takenAt: "2026-05-03", createdAt: "2026-05-03T10:00:00.000Z" },
-];
+const DEMO_TEST_SCORES_STORAGE_KEY = "eleevate.ai.language-scores.v1";
+
+function readDemoTestScores(): TestScore[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const stored = JSON.parse(localStorage.getItem(DEMO_TEST_SCORES_STORAGE_KEY) ?? "[]") as TestScore[];
+    return Array.isArray(stored) ? stored : [];
+  } catch {
+    return [];
+  }
+}
+
+function writeDemoTestScores(scores: TestScore[]) {
+  if (typeof window === "undefined") return scores;
+  localStorage.setItem(DEMO_TEST_SCORES_STORAGE_KEY, JSON.stringify(scores));
+  return scores;
+}
 
 function ScoreProgressChart({
   scores,
@@ -194,7 +203,11 @@ export default function LanguageHubPage() {
   const [newScore, setNewScore] = useState("");
   const [newDate, setNewDate] = useState("");
   const [addingScore, setAddingScore] = useState(false);
-  const [demoScores, setDemoScores] = useState<TestScore[]>(DEMO_TEST_SCORES);
+  const [demoScores, setDemoScores] = useState<TestScore[]>(() => readDemoTestScores());
+
+  useEffect(() => {
+    if (demoMode) writeDemoTestScores(demoScores);
+  }, [demoMode, demoScores]);
 
   const { data: scores, isLoading: scoresLoading } = useGetTestScores({
     query: { queryKey: getGetTestScoresQueryKey(), enabled: !demoMode }

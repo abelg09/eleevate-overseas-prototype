@@ -41,10 +41,11 @@ export function readStudentWorkspaceProfile(): StudentWorkspaceProfile | null {
 }
 
 export function writeStudentWorkspaceProfile(profile: StudentWorkspaceProfile) {
-  if (!canUseStorage()) return profile;
-  localStorage.setItem(STUDENT_PROFILE_STORAGE_KEY, JSON.stringify(profile));
+  const nextProfile = { ...profile, updatedAt: new Date().toISOString() };
+  if (!canUseStorage()) return nextProfile;
+  localStorage.setItem(STUDENT_PROFILE_STORAGE_KEY, JSON.stringify(nextProfile));
   emitWorkspaceChange();
-  return profile;
+  return nextProfile;
 }
 
 export function clearStudentWorkspaceProfile() {

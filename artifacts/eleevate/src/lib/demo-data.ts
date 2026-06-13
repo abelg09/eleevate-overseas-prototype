@@ -133,10 +133,10 @@ export const demoEdgeReport: EdgeReport = {
     },
   ],
   profileInsights: [
-    { label: "Academic Fit", value: "MSc Computer Science / AI", tone: "good" },
-    { label: "Test Readiness", value: "IELTS target 7.5, current mock 7.0", tone: "action" },
-    { label: "Application Story", value: "Strong project base; SOP needs sharper motivation arc", tone: "watch" },
-    { label: "Career Direction", value: "AI product engineering with startup interest", tone: "good" },
+    { label: "Academic Fit", value: "Program fit pending", tone: "action" },
+    { label: "Test Readiness", value: "Add latest test scores", tone: "action" },
+    { label: "Application Story", value: "SOP evidence pending", tone: "watch" },
+    { label: "Career Direction", value: "Add course and career goal", tone: "action" },
   ],
   familyReadiness: [
     {

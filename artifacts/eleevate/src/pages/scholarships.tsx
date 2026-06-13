@@ -9,15 +9,16 @@ import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DEMO_COUNTRIES } from "@/lib/demo-catalog";
-import { addDemoLedgerEvent, useDemoJourneyState } from "@/lib/demo-journey";
+import { addDemoLedgerEvent } from "@/lib/demo-journey";
 import { DEMO_SCHOLARSHIPS } from "@/lib/product-demo";
+import { hasStudentWorkspaceProfile, useStudentWorkspaceProfile } from "@/lib/student-workspace";
 
 const all = "All";
 
 export default function ScholarshipsPage() {
-  const demoJourney = useDemoJourneyState();
-  const lockedCountry = demoJourney.countryLock?.countryName;
-  const [country, setCountry] = useState(lockedCountry ?? all);
+  const profile = useStudentWorkspaceProfile();
+  const hasProfile = hasStudentWorkspaceProfile(profile);
+  const [country, setCountry] = useState(all);
   const [type, setType] = useState(all);
   const [addedIds, setAddedIds] = useState<string[]>([]);
 
@@ -26,8 +27,8 @@ export default function ScholarshipsPage() {
       const matchesCountry = country === all || scholarship.country === country;
       const matchesType = type === all || scholarship.type === type;
       return matchesCountry && matchesType;
-    }).sort((a, b) => b.fitScore - a.fitScore);
-  }, [country, type]);
+    }).sort((a, b) => hasProfile ? b.fitScore - a.fitScore : a.deadline.localeCompare(b.deadline));
+  }, [country, hasProfile, type]);
 
   const addToPlan = (id: string) => {
     const scholarship = DEMO_SCHOLARSHIPS.find((item) => item.id === id);
@@ -37,7 +38,7 @@ export default function ScholarshipsPage() {
       id: `ledger-scholarship-${id}`,
       source: "Services",
       event: `${scholarship.name} added to funding plan`,
-      studentView: `$${scholarship.amountUsd.toLocaleString()} potential award reduces the funding gap view.`,
+      studentView: `$${scholarship.amountUsd.toLocaleString()} potential award added to the funding planner.`,
       consultantView: "Scholarship document checklist added to counselling queue.",
       revenue: "Application support upsell",
       status: "Queued",
@@ -46,7 +47,7 @@ export default function ScholarshipsPage() {
   };
 
   const totalPotential = scholarships.reduce((sum, item) => sum + item.amountUsd, 0);
-  const bestFit = scholarships[0]?.fitScore ?? 0;
+  const bestFit = hasProfile ? scholarships[0]?.fitScore ?? 0 : 0;
 
   return (
     <div data-testid="scholarships-page">
@@ -62,15 +63,15 @@ export default function ScholarshipsPage() {
       />
 
       <div className="mb-5 grid gap-3 md:grid-cols-4">
-        <MetricCard label="Matched scholarships" value={String(scholarships.length)} detail={lockedCountry ? "country locked" : "demo list"} />
+        <MetricCard label="Scholarships found" value={String(scholarships.length)} detail="public catalog" />
         <MetricCard label="Potential funding" value={`$${Math.round(totalPotential / 1000)}k`} detail="before eligibility" tone="good" />
-        <MetricCard label="Best fit" value={`${bestFit}%`} detail="ELEE score" />
+        <MetricCard label="Best fit" value={hasProfile ? `${bestFit}%` : "Pending"} detail={hasProfile ? "ELEE score" : "complete profile"} />
         <MetricCard label="Added to plan" value={String(addedIds.length)} detail="funding items" tone="watch" />
       </div>
 
       <Card className="app-card mb-5 p-4">
         <div className="grid gap-3 md:grid-cols-[1fr_1fr_auto]">
-          <Select value={country} onValueChange={setCountry} disabled={Boolean(lockedCountry)}>
+          <Select value={country} onValueChange={setCountry}>
             <SelectTrigger><SelectValue placeholder="Country" /></SelectTrigger>
             <SelectContent>
               <SelectItem value={all}>All countries</SelectItem>
@@ -87,7 +88,7 @@ export default function ScholarshipsPage() {
               <SelectItem value="University">University</SelectItem>
             </SelectContent>
           </Select>
-          <Button variant="outline" className="rounded-full font-serif" onClick={() => { setCountry(lockedCountry ?? all); setType(all); }}>
+          <Button variant="outline" className="rounded-full font-serif" onClick={() => { setCountry(all); setType(all); }}>
             Reset
           </Button>
         </div>
@@ -119,9 +120,9 @@ export default function ScholarshipsPage() {
                   <div className="mt-5">
                     <div className="mb-2 flex items-center justify-between text-xs font-semibold">
                       <span>ELEE eligibility fit</span>
-                      <span>{scholarship.fitScore}%</span>
+                      <span>{hasProfile ? `${scholarship.fitScore}%` : "Pending"}</span>
                     </div>
-                    <Progress value={scholarship.fitScore} className="h-2" />
+                    <Progress value={hasProfile ? scholarship.fitScore : 0} className="h-2" />
                   </div>
 
                   <div className="mt-5 grid gap-3 sm:grid-cols-2">

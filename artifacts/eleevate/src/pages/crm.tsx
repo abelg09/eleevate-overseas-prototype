@@ -62,9 +62,7 @@ const SOURCE_COLORS: Record<LeadSource, string> = {
   agency: "bg-orange-100 text-orange-700", other: "bg-gray-100 text-gray-700",
 };
 
-const DEMO_LEADS: Lead[] = [
-  { id: "lead-ai-profile-pending", studentName: "New student", email: "student@example.com", status: "new", source: "website", targetCountry: "Pending", targetDegree: "Pending", notes: "AI Profile & Test not completed yet. ELEE fit score pending.", createdAt: "2026-05-21T09:00:00.000Z" },
-];
+const DEMO_LEADS: Lead[] = [];
 
 async function fetchLeads(): Promise<{ data: Lead[]; total: number }> {
   const res = await fetch("/api/consultant/leads");
@@ -164,7 +162,7 @@ function AddLeadDialog({ onCreated }: { onCreated: () => void }) {
             </div>
             <div>
               <Label className="mb-1.5">Target degree</Label>
-              <Input value={form.targetDegree} onChange={e => setForm(f => ({ ...f, targetDegree: e.target.value }))} placeholder="MSc Computer Science" />
+              <Input value={form.targetDegree} onChange={e => setForm(f => ({ ...f, targetDegree: e.target.value }))} placeholder="e.g. Business Analytics / Management" />
             </div>
           </div>
           <div>

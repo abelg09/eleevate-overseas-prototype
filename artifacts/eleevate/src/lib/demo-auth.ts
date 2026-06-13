@@ -9,7 +9,7 @@ export interface DemoAuthSession {
   signedInAt: string;
 }
 
-const DEMO_AUTH_STORAGE_KEY = "eleevate.demo.auth";
+export const DEMO_AUTH_STORAGE_KEY = "eleevate.ai.auth.v1";
 const DEMO_AUTH_EVENT = "eleevate-demo-auth";
 
 function emitDemoAuthChange() {

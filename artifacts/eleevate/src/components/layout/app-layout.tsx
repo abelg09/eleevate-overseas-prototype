@@ -21,7 +21,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="app-shell-bg flex min-h-screen">
       <Sidebar />
-      <main className="relative z-0 min-w-0 flex-1 overflow-y-auto">
+      <main className="relative z-0 min-w-0 flex-1 overflow-y-auto" data-route-scroll-container>
         <header className="sticky top-0 z-30 border-b border-border bg-white/95 backdrop-blur">
           <div className="mx-auto flex min-h-14 max-w-[1180px] items-center gap-3 px-4 pl-16 sm:px-6 lg:px-6 lg:pl-6">
             <div className="min-w-0 flex-1">

@@ -53,14 +53,14 @@ const demandColors: Record<string, string> = {
 const DEMO_CAREER_PATHS: CareerPath[] = [
   {
     id: "career-ai",
-    field: "AI, Data and Product",
-    icon: "AI",
+    field: "Technology, Data and Product",
+    icon: "TP",
     careers: [
       { title: "Machine Learning Engineer", salaryRange: "$95k-$160k", skills: ["Python", "ML Ops", "Cloud"], demand: "Very High" },
       { title: "Data Product Manager", salaryRange: "$90k-$150k", skills: ["Analytics", "Roadmaps", "SQL"], demand: "High" },
     ],
     topCountries: ["Canada", "UK", "Germany", "Singapore"],
-    topPrograms: ["MSc Computer Science", "MSc Data Science", "MSc AI"],
+    topPrograms: ["Computer Science", "Data Science", "Artificial Intelligence"],
     avgTimeToJob: "4-7 months",
   },
   {
@@ -90,7 +90,7 @@ const DEMO_CAREER_PATHS: CareerPath[] = [
 ];
 
 const DEMO_MENTORS: Mentor[] = [
-  { id: "mentor-neha", name: "Neha Kapoor", field: "AI", currentRole: "Product Data Scientist at Shopify", location: "Toronto", university: "University of Toronto", graduationYear: 2023, expertise: ["Canada jobs", "Co-op", "Data science"] },
+  { id: "mentor-neha", name: "Neha Kapoor", field: "Data", currentRole: "Product Data Scientist at Shopify", location: "Toronto", university: "Graduate mentor, Canada", graduationYear: 2023, expertise: ["Canada jobs", "Co-op", "Data science"] },
   { id: "mentor-rahul", name: "Rahul Iyer", field: "Finance", currentRole: "Associate Consultant at Deloitte", location: "London", university: "University of Leeds", graduationYear: 2022, expertise: ["UK graduate route", "Consulting", "Case interviews"] },
   { id: "mentor-sara", name: "Sara Menon", field: "Cybersecurity", currentRole: "Security Analyst at Telstra", location: "Melbourne", university: "Monash University", graduationYear: 2024, expertise: ["Australia", "Cybersecurity", "Internships"] },
 ];
@@ -179,7 +179,7 @@ export default function CareersPage() {
     <div className="p-6 max-w-5xl mx-auto space-y-6">
       <div>
         <h1 className="text-3xl font-bold flex items-center gap-2"><Rocket className="h-8 w-8 text-primary" />Careers Platform</h1>
-        <p className="text-muted-foreground mt-1">Explore career paths, connect with mentors, and find internships</p>
+        <p className="text-muted-foreground mt-1">Explore career paths, connect with mentors, and plan internships after your study direction is clear.</p>
       </div>
 
       <Tabs defaultValue="paths">
