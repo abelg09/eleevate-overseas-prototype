@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
-import { ArrowRight, CheckCircle2, MapPinned, Sparkles } from "lucide-react";
+import { ArrowRight, Brain, CheckCircle2, FileSearch, MapPinned, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -45,6 +45,12 @@ export function StudentJourneyWelcomeDialog({ enabled }: { enabled: boolean }) {
     setLocation("/journey-map");
   };
 
+  const openPathway = (path: string) => {
+    markWelcomeSeen();
+    setOpen(false);
+    setLocation(path);
+  };
+
   return (
     <Dialog open={open} onOpenChange={(value) => {
       if (!value) closeWelcome();
@@ -67,6 +73,43 @@ export function StudentJourneyWelcomeDialog({ enabled }: { enabled: boolean }) {
               ELEE will guide you from profile to arrival, keeping your tasks, documents, applications, visa, and finance in order.
             </DialogDescription>
           </DialogHeader>
+
+          <div className="mt-5 grid gap-2 sm:grid-cols-2">
+            <button
+              type="button"
+              className="group rounded-lg border border-primary/20 bg-primary/5 p-4 text-left transition-all hover:border-primary/40 hover:bg-primary/10"
+              onClick={() => openPathway("/assessment")}
+            >
+              <div className="flex items-start gap-3">
+                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-white text-primary shadow-sm">
+                  <Brain className="h-5 w-5" />
+                </div>
+                <div>
+                  <div className="font-serif text-sm font-bold text-foreground">Complete psychometric test</div>
+                  <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                    Best when you are unsure what to choose across academics, finance, careers, migration, and country options.
+                  </p>
+                </div>
+              </div>
+            </button>
+            <button
+              type="button"
+              className="group rounded-lg border border-[#C67452]/25 bg-[#FFF8F1] p-4 text-left transition-all hover:border-[#C67452]/45"
+              onClick={() => openPathway("/elee-report")}
+            >
+              <div className="flex items-start gap-3">
+                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-white text-[#C67452] shadow-sm">
+                  <FileSearch className="h-5 w-5" />
+                </div>
+                <div>
+                  <div className="font-serif text-sm font-bold text-foreground">Generate ELEE Report</div>
+                  <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                    Choose this if you already have a path in mind and want ELEE to turn your profile into an action report.
+                  </p>
+                </div>
+              </div>
+            </button>
+          </div>
 
           <div className="mt-5 grid gap-2 sm:grid-cols-2">
             {STUDENT_GUIDE_STEPS.map((step, index) => (

@@ -4,9 +4,17 @@ export interface StudentWorkspaceProfile {
   firstName?: string;
   lastName?: string;
   email?: string;
+  mobileNumber?: string;
+  dob?: string;
+  country?: string;
+  city?: string;
+  preferredCountry?: string;
+  address?: string;
+  passportNumber?: string;
   studyLevel?: string;
   targetCountries?: string[];
   courseGoal?: string;
+  careerGoal?: string;
   gpa?: string;
   ieltsScore?: string;
   toeflScore?: string;
@@ -15,6 +23,33 @@ export interface StudentWorkspaceProfile {
   nationality?: string;
   preferredIntake?: string;
   budget?: string;
+  budgetMin?: string;
+  budgetMax?: string;
+  highestEducation?: string;
+  stream?: string;
+  passingYear?: string;
+  boardOrUniversity?: string;
+  languageTestName?: string;
+  languageTestDate?: string;
+  languageTestExpiry?: string;
+  readingScore?: string;
+  writingScore?: string;
+  speakingScore?: string;
+  listeningScore?: string;
+  aptitudeTestName?: string;
+  aptitudeTestDate?: string;
+  verbalReasoningScore?: string;
+  quantitativeReasoningScore?: string;
+  analyticalWritingScore?: string;
+  companyName?: string;
+  companyAddress?: string;
+  designation?: string;
+  jobType?: string;
+  profileRemarks?: string;
+  emergencyName?: string;
+  emergencyContact?: string;
+  emergencyEmail?: string;
+  emergencyRelationship?: string;
   lastSavedAt?: string;
 }
 
@@ -70,7 +105,20 @@ export function hasStudentWorkspaceProfile(profile: StudentWorkspaceProfile | nu
     profile.gmatScore ||
     profile.nationality ||
     profile.preferredIntake ||
-    profile.budget,
+    profile.budget ||
+    profile.budgetMin ||
+    profile.budgetMax ||
+    profile.mobileNumber ||
+    profile.dob ||
+    profile.country ||
+    profile.city ||
+    profile.preferredCountry ||
+    profile.address ||
+    profile.passportNumber ||
+    profile.highestEducation ||
+    profile.stream ||
+    profile.companyName ||
+    profile.emergencyName,
   );
 }
 

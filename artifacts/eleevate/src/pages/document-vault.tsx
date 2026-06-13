@@ -39,6 +39,45 @@ const REQUIRED_PACKET = [
   { type: "english_test", label: "English test", owner: "Student" },
 ];
 
+const REQUIRED_DOCUMENT_SECTIONS = [
+  {
+    title: "Personal details",
+    documents: ["Passport", "Photograph", "Aadhaar / national ID", "Birth certificate", "Address proof", "Medical report", "Travel history", "Name change affidavit"],
+  },
+  {
+    title: "Education",
+    documents: ["10th marksheet", "12th marksheet", "Bachelor marksheets", "Degree certificate", "Transcript", "Backlog certificate", "Medium of instruction", "Provisional certificate"],
+  },
+  {
+    title: "Language proficiency certificate",
+    documents: ["IELTS TRF", "TOEFL scorecard", "PTE scorecard", "Duolingo scorecard", "English waiver evidence"],
+  },
+  {
+    title: "Aptitude test",
+    documents: ["GRE scorecard", "GMAT scorecard", "SAT scorecard", "ACT scorecard", "MAT scorecard"],
+  },
+  {
+    title: "Work experience",
+    documents: ["Appointment letter", "Experience letter", "Job offer letter", "Salary slips", "Relieving letter", "Internship certificate"],
+  },
+  {
+    title: "Application story",
+    documents: ["Statement of Purpose", "Letters of Recommendation", "Resume / CV", "Portfolio", "Professional certificates", "Scholarship essays"],
+  },
+  {
+    title: "Financial standing",
+    documents: ["Bank statement", "Sponsor affidavit", "Income tax returns", "Loan sanction letter", "Fixed deposit proof", "Property valuation", "CA certificate", "Source of funds note"],
+  },
+  {
+    title: "Tuition fee payment",
+    documents: ["Application fee receipt", "Tuition deposit receipt", "SWIFT / TT copy", "University invoice", "Payment confirmation", "Refund policy acknowledgement"],
+  },
+  {
+    title: "Visa evidence",
+    documents: ["CAS / I-20 / CoE / LOA", "Visa application form", "IHS receipt", "VFS receipt", "Biometric appointment letter", "TB test report", "Insurance policy", "Visa decision letter"],
+  },
+];
+
 const STATUS_CONFIG: Record<string, { icon: React.ComponentType<{ className?: string }>, label: string, className: string }> = {
   pending: { icon: Clock, label: "Pending Review", className: "bg-yellow-100 text-yellow-700" },
   approved: { icon: CheckCircle2, label: "Approved", className: "bg-green-100 text-green-700" },
@@ -135,6 +174,29 @@ export default function DocumentVaultPage() {
   const reviewCount = documents.filter((doc) => ["pending", "under_review"].includes(doc.status)).length;
   const missingCount = packet.filter((item) => !item.document).length;
   const packetReadiness = Math.round(((packet.length - missingCount) / packet.length) * 100);
+  const requirementUploaded = (name: string) => {
+    const normalized = name.toLowerCase();
+    return documents.some((doc) =>
+      doc.name.toLowerCase().includes(normalized)
+      || normalized.includes(doc.name.toLowerCase())
+      || DOC_TYPES.find((type) => type.value === doc.type)?.label.toLowerCase().includes(normalized),
+    );
+  };
+
+  const prepareRequirementUpload = (name: string) => {
+    const normalized = name.toLowerCase();
+    const mappedType = DOC_TYPES.find((type) => normalized.includes(type.label.toLowerCase().split(" ")[0]))?.value
+      ?? (normalized.includes("passport") ? "passport" : undefined)
+      ?? (normalized.includes("sop") || normalized.includes("statement") ? "sop" : undefined)
+      ?? (normalized.includes("recommendation") || normalized.includes("lor") ? "lor" : undefined)
+      ?? (normalized.includes("transcript") || normalized.includes("marksheet") || normalized.includes("degree") ? "transcript" : undefined)
+      ?? (normalized.includes("bank") || normalized.includes("loan") || normalized.includes("fund") ? "financial_proof" : undefined)
+      ?? (normalized.includes("ielts") || normalized.includes("toefl") || normalized.includes("pte") || normalized.includes("duolingo") ? "english_test" : undefined)
+      ?? "other";
+    setDocName(name);
+    setDocType(mappedType);
+    fileRef.current?.click();
+  };
 
   const handleUpload = async () => {
     const file = fileRef.current?.files?.[0];
@@ -367,6 +429,46 @@ export default function DocumentVaultPage() {
           <p className="text-xs text-muted-foreground mt-2">Uploading a new file of the same type creates a new version. Previous versions are preserved.</p>
           </div>
         </Card>
+
+        <section className="mb-8" data-testid="required-document-sections">
+          <div className="mb-4">
+            <div className="eyebrow mb-1">Student file checklist</div>
+            <h2 className="font-serif text-2xl font-bold text-foreground">All required documents, grouped by stage</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              These are the documents from the student profile, application, finance, and visa workflow. Uploads remain blank until the student adds files.
+            </p>
+          </div>
+          <div className="grid gap-4 lg:grid-cols-2">
+            {REQUIRED_DOCUMENT_SECTIONS.map((section) => (
+              <Card key={section.title} className="app-card overflow-hidden p-0">
+                <div className="border-b border-border bg-muted/25 px-4 py-3">
+                  <h3 className="font-serif text-base font-bold text-foreground">{section.title}</h3>
+                </div>
+                <div className="divide-y divide-border">
+                  {section.documents.map((documentName) => {
+                    const uploaded = requirementUploaded(documentName);
+                    return (
+                      <div key={documentName} className="flex items-center justify-between gap-3 px-4 py-3">
+                        <div className="min-w-0">
+                          <div className="truncate text-sm font-semibold text-foreground">{documentName}</div>
+                          <div className="mt-0.5 text-xs text-muted-foreground">{uploaded ? "Uploaded to vault" : "Required when applicable"}</div>
+                        </div>
+                        <div className="flex flex-shrink-0 items-center gap-2">
+                          <Badge className={uploaded ? "rounded-full bg-green-100 text-green-700 hover:bg-green-100" : "rounded-full bg-amber-100 text-amber-700 hover:bg-amber-100"}>
+                            {uploaded ? "Uploaded" : "Pending"}
+                          </Badge>
+                          <Button size="sm" variant="outline" className="rounded-full" onClick={() => prepareRequirementUpload(documentName)}>
+                            Upload
+                          </Button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </Card>
+            ))}
+          </div>
+        </section>
 
         {/* View Controls */}
         <div className="flex items-center justify-between mb-5">

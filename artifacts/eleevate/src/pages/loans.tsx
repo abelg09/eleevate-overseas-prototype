@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Slider } from "@/components/ui/slider";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { isDemoMode } from "@/lib/demo-mode";
@@ -92,13 +93,11 @@ export default function LoansPage() {
   const { getToken } = useAuth();
   const qc = useQueryClient();
   const demoMode = isDemoMode();
-  const [loanAmount, setLoanAmount] = useState("");
-  const [tenure, setTenure] = useState("120");
+  const [loanAmount, setLoanAmount] = useState("100000");
+  const [tenure, setTenure] = useState("60");
   const [universityName, setUniversityName] = useState("");
   const [country, setCountry] = useState("");
-  const [repaymentMode, setRepaymentMode] = useState("deferred");
-  const [calculatorRate, setCalculatorRate] = useState("11.2");
-  const [processingFee, setProcessingFee] = useState("1.0");
+  const [calculatorRate, setCalculatorRate] = useState("7");
   const [selectedLender, setSelectedLender] = useState<string | null>(null);
   const [searched, setSearched] = useState(false);
   const [demoLoanApplications, setDemoLoanApplications] = useState(DEMO_LOAN_APPLICATIONS);
@@ -187,24 +186,21 @@ export default function LoansPage() {
   const productsList = demoMode || !products?.length ? DEMO_LOAN_PRODUCTS : products;
   const applicationsList = demoMode ? demoLoanApplications : applications ?? [];
   const principalInr = parseInrAmount(loanAmount);
-  const tenureMonths = parseInt(tenure) || 120;
-  const rate = parseFloat(calculatorRate) || 11.2;
+  const tenureMonths = parseInt(tenure) || 60;
+  const rate = parseFloat(calculatorRate) || 7;
   const monthlyRate = rate / 100 / 12;
-  const standardEmi = principalInr > 0 && monthlyRate > 0
+  const displayedEmi = principalInr > 0 && monthlyRate > 0 && tenureMonths > 0
     ? Math.round(principalInr * monthlyRate * Math.pow(1 + monthlyRate, tenureMonths) / (Math.pow(1 + monthlyRate, tenureMonths) - 1))
     : 0;
-  const moratoriumInterest = Math.round(principalInr * (rate / 100));
-  const processingFeeInr = Math.round(principalInr * ((parseFloat(processingFee) || 0) / 100));
-  const displayedEmi = repaymentMode === "deferred"
-    ? Math.round((principalInr + moratoriumInterest) * monthlyRate * Math.pow(1 + monthlyRate, tenureMonths) / (Math.pow(1 + monthlyRate, tenureMonths) - 1))
-    : standardEmi;
+  const totalPayable = displayedEmi * tenureMonths;
+  const interestPayable = Math.max(totalPayable - principalInr, 0);
 
   const queueCalculatorPlan = () => {
     addDemoLedgerEvent({
-      id: `ledger-loan-calculator-${repaymentMode}`,
+      id: `ledger-loan-calculator-${principalInr}-${tenureMonths}-${rate}`,
       source: "Edu Loans",
-      event: `${repaymentMode === "deferred" ? "Deferred" : "Standard"} loan plan calculated`,
-      studentView: `Estimated EMI ${formatInr(displayedEmi)} and processing fee ${formatInr(processingFeeInr)} added to funding plan.`,
+      event: `Education loan EMI calculated`,
+      studentView: `Estimated EMI ${formatInr(displayedEmi)} for ${formatInr(principalInr)} over ${tenureMonths} months added to funding plan.`,
       consultantView: "Loan desk receives calculator output and lender comparison context.",
       revenue: "NBFC Commission",
       status: "Ready",
@@ -244,42 +240,87 @@ export default function LoansPage() {
                 </div>
               )}
               <div className="mb-4 rounded-lg border border-border bg-white p-4 shadow-sm">
-                <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+                <div className="mb-5 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
                   <div>
-                    <div className="eyebrow mb-1">Loan calculator</div>
-                    <h2 className="font-serif text-xl font-bold text-foreground">Compare EMI, deferred repayment, and fee impact.</h2>
-                    <p className="mt-1 text-sm text-muted-foreground">Compare repayment options in INR and add the best plan to the student&apos;s funding checklist.</p>
+                    <div className="eyebrow mb-1">EMI calculator</div>
+                    <h2 className="font-serif text-xl font-bold text-foreground">Get your education loan EMI calculated now.</h2>
+                    <p className="mt-1 text-sm text-muted-foreground">Use the same core inputs as the Eleevate calculator: loan amount, tenure, and interest rate.</p>
                   </div>
                   <Button variant="outline" className="rounded-full font-serif" onClick={queueCalculatorPlan} disabled={!principalInr}>
                     Save loan estimate
                   </Button>
                 </div>
-                <div className="grid gap-3 md:grid-cols-5">
-                  <div>
-                    <label className="text-xs font-semibold text-muted-foreground">Repayment mode</label>
-                    <Select value={repaymentMode} onValueChange={setRepaymentMode}>
-                      <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="deferred">Deferred repayment</SelectItem>
-                        <SelectItem value="standard">Immediate EMI</SelectItem>
-                      </SelectContent>
-                    </Select>
+                <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
+                  <div className="space-y-6">
+                    <div>
+                      <div className="mb-2 flex items-center justify-between gap-3">
+                        <label className="text-xs font-bold uppercase tracking-wide text-muted-foreground">Loan amount</label>
+                        <div className="font-serif text-xl font-bold text-foreground">{formatInr(principalInr)}</div>
+                      </div>
+                      <Slider
+                        value={[principalInr]}
+                        min={100000}
+                        max={10000000}
+                        step={50000}
+                        onValueChange={(value) => setLoanAmount(String(value[0] ?? 100000))}
+                        data-testid="slider-loan-amount"
+                      />
+                      <div className="mt-2 flex justify-between text-xs font-semibold text-muted-foreground">
+                        <span>1 Lakh</span>
+                        <span>1 Crore</span>
+                      </div>
+                    </div>
+                    <div>
+                      <div className="mb-2 flex items-center justify-between gap-3">
+                        <label className="text-xs font-bold uppercase tracking-wide text-muted-foreground">Loan tenure</label>
+                        <div className="font-serif text-xl font-bold text-foreground">{tenureMonths} <span className="text-sm font-semibold text-muted-foreground">months</span></div>
+                      </div>
+                      <Slider
+                        value={[tenureMonths]}
+                        min={60}
+                        max={180}
+                        step={12}
+                        onValueChange={(value) => setTenure(String(value[0] ?? 60))}
+                        data-testid="slider-loan-tenure"
+                      />
+                      <div className="mt-2 flex justify-between text-xs font-semibold text-muted-foreground">
+                        <span>60</span>
+                        <span>180</span>
+                      </div>
+                    </div>
+                    <div>
+                      <div className="mb-2 flex items-center justify-between gap-3">
+                        <label className="text-xs font-bold uppercase tracking-wide text-muted-foreground">Interest rate</label>
+                        <div className="font-serif text-xl font-bold text-foreground">{rate.toFixed(1)}%</div>
+                      </div>
+                      <Slider
+                        value={[rate]}
+                        min={7}
+                        max={15}
+                        step={0.1}
+                        onValueChange={(value) => setCalculatorRate(String(value[0] ?? 7))}
+                        data-testid="slider-interest-rate"
+                      />
+                      <div className="mt-2 flex justify-between text-xs font-semibold text-muted-foreground">
+                        <span>7%</span>
+                        <span>15%</span>
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <label className="text-xs font-semibold text-muted-foreground">Interest rate</label>
-                    <Input className="mt-1" value={calculatorRate} onChange={(event) => setCalculatorRate(event.target.value)} />
-                  </div>
-                  <div>
-                    <label className="text-xs font-semibold text-muted-foreground">Processing fee %</label>
-                    <Input className="mt-1" value={processingFee} onChange={(event) => setProcessingFee(event.target.value)} />
-                  </div>
-                  <div className="rounded-lg border border-border bg-muted/35 p-3">
-                    <div className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">Estimated EMI</div>
-                    <div className="mt-1 font-serif text-xl font-bold text-foreground">{formatInr(displayedEmi)}</div>
-                  </div>
-                  <div className="rounded-lg border border-border bg-muted/35 p-3">
-                    <div className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">Fee + moratorium</div>
-                    <div className="mt-1 font-serif text-xl font-bold text-foreground">{formatInr(processingFeeInr + (repaymentMode === "deferred" ? moratoriumInterest : 0))}</div>
+                  <div className="grid gap-3">
+                    <div className="rounded-lg border border-primary/20 bg-primary/5 p-4">
+                      <div className="text-[10px] font-bold uppercase tracking-wide text-primary">Estimated EMI</div>
+                      <div className="mt-2 font-serif text-3xl font-bold text-foreground">{formatInr(displayedEmi)}</div>
+                      <div className="mt-1 text-xs text-muted-foreground">per month</div>
+                    </div>
+                    <div className="rounded-lg border border-border bg-muted/35 p-4">
+                      <div className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">Total interest</div>
+                      <div className="mt-1 font-serif text-xl font-bold text-foreground">{formatInr(interestPayable)}</div>
+                    </div>
+                    <div className="rounded-lg border border-border bg-muted/35 p-4">
+                      <div className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">Total payable</div>
+                      <div className="mt-1 font-serif text-xl font-bold text-foreground">{formatInr(totalPayable)}</div>
+                    </div>
                   </div>
                 </div>
               </div>

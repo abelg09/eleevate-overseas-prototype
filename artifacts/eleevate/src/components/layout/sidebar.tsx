@@ -31,6 +31,7 @@ const studentGroups: NavGroup[] = [
       { href: "/profile", label: "Profile" },
       { href: "/elee-report", label: "ELEE Report" },
       { href: "/universities", label: "Universities" },
+      { href: "/course-finder", label: "Course Finder" },
       { href: "/applications", label: "Applications" },
       { href: "/packages", label: "Packages" },
       { href: "/rewards", label: "Rewards" },

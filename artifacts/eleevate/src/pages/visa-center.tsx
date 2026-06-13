@@ -3,7 +3,12 @@ import { AppLayout } from "@/components/layout/app-layout";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { CheckCircle2, Circle, Globe2, Clock, FileText, DollarSign, AlertCircle, ExternalLink, Building2, Phone, Mail } from "lucide-react";
+import { toast } from "sonner";
 
 interface EmbassyInfo {
   country: string;
@@ -183,8 +188,24 @@ const VISA_GUIDES: VisaGuide[] = [
 export default function VisaCenterPage() {
   const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
   const [checklists, setChecklists] = useState<Record<string, boolean[]>>({});
+  const [visaFile, setVisaFile] = useState<Record<string, string>>(() => {
+    try {
+      return JSON.parse(localStorage.getItem("eleevate.student-first.visa-file.v1") ?? "{}") as Record<string, string>;
+    } catch {
+      return {};
+    }
+  });
 
   const selected = VISA_GUIDES.find(g => g.country === selectedCountry);
+
+  const updateVisaFile = (key: string, value: string) => {
+    setVisaFile((current) => ({ ...current, [key]: value }));
+  };
+
+  const saveVisaFile = () => {
+    localStorage.setItem("eleevate.student-first.visa-file.v1", JSON.stringify(visaFile));
+    toast.success("Visa application file saved in this browser.");
+  };
 
   const toggleCheck = (country: string, index: number) => {
     setChecklists(prev => {
@@ -208,6 +229,104 @@ export default function VisaCenterPage() {
           <h1 className="text-2xl font-bold font-serif text-foreground">Visa & Immigration Center</h1>
           <p className="text-muted-foreground mt-1">Country-specific visa guides, checklists, embassy contacts, and appointment links.</p>
         </div>
+
+        <section className="mb-8 space-y-5" data-testid="visa-application-file">
+          <Card className="overflow-hidden border border-border bg-white p-0 shadow-sm">
+            <div className="brand-gradient-bg h-1" />
+            <div className="p-5">
+              <div className="mb-5 flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                <div>
+                  <div className="eyebrow mb-1">Visa application file</div>
+                  <h2 className="font-serif text-2xl font-bold text-foreground">Prepare every visa field in one place</h2>
+                  <p className="mt-1 text-sm leading-6 text-muted-foreground">
+                    Add offer/CAS details, fee evidence, IHS and VFS payments, biometrics, and final decision status.
+                  </p>
+                </div>
+                <Button className="rounded-full font-serif" onClick={saveVisaFile}>Save visa file</Button>
+              </div>
+
+              <div className="mb-5 rounded-lg border border-border bg-muted/25 p-4">
+                <div className="mb-3 font-serif text-base font-bold text-foreground">Visa allocation</div>
+                <div className="grid gap-3 md:grid-cols-3">
+                  <div><Label className="mb-1.5">Assigned consultant</Label><Input value={visaFile.assignedConsultant ?? ""} onChange={(event) => updateVisaFile("assignedConsultant", event.target.value)} placeholder="Consultant name" /></div>
+                  <div><Label className="mb-1.5">Visa country</Label><Input value={visaFile.visaCountry ?? ""} onChange={(event) => updateVisaFile("visaCountry", event.target.value)} placeholder="e.g. United Kingdom" /></div>
+                  <div><Label className="mb-1.5">Created by</Label><Input value={visaFile.createdBy ?? ""} onChange={(event) => updateVisaFile("createdBy", event.target.value)} placeholder="Student / Consultant" /></div>
+                </div>
+              </div>
+
+              <div className="grid gap-4 lg:grid-cols-4">
+                <VisaYesNo label="CAS / acceptance received?" value={visaFile.casReceived} onChange={(value) => updateVisaFile("casReceived", value)} />
+                <VisaYesNo label="Tuition fee deposit paid?" value={visaFile.tuitionDepositPaid} onChange={(value) => updateVisaFile("tuitionDepositPaid", value)} />
+                <VisaYesNo label="TB test required?" value={visaFile.tbTestRequired} onChange={(value) => updateVisaFile("tbTestRequired", value)} />
+                <VisaYesNo label="Visa application started?" value={visaFile.visaApplicationStarted} onChange={(value) => updateVisaFile("visaApplicationStarted", value)} />
+              </div>
+            </div>
+          </Card>
+
+          <Card className="border border-border bg-white p-5 shadow-sm">
+            <h3 className="mb-4 font-serif text-lg font-bold text-foreground">IHS, Embassy and VFS visa fee payment</h3>
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+              <div>
+                <Label className="mb-1.5">Appointment type</Label>
+                <Select value={visaFile.appointmentType ?? ""} onValueChange={(value) => updateVisaFile("appointmentType", value)}>
+                  <SelectTrigger><SelectValue placeholder="Select option" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="standard">Standard</SelectItem>
+                    <SelectItem value="priority">Priority</SelectItem>
+                    <SelectItem value="super-priority">Super priority</SelectItem>
+                    <SelectItem value="biometric-only">Biometric only</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div><Label className="mb-1.5">IHS reference number</Label><Input value={visaFile.ihsReference ?? ""} onChange={(event) => updateVisaFile("ihsReference", event.target.value)} /></div>
+              <div><Label className="mb-1.5">IHS currency</Label><Input value={visaFile.ihsCurrency ?? ""} onChange={(event) => updateVisaFile("ihsCurrency", event.target.value)} placeholder="GBP, USD, INR" /></div>
+              <div><Label className="mb-1.5">IHS amount paid</Label><Input value={visaFile.ihsAmount ?? ""} onChange={(event) => updateVisaFile("ihsAmount", event.target.value)} /></div>
+              <div><Label className="mb-1.5">IHS payment date</Label><Input type="date" value={visaFile.ihsPaymentDate ?? ""} onChange={(event) => updateVisaFile("ihsPaymentDate", event.target.value)} /></div>
+              <div><Label className="mb-1.5">Upload IHS receipt</Label><Input type="file" /></div>
+
+              <div><Label className="mb-1.5">Embassy currency</Label><Input value={visaFile.embassyCurrency ?? ""} onChange={(event) => updateVisaFile("embassyCurrency", event.target.value)} /></div>
+              <div><Label className="mb-1.5">Embassy visa fee amount paid</Label><Input value={visaFile.embassyAmount ?? ""} onChange={(event) => updateVisaFile("embassyAmount", event.target.value)} /></div>
+              <div><Label className="mb-1.5">Embassy visa fee payment date</Label><Input type="date" value={visaFile.embassyPaymentDate ?? ""} onChange={(event) => updateVisaFile("embassyPaymentDate", event.target.value)} /></div>
+              <div><Label className="mb-1.5">Upload embassy visa fee receipt</Label><Input type="file" /></div>
+
+              <div><Label className="mb-1.5">VFS currency</Label><Input value={visaFile.vfsCurrency ?? ""} onChange={(event) => updateVisaFile("vfsCurrency", event.target.value)} /></div>
+              <div><Label className="mb-1.5">VFS visa fee amount paid</Label><Input value={visaFile.vfsAmount ?? ""} onChange={(event) => updateVisaFile("vfsAmount", event.target.value)} /></div>
+              <div><Label className="mb-1.5">VFS visa fee payment date</Label><Input type="date" value={visaFile.vfsPaymentDate ?? ""} onChange={(event) => updateVisaFile("vfsPaymentDate", event.target.value)} /></div>
+              <div><Label className="mb-1.5">Upload VFS visa fee receipt</Label><Input type="file" /></div>
+              <div className="md:col-span-2">
+                <Label className="mb-1.5">Remark</Label>
+                <Textarea value={visaFile.remark ?? ""} onChange={(event) => updateVisaFile("remark", event.target.value)} placeholder="Add consultant/student notes" />
+              </div>
+            </div>
+          </Card>
+
+          <div className="grid gap-4 lg:grid-cols-3">
+            <Card className="border border-border bg-white p-5 shadow-sm">
+              <h3 className="mb-4 font-serif text-lg font-bold text-foreground">Biometric appointment</h3>
+              <VisaYesNo label="Appointment booked?" value={visaFile.biometricBooked} onChange={(value) => updateVisaFile("biometricBooked", value)} />
+              <div className="mt-4"><Label className="mb-1.5">Appointment date</Label><Input type="date" value={visaFile.biometricDate ?? ""} onChange={(event) => updateVisaFile("biometricDate", event.target.value)} /></div>
+            </Card>
+            <Card className="border border-border bg-white p-5 shadow-sm">
+              <h3 className="mb-4 font-serif text-lg font-bold text-foreground">Biometric completed</h3>
+              <VisaYesNo label="Biometric completed?" value={visaFile.biometricCompleted} onChange={(value) => updateVisaFile("biometricCompleted", value)} />
+              <div className="mt-4"><Label className="mb-1.5">Completion date</Label><Input type="date" value={visaFile.biometricCompletedDate ?? ""} onChange={(event) => updateVisaFile("biometricCompletedDate", event.target.value)} /></div>
+            </Card>
+            <Card className="border border-border bg-white p-5 shadow-sm">
+              <h3 className="mb-4 font-serif text-lg font-bold text-foreground">Visa decision & passport collection</h3>
+              <Label className="mb-1.5">Visa decision</Label>
+              <Select value={visaFile.visaDecision ?? ""} onValueChange={(value) => updateVisaFile("visaDecision", value)}>
+                <SelectTrigger><SelectValue placeholder="Select option" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="waiting">Waiting</SelectItem>
+                  <SelectItem value="approved">Approved</SelectItem>
+                  <SelectItem value="refused">Refused</SelectItem>
+                  <SelectItem value="additional-docs">Additional documents requested</SelectItem>
+                </SelectContent>
+              </Select>
+              <div className="mt-4"><Label className="mb-1.5">Decision date</Label><Input type="date" value={visaFile.decisionDate ?? ""} onChange={(event) => updateVisaFile("decisionDate", event.target.value)} /></div>
+            </Card>
+          </div>
+        </section>
 
         <div className="flex flex-wrap gap-3 mb-8">
           {VISA_GUIDES.map(guide => {
@@ -431,5 +550,29 @@ export default function VisaCenterPage() {
         )}
       </div>
     </AppLayout>
+  );
+}
+
+function VisaYesNo({ label, value, onChange }: { label: string; value?: string; onChange: (value: string) => void }) {
+  return (
+    <div className="rounded-lg border border-border bg-muted/20 p-4">
+      <div className="text-sm font-semibold text-foreground">{label}</div>
+      <div className="mt-3 flex gap-2">
+        {["Yes", "No"].map((option) => (
+          <button
+            key={option}
+            type="button"
+            onClick={() => onChange(option)}
+            className={`rounded-full border px-4 py-1.5 text-xs font-semibold transition-all ${
+              value === option
+                ? "border-primary bg-primary text-primary-foreground"
+                : "border-border bg-white text-foreground hover:border-primary/40"
+            }`}
+          >
+            {option}
+          </button>
+        ))}
+      </div>
+    </div>
   );
 }

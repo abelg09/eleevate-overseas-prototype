@@ -46,9 +46,23 @@ export default function FinancialHubPage() {
         }
       />
 
-      <section className="route-ribbon-bg mb-5 rounded-lg border border-primary/20 p-5 shadow-sm">
+      <section className="mb-5">
+        <SectionHeader title="Finance modules" description="Choose the money task you need now." />
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+          {financeModules.map((module) => (
+            <Link key={module.href} href={module.href}>
+              <Card className="app-card h-full p-4 transition-all hover:border-primary/35 hover:shadow-md">
+                <div className="font-serif text-base font-bold text-foreground">{module.label}</div>
+                <div className="mt-2 text-sm leading-6 text-muted-foreground">{module.detail}</div>
+              </Card>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      <section className="mb-5 rounded-lg border border-border bg-white p-5 shadow-sm">
         <div className="max-w-3xl">
-          <div className="mb-4 inline-flex rounded-full bg-secondary px-3 py-1 text-xs font-semibold text-white">Blank finance workspace</div>
+          <div className="mb-4 inline-flex rounded-full bg-secondary px-3 py-1 text-xs font-semibold text-white">Finance journey</div>
           <h2 className="font-serif text-3xl font-bold leading-tight text-foreground">
             Build one finance plan after the student adds budget, offers, and funding documents.
           </h2>
@@ -126,15 +140,15 @@ export default function FinancialHubPage() {
           </Card>
 
           <Card className="app-card p-4">
-            <SectionHeader title="Finance modules" description="Choose the next finance tool you need." />
+            <SectionHeader title="Next finance prompts" description="What ELEE should ask before money movement starts." />
             <div className="space-y-2">
-              {financeModules.map((module) => (
-                <Link key={module.href} href={module.href}>
-                  <div className="rounded-lg border border-border bg-muted/25 p-3 transition-colors hover:border-primary/30 hover:bg-primary/5">
-                    <div className="font-serif text-sm font-bold text-foreground">{module.label}</div>
-                    <div className="mt-1 text-xs text-muted-foreground">{module.detail}</div>
-                  </div>
-                </Link>
+              {[
+                "Which university invoice or offer is confirmed?",
+                "Who is the sponsor and what proof is available?",
+                "Is the student using loan, savings, remittance, or a mix?",
+                "Which receipts must be reused for visa evidence?",
+              ].map((prompt) => (
+                <div key={prompt} className="rounded-lg border border-border bg-muted/25 p-3 text-sm leading-6 text-muted-foreground">{prompt}</div>
               ))}
             </div>
           </Card>

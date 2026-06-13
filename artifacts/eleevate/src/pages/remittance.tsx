@@ -6,6 +6,7 @@ import { Progress } from "@/components/ui/progress";
 import { PageHeader, SectionHeader } from "@/components/common/page-shell";
 import { addDemoLedgerEvent } from "@/lib/demo-journey";
 import { cn } from "@/lib/utils";
+import { ExternalLink } from "lucide-react";
 
 const remittanceKpis = [
   { label: "Tuition due", value: "--", detail: "Add an offer or invoice", tone: "border-l-primary" },
@@ -52,6 +53,16 @@ export default function RemittancePage() {
         actions={
           <div className="flex flex-wrap gap-2">
             <Button variant="outline" className="rounded-full font-serif" onClick={handlePlanRemittance}>Confirm plan</Button>
+            <a
+              href="https://remittance.eleevateoverseas.com/"
+              target="_blank"
+              rel="noreferrer"
+              onClick={handlePlanRemittance}
+            >
+              <Button variant="outline" className="rounded-full font-serif">
+                Open live remittance portal <ExternalLink className="h-3.5 w-3.5" />
+              </Button>
+            </a>
             <Link href="/forex">
               <Button className="rounded-full font-serif">Check forex rates</Button>
             </Link>
@@ -68,6 +79,22 @@ export default function RemittancePage() {
           </Card>
         ))}
       </div>
+
+      <Card className="app-card mt-4 border-primary/20 bg-primary/5 p-4">
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <div>
+            <div className="font-serif text-lg font-bold text-foreground">Use Eleevate&apos;s live remittance desk</div>
+            <p className="mt-1 text-sm leading-6 text-muted-foreground">
+              Until the remittance API is attached, this button opens the live Eleevate remittance portal and logs the student&apos;s intent in the finance timeline.
+            </p>
+          </div>
+          <a href="https://remittance.eleevateoverseas.com/" target="_blank" rel="noreferrer" onClick={handlePlanRemittance}>
+            <Button className="rounded-full font-serif">
+              Go to remittance <ExternalLink className="h-3.5 w-3.5" />
+            </Button>
+          </a>
+        </div>
+      </Card>
 
       <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-[1.1fr_0.9fr]">
         <Card className="app-card p-4">
