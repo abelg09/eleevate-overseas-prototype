@@ -6,7 +6,7 @@ import {
   useListCountries,
 } from "@workspace/api-client-react";
 import type { Country, University } from "@workspace/api-client-react";
-import { Link, useLocation } from "wouter";
+import { Link } from "wouter";
 import {
   Activity,
   ArrowRight,
@@ -239,7 +239,6 @@ export default function LandingPage() {
   const [flippedModule, setFlippedModule] = useState<string | null>(null);
   const [startDialog, setStartDialog] = useState<"profile" | "login" | null>(null);
   const [eleeGreetingVisible, setEleeGreetingVisible] = useState(false);
-  const [, setLocation] = useLocation();
   const demoMode = isDemoMode();
   const { data: featuredUnis, isLoading: unisLoading } = useGetFeaturedUniversities({
     query: { enabled: !demoMode, queryKey: getGetFeaturedUniversitiesQueryKey() },
@@ -252,14 +251,16 @@ export default function LandingPage() {
   const apiCountries = listFromApi<Country>(countries);
   const unis = demoMode || apiUnis.length === 0 ? DEMO_UNIVERSITIES.slice(0, 4) : apiUnis.slice(0, 4);
   const countriesList = demoMode || apiCountries.length === 0 ? DEMO_COUNTRIES.slice(0, 6) : apiCountries.slice(0, 6);
-  const createProfileHref = "/dashboard";
-  const studentLoginHref = "/dashboard";
+  const rootBasePath = import.meta.env.BASE_URL.replace(/\/ai-superapp\/?$/, "/").replace(/\/$/, "");
+  const studentDashboardHref = `${rootBasePath}/dashboard`;
+  const createProfileHref = studentDashboardHref;
+  const studentLoginHref = studentDashboardHref;
   const journeyMapHref = demoMode ? "/login?redirect=/journey-map" : "/sign-up";
   const showUniversitySkeletons = !demoMode && unisLoading;
   const showCountries = demoMode || (!countriesLoading && countriesList.length > 0);
 
   const openStartDialog = (_mode: "profile" | "login") => {
-    setLocation("/dashboard");
+    window.location.assign(studentDashboardHref);
     setEleeGreetingVisible(true);
   };
 
