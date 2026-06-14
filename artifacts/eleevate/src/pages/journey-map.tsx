@@ -18,6 +18,39 @@ function statusClass(status: string) {
   );
 }
 
+const STEP_TOOLS: Record<string, Array<{ label: string; href: string }>> = {
+  profile: [
+    { label: "Profile form", href: "/profile" },
+    { label: "Psychometric test", href: "/assessment" },
+  ],
+  "elee-report": [
+    { label: "Generate report", href: "/elee-report" },
+  ],
+  "country-fit": [
+    { label: "Compare countries", href: "/countries" },
+    { label: "Find courses", href: "/course-finder" },
+    { label: "University finder", href: "/universities" },
+  ],
+  shortlist: [
+    { label: "Shortlist", href: "/shortlist" },
+    { label: "Add universities", href: "/universities" },
+  ],
+  applications: [
+    { label: "Applications", href: "/applications" },
+    { label: "Draft SOP", href: "/sop-studio" },
+    { label: "Find scholarship", href: "/scholarships" },
+  ],
+  "documents-visa": [
+    { label: "Documents", href: "/documents" },
+    { label: "Visa center", href: "/visa-center" },
+  ],
+  "finance-arrival": [
+    { label: "Finance hub", href: "/financial-hub" },
+    { label: "Education loan", href: "/loans" },
+    { label: "Remittance", href: "/remittance" },
+  ],
+};
+
 export default function JourneyMapPage() {
   const snapshot = useStudentJourneySnapshot();
   const profile = useStudentWorkspaceProfile();
@@ -28,8 +61,8 @@ export default function JourneyMapPage() {
       <div data-testid="journey-map-page">
         <PageHeader
           eyebrow="Journey Checklist"
-          title="From profile to arrival, one step at a time"
-          description="This map shows what the student does, what is required, and where to continue. Consultant tools stay separate from the student path."
+          title="Your study-abroad journey map"
+          description="Follow the steps in order. Each card shows the job, the required details, and the exact page to open next."
           actions={
             <>
               <Link href="/dashboard">
@@ -42,25 +75,44 @@ export default function JourneyMapPage() {
           }
         />
 
-        <section className="route-ribbon-bg mb-5 rounded-lg border border-border shadow-sm">
+        <section className="mb-5 rounded-lg border border-border bg-white p-4 shadow-sm md:p-5" data-testid="journey-status-panel">
           <div className="brand-gradient-bg h-1.5" />
-          <div className="p-5 md:p-6">
-            <Badge className="mb-4 rounded-full border-primary/20 bg-white px-3 text-primary hover:bg-white">
-              Current stage: {snapshot.currentStep.label}
-            </Badge>
-            <h2 className="max-w-4xl font-serif text-3xl font-bold leading-tight text-foreground">
-              The journey is simple: choose the right route, apply properly, prepare documents early, then handle visa, finance, and arrival.
-            </h2>
-            <div className="mt-5 grid grid-cols-1 gap-3 md:grid-cols-4">
+          <div className="pt-4">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+              <div>
+                <Badge className="mb-3 rounded-full border-primary/20 bg-primary/5 px-3 text-primary hover:bg-primary/5">
+                  Current step: {snapshot.currentStep.label}
+                </Badge>
+                <h2 className="max-w-3xl font-serif text-2xl font-bold leading-tight text-foreground md:text-3xl">
+                  {snapshot.currentStep.cta}
+                </h2>
+                <p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">
+                  {snapshot.currentStep.prompt}
+                </p>
+              </div>
+              <Link href={snapshot.currentStep.href}>
+                <Button className="w-full rounded-full font-serif sm:w-auto">Continue</Button>
+              </Link>
+            </div>
+
+            <div className="mt-4">
+              <div className="mb-2 flex items-center justify-between text-xs font-semibold text-muted-foreground">
+                <span>Journey progress</span>
+                <span>{snapshot.completedCount} of {snapshot.steps.length} steps complete</span>
+              </div>
+              <Progress value={snapshot.progress} className="h-2" />
+            </div>
+
+            <div className="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
               {[
                 { label: "Selected route", value: selectedRoute },
                 { label: "Saved universities", value: String(snapshot.shortlistedCount) },
-                { label: "Document readiness", value: `${snapshot.documentReadiness}%` },
-                { label: "Next action", value: snapshot.currentStep.label },
+                { label: "Documents", value: `${snapshot.documentReadiness}%` },
+                { label: "Package", value: snapshot.packageName ?? "Not selected" },
               ].map((item) => (
-                <div key={item.label} className="rounded-lg border border-border bg-white/85 p-4">
+                <div key={item.label} className="rounded-lg border border-border bg-muted/20 p-3">
                   <div className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">{item.label}</div>
-                  <div className="mt-2 font-serif text-2xl font-bold text-foreground">{item.value}</div>
+                  <div className="mt-1 truncate font-serif text-lg font-bold text-foreground">{item.value}</div>
                 </div>
               ))}
             </div>
@@ -68,17 +120,21 @@ export default function JourneyMapPage() {
         </section>
 
         <section className="mb-5">
-          <SectionHeader title="Seven-step student journey" description="Each step has a clear job, requirement, and action button." />
+          <SectionHeader title="Step-by-step path" description="Open only the page you need for the current step. Related tools are shown as small links." />
           <div className="space-y-4">
             {snapshot.steps.map((stage, index) => {
               const guide = STUDENT_GUIDE_STEPS.find((item) => item.id === stage.id);
+              const tools = STEP_TOOLS[stage.id] ?? [{ label: stage.label, href: stage.href }];
 
               return (
               <Card key={stage.id} className="app-card overflow-hidden p-0">
-                <div className="grid gap-0 lg:grid-cols-[96px_minmax(0,1fr)_260px]">
-                  <div className="brand-gradient-bg flex min-h-24 items-center justify-center text-white">
+                <div className="grid gap-0 lg:grid-cols-[80px_minmax(0,1fr)_300px]">
+                  <div className={cn(
+                    "flex min-h-20 items-center justify-center text-white",
+                    stage.status === "complete" ? "bg-emerald-500" : stage.status === "current" ? "brand-gradient-bg" : "bg-slate-300",
+                  )}>
                     <div className="text-center">
-                      <div className="font-serif text-2xl font-bold">{String(index + 1).padStart(2, "0")}</div>
+                      <div className="font-serif text-xl font-bold">{String(index + 1).padStart(2, "0")}</div>
                       <div className="mt-1 text-[10px] font-semibold uppercase tracking-wide text-white/80">Step</div>
                     </div>
                   </div>
@@ -98,12 +154,21 @@ export default function JourneyMapPage() {
                     <Progress value={stage.complete ? 100 : stage.status === "current" ? 40 : 0} className="mt-4 h-2" />
                   </div>
 
-                  <div className="flex items-center border-t border-border bg-muted/25 p-4 lg:border-l lg:border-t-0">
-                    <Link href={stage.href} className="w-full">
+                  <div className="border-t border-border bg-muted/20 p-4 lg:border-l lg:border-t-0">
+                    <Link href={stage.href} className="block w-full">
                       <Button variant={stage.status === "current" ? "default" : "outline"} className="w-full rounded-full font-serif">
                         {stage.complete ? "Review" : stage.cta}
                       </Button>
                     </Link>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {tools.map((tool) => (
+                        <Link key={`${stage.id}-${tool.href}`} href={tool.href}>
+                          <Button size="sm" variant="ghost" className="h-8 rounded-full border border-border bg-white px-3 text-xs font-semibold">
+                            {tool.label}
+                          </Button>
+                        </Link>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </Card>
@@ -115,17 +180,20 @@ export default function JourneyMapPage() {
         <Card className="app-card border-primary/20 bg-primary/5 p-5">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
-              <div className="font-serif text-lg font-bold text-foreground">Keep the student path calm</div>
+              <div className="font-serif text-lg font-bold text-foreground">Useful tools after the main step</div>
               <p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">
-                Extra modules like finance services, upskilling, alumni, rewards, news, and support stay grouped under More so the main path stays easy to follow.
+                Test prep, SOP drafting, scholarships, finance services, rewards, news, alumni, and support stay available without cluttering the core journey.
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
-              <Link href="/more">
-                <Button variant="outline" className="rounded-full font-serif">Open More</Button>
+              <Link href="/test-prep">
+                <Button variant="outline" className="rounded-full font-serif">Test prep</Button>
               </Link>
-              <Link href="/consultant/dashboard">
-                <Button className="rounded-full font-serif">Consultant Workbench</Button>
+              <Link href="/sop-studio">
+                <Button variant="outline" className="rounded-full font-serif">Draft SOP</Button>
+              </Link>
+              <Link href="/more">
+                <Button className="rounded-full font-serif">More tools</Button>
               </Link>
             </div>
           </div>
