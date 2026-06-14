@@ -251,16 +251,16 @@ export default function LandingPage() {
   const apiCountries = listFromApi<Country>(countries);
   const unis = demoMode || apiUnis.length === 0 ? DEMO_UNIVERSITIES.slice(0, 4) : apiUnis.slice(0, 4);
   const countriesList = demoMode || apiCountries.length === 0 ? DEMO_COUNTRIES.slice(0, 6) : apiCountries.slice(0, 6);
-  const rootBasePath = import.meta.env.BASE_URL.replace(/\/ai-superapp\/?$/, "/").replace(/\/$/, "");
-  const studentDashboardHref = `${rootBasePath}/dashboard`;
-  const createProfileHref = studentDashboardHref;
-  const studentLoginHref = studentDashboardHref;
+  const appBasePath = import.meta.env.BASE_URL.replace(/\/$/, "");
+  const createProfileHref = demoMode ? "/login?redirect=/profile" : "/sign-up";
+  const studentLoginHref = demoMode ? "/login?redirect=/dashboard" : "/sign-in";
   const journeyMapHref = demoMode ? "/login?redirect=/journey-map" : "/sign-up";
   const showUniversitySkeletons = !demoMode && unisLoading;
   const showCountries = demoMode || (!countriesLoading && countriesList.length > 0);
 
-  const openStartDialog = (_mode: "profile" | "login") => {
-    window.location.assign(studentDashboardHref);
+  const openStartDialog = (mode: "profile" | "login") => {
+    const target = mode === "profile" ? createProfileHref : studentLoginHref;
+    window.location.assign(`${appBasePath}${target}`);
     setEleeGreetingVisible(true);
   };
 
