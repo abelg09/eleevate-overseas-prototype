@@ -74,7 +74,9 @@ export function StudentJourneyWelcomeDialog({ enabled }: { enabled: boolean }) {
             </DialogDescription>
           </DialogHeader>
 
-          <div className="mt-5 grid gap-2 sm:grid-cols-2">
+          <div className="mt-5">
+            <div className="mb-2 text-xs font-bold uppercase tracking-wide text-muted-foreground">Choose your starting point</div>
+            <div className="grid gap-2 sm:grid-cols-2">
             <button
               type="button"
               className="group rounded-lg border border-primary/20 bg-primary/5 p-4 text-left transition-all hover:border-primary/40 hover:bg-primary/10"
@@ -102,16 +104,19 @@ export function StudentJourneyWelcomeDialog({ enabled }: { enabled: boolean }) {
                   <FileSearch className="h-5 w-5" />
                 </div>
                 <div>
-                  <div className="font-serif text-sm font-bold text-foreground">Generate ELEE Report</div>
+                  <div className="font-serif text-sm font-bold text-foreground">I already know my path</div>
                   <p className="mt-1 text-xs leading-5 text-muted-foreground">
-                    Choose this if you already have a path in mind and want ELEE to turn your profile into an action report.
+                    Go straight to ELEE&apos;s route report if you have a preferred country, course, or university direction.
                   </p>
                 </div>
               </div>
             </button>
+            </div>
           </div>
 
-          <div className="mt-5 grid gap-2 sm:grid-cols-2">
+          <div className="mt-5">
+            <div className="mb-2 text-xs font-bold uppercase tracking-wide text-muted-foreground">Full journey checklist</div>
+            <div className="grid gap-2 sm:grid-cols-2">
             {STUDENT_GUIDE_STEPS.map((step, index) => (
               <Link key={step.id} href={step.href}>
                 <div
@@ -129,6 +134,7 @@ export function StudentJourneyWelcomeDialog({ enabled }: { enabled: boolean }) {
                 </div>
               </Link>
             ))}
+            </div>
           </div>
 
           <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-end">
