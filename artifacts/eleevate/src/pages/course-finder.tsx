@@ -166,6 +166,30 @@ export default function CourseFinderPage() {
         </div>
       </Card>
 
+      <Card className="mb-5 border border-border bg-white p-4 shadow-sm" data-testid="course-next-step">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <Badge variant="outline" className="mb-2 rounded-full">{savedIds.length > 0 ? "Course path active" : "Stage 3"}</Badge>
+            <h2 className="font-serif text-lg font-bold text-foreground">
+              {savedIds.length > 0 ? "Courses saved. Review your application tracker next." : "Choose a course to connect discovery with applications."}
+            </h2>
+            <p className="mt-1 max-w-3xl text-sm leading-6 text-muted-foreground">
+              {savedIds.length > 0
+                ? "Every Apply Now action saves the university, starts a research-stage application, and creates a counsellor review event."
+                : "Search by subject, level, country, or institute. When you click Apply Now, ELEE saves the option and prepares the next application step."}
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Link href="/applications">
+              <Button className="rounded-full font-serif">Open applications <ArrowRight className="h-4 w-4" /></Button>
+            </Link>
+            <Link href="/universities">
+              <Button variant="outline" className="rounded-full font-serif">Compare universities</Button>
+            </Link>
+          </div>
+        </div>
+      </Card>
+
       <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="font-serif text-xl font-bold text-foreground">Course Finder</h2>

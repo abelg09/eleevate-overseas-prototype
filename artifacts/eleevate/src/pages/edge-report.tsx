@@ -85,8 +85,29 @@ export default function EdgeReportPage() {
             </div>
           </section>
         ) : (
-          <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_380px]">
-            <section className="space-y-5">
+          <div>
+            <Card className="mb-5 border border-primary/20 bg-primary/5 p-5 shadow-sm" data-testid="elee-report-next-step">
+              <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                <div>
+                  <Badge variant="outline" className="mb-2 rounded-full bg-white">Stage 2 complete</Badge>
+                  <h2 className="font-serif text-xl font-bold text-foreground">Your report is ready. Start comparing real options.</h2>
+                  <p className="mt-1 max-w-3xl text-sm leading-6 text-muted-foreground">
+                    Next, use your profile and report inputs to compare destinations, find courses, and shortlist universities. Shortlisted universities will appear in Applications automatically.
+                  </p>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <Link href="/universities">
+                    <Button className="rounded-full font-serif">Explore universities</Button>
+                  </Link>
+                  <Link href="/course-finder">
+                    <Button variant="outline" className="rounded-full font-serif">Find courses</Button>
+                  </Link>
+                </div>
+              </div>
+            </Card>
+
+            <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_380px]">
+              <section className="space-y-5">
               <Card className="app-card p-4">
                 <SectionHeader title="Profile ready" description="ELEE can now compare routes and help you choose the right destinations." />
                 <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
@@ -128,9 +149,9 @@ export default function EdgeReportPage() {
                   </div>
                 )}
               </Card>
-            </section>
+              </section>
 
-            <aside className="space-y-5">
+              <aside className="space-y-5">
               <Card className="app-card p-4">
                 <SectionHeader title="Next 3 actions" />
                 <div className="space-y-3">
@@ -160,7 +181,8 @@ export default function EdgeReportPage() {
                   </p>
                 </div>
               </Card>
-            </aside>
+              </aside>
+            </div>
           </div>
         )}
       </div>

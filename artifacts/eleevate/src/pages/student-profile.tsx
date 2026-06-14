@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useUser } from "@clerk/react";
+import { Link } from "wouter";
 import {
   useGetMyStudentProfile, useUpdateMyStudentProfile,
   getGetMyStudentProfileQueryKey
@@ -18,7 +19,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
-import { BriefcaseBusiness, ClipboardList, FileText, GraduationCap, HeartHandshake, IdCard, Languages } from "lucide-react";
+import { ArrowRight, BriefcaseBusiness, CheckCircle2, ClipboardList, FileText, GraduationCap, HeartHandshake, IdCard, Languages } from "lucide-react";
 import { isDemoMode } from "@/lib/demo-mode";
 import { useDemoAuthState } from "@/lib/demo-auth";
 import {
@@ -344,6 +345,7 @@ export default function StudentProfilePage() {
 
   const savedProfile = demoMode ? readStudentWorkspaceProfile() : null;
   const hasSavedProfile = hasStudentWorkspaceProfile(savedProfile);
+  const profileReady = demoMode ? hasSavedProfile : hasStudentWorkspaceProfile(profile as unknown as StudentWorkspaceProfile | null | undefined);
   const currentFullName = [firstName, lastName].filter(Boolean).join(" ") || "New student";
 
   return (
@@ -497,6 +499,43 @@ export default function StudentProfilePage() {
                       })}
                     </div>
                   </div>
+                </div>
+              </div>
+            </Card>
+
+            <Card className={profileReady ? "border border-primary/20 bg-primary/5 p-5 shadow-sm" : "border border-border bg-white p-5 shadow-sm"} data-testid="profile-next-step">
+              <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                <div className="flex items-start gap-3">
+                  <div className={profileReady ? "flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-primary text-white" : "flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-muted text-muted-foreground"}>
+                    <CheckCircle2 className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <Badge variant="outline" className="mb-2 rounded-full">{profileReady ? "Stage 1 complete" : "Stage 1"}</Badge>
+                    <h2 className="font-serif text-xl font-bold text-foreground">
+                      {profileReady ? "Profile saved. Generate your ELEE Report next." : "Complete and save your profile first."}
+                    </h2>
+                    <p className="mt-1 max-w-3xl text-sm leading-6 text-muted-foreground">
+                      {profileReady
+                        ? "ELEE can now use your student file to create route guidance, country/course fit, document gaps, and finance prompts."
+                        : "Your dashboard, ELEE Report, university matches, document checklist, and finance prompts stay blank until this profile is saved."}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {profileReady ? (
+                    <>
+                      <Link href="/elee-report">
+                        <Button className="rounded-full font-serif">Generate ELEE Report <ArrowRight className="h-4 w-4" /></Button>
+                      </Link>
+                      <Link href="/journey-map">
+                        <Button variant="outline" className="rounded-full font-serif">View journey map</Button>
+                      </Link>
+                    </>
+                  ) : (
+                    <Button onClick={handleSave} disabled={updateProfile.isPending} className="rounded-full font-serif">
+                      {updateProfile.isPending ? "Saving..." : "Save profile"}
+                    </Button>
+                  )}
                 </div>
               </div>
             </Card>

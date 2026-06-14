@@ -271,6 +271,30 @@ export default function UniversitiesPage() {
           </div>
         </section>
 
+        <Card className="mb-5 border border-border bg-white p-4 shadow-sm" data-testid="university-next-step">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <Badge variant="outline" className="mb-2 rounded-full">{savedCount > 0 ? "Shortlist active" : "Stage 3"}</Badge>
+              <h2 className="font-serif text-lg font-bold text-foreground">
+                {savedCount > 0 ? "Your saved universities are already in Applications." : "Save a university to start your application path."}
+              </h2>
+              <p className="mt-1 max-w-3xl text-sm leading-6 text-muted-foreground">
+                {savedCount > 0
+                  ? "Each saved university creates a research-stage application so deadlines, documents, and counsellor follow-up can be tracked."
+                  : "Use the bookmark on any university card. ELEE will add it to Shortlist and prepare the first application tracker item."}
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Link href={savedCount > 0 ? "/applications" : "/course-finder"}>
+                <Button className="rounded-full font-serif">{savedCount > 0 ? "Open applications" : "Find courses"}</Button>
+              </Link>
+              <Link href="/shortlist">
+                <Button variant="outline" className="rounded-full font-serif">View shortlist</Button>
+              </Link>
+            </div>
+          </div>
+        </Card>
+
         {/* Advanced Filters */}
         {showFilters && (
           <Card className="mb-5 border border-border p-5 shadow-sm" data-testid="advanced-filters">

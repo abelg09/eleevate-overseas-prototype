@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from "react";
+import { Link } from "wouter";
 import { AppLayout } from "@/components/layout/app-layout";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -15,7 +16,7 @@ import {
 } from "@workspace/api-client-react";
 import type { Document } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
-import { FileText, Upload, Trash2, CheckCircle2, Clock, XCircle, Eye, FolderOpen, Loader2, History, ChevronDown, ChevronUp } from "lucide-react";
+import { ArrowRight, FileText, Upload, Trash2, CheckCircle2, Clock, XCircle, Eye, FolderOpen, Loader2, History, ChevronDown, ChevronUp } from "lucide-react";
 import { isDemoMode, listFromApi } from "@/lib/demo-mode";
 import { readStudentDocuments, writeStudentDocuments } from "@/lib/student-documents";
 
@@ -380,6 +381,38 @@ export default function DocumentVaultPage() {
             </aside>
           </div>
         </section>
+
+        <Card className="mb-6 border border-border bg-white p-4 shadow-sm" data-testid="documents-next-step">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <Badge variant="outline" className="mb-2 rounded-full">
+                {packetReadiness >= 100 ? "Stage 6 complete" : packetReadiness > 0 ? "Stage 6 in progress" : "Stage 6"}
+              </Badge>
+              <h2 className="font-serif text-lg font-bold text-foreground">
+                {packetReadiness >= 100
+                  ? "Document packet ready. Continue to visa details."
+                  : packetReadiness > 0
+                    ? "Keep uploading the missing documents."
+                    : "Start with passport, transcript, and finance proof."}
+              </h2>
+              <p className="mt-1 max-w-3xl text-sm leading-6 text-muted-foreground">
+                {packetReadiness >= 100
+                  ? "ELEE can now use the complete packet for visa preparation, payment evidence, and consultant review."
+                  : "The checklist below shows every admissions, finance, and visa document. Uploads update dashboard readiness and the next prompt automatically."}
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Button className="rounded-full font-serif" onClick={() => fileRef.current?.click()}>
+                Upload document
+              </Button>
+              <Link href={packetReadiness >= 100 ? "/visa-center" : "/financial-hub"}>
+                <Button variant="outline" className="rounded-full font-serif">
+                  {packetReadiness >= 100 ? "Open visa center" : "Plan finance"} <ArrowRight className="h-4 w-4" />
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </Card>
 
         {/* Upload Section */}
         <Card className="mb-8 overflow-hidden border border-border bg-white p-0 shadow-sm" data-testid="upload-section">
