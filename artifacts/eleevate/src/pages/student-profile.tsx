@@ -29,6 +29,7 @@ const EMPTY_PROFILE: StudentWorkspaceProfile = {
   nationality: "",
   preferredIntake: "",
   budget: "",
+  budgetCurrency: "INR",
   careerGoal: "",
 };
 
@@ -46,7 +47,7 @@ export default function StudentProfilePage() {
   };
 
   const handleSave = () => {
-    const nextProfile = { ...form, updatedAt: new Date().toISOString() };
+    const nextProfile = { ...form, budgetCurrency: "INR" as const, updatedAt: new Date().toISOString() };
     writeStudentWorkspaceProfile(nextProfile);
     setSavedProfile(nextProfile);
     toast({
@@ -148,7 +149,7 @@ export default function StudentProfilePage() {
                 </div>
                 <div>
                   <Label className="mb-1.5">Budget range</Label>
-                  <Input value={form.budget ?? ""} onChange={(event) => updateField("budget", event.target.value)} placeholder="e.g. USD 35k-45k per year" data-testid="input-budget" />
+                  <Input value={form.budget ?? ""} onChange={(event) => updateField("budget", event.target.value)} placeholder="e.g. INR 0-30,00,000 per year" data-testid="input-budget" />
                 </div>
                 <div>
                   <Label className="mb-1.5">Nationality</Label>

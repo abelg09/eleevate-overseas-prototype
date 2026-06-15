@@ -8,34 +8,88 @@ import { Progress } from "@/components/ui/progress";
 import { PageHeader, SectionHeader } from "@/components/common/page-shell";
 import { getDemoShortlistUniversities } from "@/lib/demo-flow";
 import { useDemoJourneyState } from "@/lib/demo-journey";
-import { hasStudentWorkspaceProfile, useStudentWorkspaceProfile } from "@/lib/student-workspace";
+import {
+  hasStudentWorkspaceProfile,
+  useStudentWorkspaceProfile,
+  type StudentWorkspaceProfile,
+} from "@/lib/student-workspace";
+
+const LEGACY_USD_TO_INR = 83;
+const inrFormatter = new Intl.NumberFormat("en-IN", { maximumFractionDigits: 0 });
+
+function normalizeBudgetAmount(value: unknown, currency?: string) {
+  const parsed = Number(String(value ?? "").replace(/[^\d.]/g, ""));
+  if (!Number.isFinite(parsed) || parsed <= 0) return 0;
+  if (currency !== "INR" && parsed <= 120_000) return Math.round(parsed * LEGACY_USD_TO_INR);
+  return Math.round(parsed);
+}
+
+function formatInr(value: number) {
+  return `INR ${inrFormatter.format(value)}`;
+}
+
+function readiness(profile: StudentWorkspaceProfile | null) {
+  const checks = [
+    profile?.studyLevel,
+    profile?.careerGoal,
+    profile?.nationality,
+    profile?.preferredIntake,
+    normalizeBudgetAmount(profile?.budget, profile?.budgetCurrency) > 0,
+    profile?.gpa,
+    profile?.ieltsScore || profile?.toeflScore,
+    profile?.greScore || profile?.gmatScore,
+  ];
+  return Math.round((checks.filter(Boolean).length / checks.length) * 100);
+}
+
+function inferRoutes(profile: StudentWorkspaceProfile | null) {
+  if (profile?.targetCountries?.length) return profile.targetCountries;
+  const goal = (profile?.careerGoal ?? "").toLowerCase();
+  if (goal.includes("finance") || goal.includes("account")) return ["United Kingdom", "Singapore", "Ireland"];
+  if (goal.includes("health")) return ["Canada", "Australia", "United Kingdom"];
+  if (goal.includes("business") || goal.includes("management")) return ["United Kingdom", "Australia", "Netherlands"];
+  return ["United Kingdom", "Canada", "Australia"];
+}
+
+function routeRows(profile: StudentWorkspaceProfile | null) {
+  const score = readiness(profile);
+  return inferRoutes(profile).map((country, index) => ({
+    country,
+    score: Math.max(55, Math.min(95, score + 14 - index * 5)),
+  }));
+}
 
 export default function EdgeReportPage() {
   const profile = useStudentWorkspaceProfile();
   const hasProfile = hasStudentWorkspaceProfile(profile);
   const shortlist = getDemoShortlistUniversities();
   const { ledgerEvents } = useDemoJourneyState();
+  const budget = normalizeBudgetAmount(profile?.budget, profile?.budgetCurrency);
+  const routes = routeRows(profile);
+  const score = readiness(profile);
+  const docsReady = [
+    Boolean(profile?.gpa),
+    Boolean(profile?.ieltsScore || profile?.toeflScore),
+    budget > 0,
+    Boolean(profile?.careerGoal),
+  ].filter(Boolean).length;
 
   return (
     <AppLayout>
       <div data-testid="edge-report-page">
         <PageHeader
           eyebrow="ELEE Report"
-          title={hasProfile ? "Generate your personalized ELEE Report." : "Your ELEE Report starts after your profile."}
+          title={hasProfile ? "Your personalized ELEE Report" : "Your ELEE Report starts after your profile."}
           description={hasProfile
-            ? "ELEE can now turn your saved profile into country fit, university matches, document needs, visa guidance, finance planning, and next actions."
+            ? "ELEE turns your saved profile into route fit, university direction, document needs, INR finance planning, and next actions."
             : "Complete AI Profile & Test first. ELEE will not guess your route, score, funding gap, or visa readiness before you share your details."}
           actions={
             <>
               <Link href="/profile">
-                <Button variant="outline" className="rounded-full font-serif">
-                  AI Profile & Test
-                </Button>
+                <Button variant="outline" className="rounded-full font-serif">AI Profile & Test</Button>
               </Link>
               <Link href={hasProfile ? "/universities" : "/profile"}>
-                <Button className="rounded-full font-serif">
-                  {hasProfile ? "Find university matches" : "Add profile data"}
-                </Button>
+                <Button className="rounded-full font-serif">{hasProfile ? "Find university matches" : "Add profile data"}</Button>
               </Link>
             </>
           }
@@ -51,16 +105,8 @@ export default function EdgeReportPage() {
                 </div>
                 <h2 className="mt-5 font-serif text-3xl font-bold leading-tight text-foreground">Generate your first ELEE Report.</h2>
                 <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
-                  Once you complete your profile and assessment fields, ELEE can rank routes, explain why they fit, list missing documents, show funding readiness, and create your next three actions.
+                  Add your study level, career goal, nationality, intake, budget in INR, and test details. ELEE will then show route fit, document gaps, finance readiness, and next actions.
                 </p>
-                <div className="mt-6 grid grid-cols-1 gap-3 md:grid-cols-3">
-                  {["Route ranking", "Document needs", "Finance readiness"].map((item) => (
-                    <div key={item} className="rounded-lg border border-dashed border-border bg-[#f8fbff] p-4">
-                      <div className="font-serif text-base font-bold text-foreground">{item}</div>
-                      <div className="mt-2 text-sm text-muted-foreground">Complete your profile to view</div>
-                    </div>
-                  ))}
-                </div>
                 <Link href="/profile">
                   <Button className="mt-6 rounded-full px-6 font-serif">
                     Complete AI Profile & Test <ArrowRight className="h-4 w-4" />
@@ -74,7 +120,7 @@ export default function EdgeReportPage() {
                   <div className="font-serif text-lg font-bold text-foreground">No guesses before your profile</div>
                 </div>
                 <p className="mt-3 text-sm leading-6 text-muted-foreground">
-                  ELEE will not show a default country, score, or funding gap until you add your own details. You can still explore public universities while your personal report is empty.
+                  ELEE will not show a default country, score, or funding gap until you add your own details.
                 </p>
               </aside>
             </div>
@@ -85,25 +131,23 @@ export default function EdgeReportPage() {
               <div className="h-2 bg-[linear-gradient(90deg,#102044_0%,#102044_58%,#C9784A_58%,#C9784A_74%,#39B54A_74%,#39B54A_100%)]" />
               <div className="grid gap-0 xl:grid-cols-[minmax(0,1fr)_360px]">
                 <div className="p-5 md:p-6">
-                  <Badge className="mb-4 rounded-full border-primary/20 bg-primary/10 px-3 text-xs font-bold text-primary hover:bg-primary/10">
-                    Ready to generate
-                  </Badge>
+                  <Badge className="mb-4 rounded-full border-primary/20 bg-primary/10 px-3 text-xs font-bold text-primary hover:bg-primary/10">Generated from saved profile</Badge>
                   <h2 className="max-w-3xl font-serif text-3xl font-bold leading-tight text-foreground">
-                    ELEE has your first profile signals. Generate the report to see personalized guidance.
+                    {routes[0]?.country} is the first route to compare.
                   </h2>
                   <p className="mt-3 max-w-3xl text-sm leading-6 text-muted-foreground">
-                    Study level, budget, test status, nationality, intake, and career goal can now support country comparison, university matching, document planning, and finance preparation.
+                    ELEE is using your study level, career goal, INR budget, intake, nationality, and test details to create the first guidance layer.
                   </p>
                   <div className="mt-6 grid grid-cols-1 gap-3 md:grid-cols-4">
                     {[
-                      ["ELEE score", "--"],
-                      ["Best route", "Pending"],
-                      ["Funding gap", "Pending"],
-                      ["Visa readiness", "Pending"],
+                      ["Readiness", `${score}%`],
+                      ["Best route", routes[0]?.country ?? "Pending"],
+                      ["Budget", budget > 0 ? formatInr(budget) : "Not added"],
+                      ["Docs ready", `${docsReady}/4`],
                     ].map(([label, value]) => (
                       <div key={label} className="rounded-lg border border-border bg-[#f8fbff] p-4">
                         <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">{label}</div>
-                        <div className="mt-2 font-serif text-2xl font-bold text-foreground">{value}</div>
+                        <div className="mt-2 font-serif text-xl font-bold text-foreground">{value}</div>
                       </div>
                     ))}
                   </div>
@@ -134,13 +178,18 @@ export default function EdgeReportPage() {
             <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_380px]">
               <section className="space-y-5">
                 <Card className="app-card p-5">
-                  <SectionHeader title="Route ranking" description="Country ranking appears after the AI report generation step." />
-                  <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-                    {["Best route", "Backup route", "Value route"].map((label) => (
-                      <div key={label} className="rounded-lg border border-dashed border-border bg-muted/20 p-4">
-                        <div className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">{label}</div>
-                        <div className="mt-2 font-serif text-lg font-bold text-foreground">Pending</div>
-                        <Progress value={0} className="mt-4 h-1.5" />
+                  <SectionHeader title="Route ranking" description="First-pass country ranking based on saved profile signals." />
+                  <div className="space-y-3">
+                    {routes.map((route, index) => (
+                      <div key={route.country} className="rounded-lg border border-border bg-muted/25 p-4">
+                        <div className="flex items-center justify-between gap-3">
+                          <div>
+                            <div className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">Route {index + 1}</div>
+                            <div className="mt-1 font-serif text-lg font-bold text-foreground">{route.country}</div>
+                          </div>
+                          <Badge variant={index === 0 ? "default" : "outline"}>{route.score}% fit</Badge>
+                        </div>
+                        <Progress value={route.score} className="mt-4 h-1.5" />
                       </div>
                     ))}
                   </div>
@@ -161,7 +210,7 @@ export default function EdgeReportPage() {
                   ) : (
                     <div className="rounded-lg border border-dashed border-border bg-muted/20 p-5">
                       <div className="font-serif text-base font-bold text-foreground">No universities shortlisted yet.</div>
-                      <p className="mt-2 text-sm leading-6 text-muted-foreground">Save universities to let ELEE compare course fit, cost, deadlines, documents, and outcomes.</p>
+                      <p className="mt-2 text-sm leading-6 text-muted-foreground">Save universities to compare course fit, cost, deadlines, documents, and outcomes.</p>
                     </div>
                   )}
                 </Card>
@@ -169,18 +218,24 @@ export default function EdgeReportPage() {
 
               <aside className="space-y-5">
                 <Card className="app-card p-5">
+                  <SectionHeader title="Finance clarity" />
+                  <div className="rounded-lg border border-border bg-muted/25 p-4">
+                    <div className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">Annual budget</div>
+                    <div className="mt-2 font-serif text-xl font-bold text-foreground">{budget > 0 ? formatInr(budget) : "Not added"}</div>
+                    <p className="mt-3 text-sm leading-6 text-muted-foreground">
+                      {budget > 0 ? "ELEE will compare tuition, living cost, loan, remittance, forex, and visa fund proof against this INR budget." : "Add your INR budget in Profile to unlock finance guidance."}
+                    </p>
+                  </div>
+                </Card>
+
+                <Card className="app-card p-5">
                   <SectionHeader title="What changed" description="Report-related system events." />
                   {ledgerEvents.length > 0 ? (
                     <div className="space-y-3">
                       {ledgerEvents.slice(0, 4).map((event) => (
                         <div key={event.id} className="rounded-lg border border-border bg-muted/25 p-3">
-                          <div className="flex items-start justify-between gap-3">
-                            <div>
-                              <div className="text-[10px] font-bold uppercase tracking-wide text-primary">{event.source}</div>
-                              <div className="mt-1 text-sm font-bold leading-5 text-foreground">{event.event}</div>
-                            </div>
-                            <Badge variant="outline" className="rounded-full text-xs">{event.status}</Badge>
-                          </div>
+                          <div className="text-[10px] font-bold uppercase tracking-wide text-primary">{event.source}</div>
+                          <div className="mt-1 text-sm font-bold leading-5 text-foreground">{event.event}</div>
                           <p className="mt-2 text-xs leading-5 text-muted-foreground">{event.studentView}</p>
                         </div>
                       ))}
@@ -189,7 +244,7 @@ export default function EdgeReportPage() {
                     <div className="rounded-lg border border-dashed border-border bg-muted/20 p-4">
                       <Sparkles className="h-5 w-5 text-primary" />
                       <div className="mt-3 font-serif text-base font-bold text-foreground">No report events yet.</div>
-                      <p className="mt-2 text-sm leading-6 text-muted-foreground">Events appear after profile generation, shortlisting, document upload, or finance actions.</p>
+                      <p className="mt-2 text-sm leading-6 text-muted-foreground">Events appear after shortlisting, document upload, or finance actions.</p>
                     </div>
                   )}
                 </Card>

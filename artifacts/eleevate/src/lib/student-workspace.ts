@@ -14,6 +14,7 @@ export interface StudentWorkspaceProfile {
   nationality?: string;
   preferredIntake?: string;
   budget?: string;
+  budgetCurrency?: "INR" | "USD";
   careerGoal?: string;
   updatedAt?: string;
 }
