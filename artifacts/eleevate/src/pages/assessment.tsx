@@ -30,6 +30,8 @@ interface Session {
   completedAt: string;
 }
 
+type FieldKey = "ai" | "finance" | "business" | "healthcare";
+
 const DEMO_QUESTIONS: Question[] = [
   {
     id: "demo-q1",
@@ -57,40 +59,106 @@ const DEMO_QUESTIONS: Question[] = [
   },
 ];
 
-const DEMO_RESULT: Session = {
-  id: "demo-session-1",
-  completedAt: "2026-05-21",
-  personalityInsights: {
-    workStyle: "Analytical builder",
-    socialStyle: "Focused collaborator",
-    decisionStyle: "Evidence-led",
-    planningStyle: "Structured with coaching",
+const FIELD_LIBRARY: Record<FieldKey, Omit<FieldRec, "matchScore">> = {
+  ai: {
+    field: "Computer Science and AI",
+    countries: ["Canada", "United Kingdom", "Germany"],
+    careers: ["AI Product Engineer", "Data Analyst", "Machine Learning Analyst", "Product Analyst"],
   },
-  fieldRecommendations: [
-    {
-      field: "Computer Science and AI",
-      countries: ["Canada", "United Kingdom", "Germany"],
-      careers: ["AI Product Engineer", "Data Engineer", "Machine Learning Analyst", "Product Analyst"],
-      matchScore: 91,
-    },
-    {
-      field: "Business Analytics",
-      countries: ["United Kingdom", "Australia", "Ireland"],
-      careers: ["Business Analyst", "Growth Analyst", "Consultant"],
-      matchScore: 84,
-    },
-    {
-      field: "Digital Product Management",
-      countries: ["Canada", "Netherlands", "Singapore"],
-      careers: ["Associate PM", "Product Operations", "UX Researcher"],
-      matchScore: 78,
-    },
-  ],
-  careerRecommendations: [
-    { career: "AI Product Engineer", field: "Computer Science and AI" },
-    { career: "Data Engineer", field: "Computer Science and AI" },
-  ],
+  finance: {
+    field: "Finance, Accounting and FinTech",
+    countries: ["United Kingdom", "Singapore", "Ireland"],
+    careers: ["Financial Analyst", "Investment Analyst", "Risk Analyst", "FinTech Product Analyst"],
+  },
+  business: {
+    field: "Business Analytics and Management",
+    countries: ["United Kingdom", "Australia", "Netherlands"],
+    careers: ["Business Analyst", "Management Consultant", "Market Research Analyst", "Strategy Associate"],
+  },
+  healthcare: {
+    field: "Healthcare Management and Operations",
+    countries: ["Canada", "Australia", "United Kingdom"],
+    careers: ["Healthcare Operations Analyst", "Hospital Administrator", "Public Health Analyst", "Clinical Project Coordinator"],
+  },
 };
+
+function buildDemoAssessmentResult(ans: Record<string, number>): Session {
+  const scores: Record<FieldKey, number> = {
+    ai: 52,
+    finance: 52,
+    business: 52,
+    healthcare: 52,
+  };
+  const add = (field: FieldKey, points: number) => {
+    scores[field] += points;
+  };
+
+  const scoring: Record<string, Array<Partial<Record<FieldKey, number>>>> = {
+    "demo-q1": [
+      { ai: 16, business: 6, finance: 4 },
+      { business: 14, healthcare: 8 },
+      { business: 10, finance: 10, healthcare: 6 },
+      { finance: 12, business: 8, healthcare: 4 },
+    ],
+    "demo-q2": [
+      { ai: 35, business: 7 },
+      { business: 32, finance: 12 },
+      { healthcare: 35, business: 8 },
+      { finance: 38, business: 10, ai: 4 },
+    ],
+    "demo-q3": [
+      { ai: 10, finance: 8, healthcare: 8 },
+      { business: 10, finance: 12, healthcare: 10 },
+      { ai: 11, business: 11, finance: 10 },
+      { healthcare: 10, business: 8, finance: 6 },
+    ],
+    "demo-q4": [
+      { finance: 28, business: 8 },
+      { business: 8, healthcare: 4, finance: 5 },
+      { healthcare: 9, business: 6 },
+      { business: 10, finance: 8, ai: 8 },
+    ],
+  };
+
+  Object.entries(ans).forEach(([questionId, optionIndex]) => {
+    const optionScores = scoring[questionId]?.[optionIndex];
+    if (!optionScores) return;
+    Object.entries(optionScores).forEach(([field, points]) => add(field as FieldKey, points ?? 0));
+  });
+
+  const fieldRecommendations = (Object.keys(scores) as FieldKey[])
+    .map((key) => ({
+      ...FIELD_LIBRARY[key],
+      matchScore: Math.min(96, Math.round(scores[key])),
+    }))
+    .sort((a, b) => b.matchScore - a.matchScore);
+
+  const workStyles = ["Analytical builder", "People-first collaborator", "Research-led planner", "Structured planner"];
+  const socialStyles = ["Independent problem solver", "Applied industry collaborator", "Startup-minded networker", "Mentorship-led learner"];
+  const decisionStyles = ["Model-led", "Market-led", "Impact-led", "Finance-led"];
+  const planningStyles = ["Budget-first planner", "Risk-aware planner", "Settling-in planner", "Career-outcome planner"];
+
+  const top = fieldRecommendations[0];
+  return {
+    id: `demo-session-${Date.now()}`,
+    completedAt: new Date().toISOString(),
+    personalityInsights: {
+      workStyle: workStyles[ans["demo-q1"] ?? 0],
+      socialStyle: socialStyles[ans["demo-q3"] ?? 0],
+      decisionStyle: decisionStyles[ans["demo-q2"] ?? 0],
+      planningStyle: planningStyles[ans["demo-q4"] ?? 0],
+    },
+    fieldRecommendations,
+    careerRecommendations: top.careers.map((career) => ({ career, field: top.field })),
+  };
+}
+
+const DEMO_RESULT: Session = buildDemoAssessmentResult({
+  "demo-q1": 3,
+  "demo-q2": 3,
+  "demo-q3": 1,
+  "demo-q4": 0,
+});
 
 export default function AssessmentPage() {
   const { getToken } = useAuth();
@@ -131,7 +199,7 @@ export default function AssessmentPage() {
 
   const submitMutation = useMutation({
     mutationFn: async (ans: Record<string, number>) => {
-      if (demoMode) return DEMO_RESULT;
+      if (demoMode) return buildDemoAssessmentResult(ans);
       const token = await getToken();
       const res = await fetch(`${getBaseUrl()}/api/assessment/sessions`, {
         method: "POST",
@@ -334,8 +402,8 @@ export default function AssessmentPage() {
         </div>
 
         <div className="flex gap-3 flex-wrap">
-          <Button onClick={() => window.location.href = "/universities"}>Explore Universities</Button>
-          <Button variant="outline" onClick={() => window.location.href = "/shortlist"}>AI Shortlist</Button>
+          <Button onClick={() => window.location.href = `${import.meta.env.BASE_URL.replace(/\/$/, "")}/universities`}>Explore Universities</Button>
+          <Button variant="outline" onClick={() => window.location.href = `${import.meta.env.BASE_URL.replace(/\/$/, "")}/shortlist`}>AI Shortlist</Button>
           <Button variant="outline" onClick={() => window.print()} className="print:hidden">Download Report</Button>
         </div>
 
