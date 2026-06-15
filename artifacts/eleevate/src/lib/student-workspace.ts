@@ -25,6 +25,7 @@ export interface StudentWorkspaceProfile {
   budget?: string;
   budgetMin?: string;
   budgetMax?: string;
+  budgetCurrency?: "INR" | "USD";
   highestEducation?: string;
   stream?: string;
   passingYear?: string;

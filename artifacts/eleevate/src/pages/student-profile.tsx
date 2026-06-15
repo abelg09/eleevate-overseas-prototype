@@ -34,16 +34,24 @@ const INTAKES = ["Fall 2026", "Spring 2027", "Fall 2027", "Spring 2028"];
 const COUNTRY_OPTIONS = ["India", "United Kingdom", "United States", "Canada", "Australia", "Germany", "Netherlands", "Singapore", "Ireland", "New Zealand", "France", "United Arab Emirates"];
 const STUDY_LEVELS = ["Foundation", "Diploma", "Undergraduate", "Masters", "MBA", "PhD"];
 const CAREER_GOALS = ["Business Analytics / Management", "Computer Science / AI", "Data Science", "Finance / Accounting", "Healthcare Management", "Engineering", "Hospitality", "Design / Creative", "Law / Public Policy", "Undecided"];
-const BUDGET_MIN = 10_000;
-const BUDGET_MAX = 120_000;
+const BUDGET_MIN = 0;
+const BUDGET_MAX = 10_000_000;
+const BUDGET_STEP = 50_000;
+const LEGACY_USD_TO_INR = 83;
 
-function numberFrom(value: unknown, fallback: number) {
+const inrFormatter = new Intl.NumberFormat("en-IN", { maximumFractionDigits: 0 });
+
+function numberFrom(value: unknown, fallback: number, currency?: string) {
   const parsed = Number(value);
-  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+  if (!Number.isFinite(parsed) || parsed < 0) return fallback;
+  if (currency !== "INR" && parsed > 0 && parsed <= 120_000) {
+    return Math.round(parsed * LEGACY_USD_TO_INR);
+  }
+  return parsed;
 }
 
 function budgetLabel(range: number[]) {
-  return `$${range[0].toLocaleString()} - $${range[1].toLocaleString()} / year`;
+  return `INR ${inrFormatter.format(range[0])} - INR ${inrFormatter.format(range[1])} / year`;
 }
 
 function InfoRow({ label, value }: { label: string; value?: string }) {
@@ -128,7 +136,7 @@ export default function StudentProfilePage() {
   const [gmat, setGmat] = useState("");
   const [nationality, setNationality] = useState("");
   const [intake, setIntake] = useState("");
-  const [budgetRange, setBudgetRange] = useState<number[]>([20_000, 45_000]);
+  const [budgetRange, setBudgetRange] = useState<number[]>([0, 0]);
   const [highestEducation, setHighestEducation] = useState("");
   const [stream, setStream] = useState("");
   const [passingYear, setPassingYear] = useState("");
@@ -179,10 +187,11 @@ export default function StudentProfilePage() {
       setGmat(p.gmatScore?.toString() ?? "");
       setNationality(p.nationality ?? "");
       setIntake(p.preferredIntake ?? "");
-      setBudgetRange([
-        numberFrom(workspaceProfile?.budgetMin, 20_000),
-        numberFrom(workspaceProfile?.budgetMax ?? workspaceProfile?.budget ?? p.budget, 45_000),
-      ]);
+      {
+        const minBudget = numberFrom(workspaceProfile?.budgetMin, 0, workspaceProfile?.budgetCurrency);
+        const maxBudget = numberFrom(workspaceProfile?.budgetMax ?? workspaceProfile?.budget ?? p.budget, 0, workspaceProfile?.budgetCurrency);
+        setBudgetRange([Math.min(minBudget, maxBudget), Math.max(minBudget, maxBudget)]);
+      }
       setHighestEducation(workspaceProfile?.highestEducation ?? "");
       setStream(workspaceProfile?.stream ?? "");
       setPassingYear(workspaceProfile?.passingYear ?? "");
@@ -230,7 +239,7 @@ export default function StudentProfilePage() {
       setGmat("");
       setNationality("");
       setIntake("");
-      setBudgetRange([20_000, 45_000]);
+      setBudgetRange([0, 0]);
       setHighestEducation("");
       setStream("");
       setPassingYear("");
@@ -288,6 +297,7 @@ export default function StudentProfilePage() {
         budget: budgetMax,
         budgetMin: String(budgetRange[0]),
         budgetMax,
+        budgetCurrency: "INR",
         highestEducation,
         stream,
         passingYear,
@@ -330,7 +340,7 @@ export default function StudentProfilePage() {
         gmatScore: gmat ? parseInt(gmat) : undefined,
         nationality: nationality || undefined,
         preferredIntake: intake || undefined,
-        budget: budgetRange[1] || undefined,
+        budget: budgetRange[1] > 0 ? budgetRange[1] : undefined,
       }
     });
     queryClient.invalidateQueries({ queryKey: getGetMyStudentProfileQueryKey() });
@@ -466,10 +476,10 @@ export default function StudentProfilePage() {
                       <Label>Budget range</Label>
                       <Badge variant="outline" className="rounded-full">{budgetLabel(budgetRange)}</Badge>
                     </div>
-                    <Slider value={budgetRange} min={BUDGET_MIN} max={BUDGET_MAX} step={5_000} minStepsBetweenThumbs={1} onValueChange={setBudgetRange} data-testid="slider-budget-range" />
+                    <Slider value={budgetRange} min={BUDGET_MIN} max={BUDGET_MAX} step={BUDGET_STEP} minStepsBetweenThumbs={0} onValueChange={setBudgetRange} data-testid="slider-budget-range" />
                     <div className="mt-2 flex justify-between text-xs font-semibold text-muted-foreground">
-                      <span>$10k</span>
-                      <span>$120k</span>
+                      <span>INR 0</span>
+                      <span>INR 1 Cr</span>
                     </div>
                   </div>
                   <div>
@@ -559,7 +569,10 @@ export default function StudentProfilePage() {
                   <InfoRow label="Mobile" value={savedProfile.mobileNumber} />
                   <InfoRow label="Study level" value={savedProfile.studyLevel} />
                   <InfoRow label="Preferred route" value={savedProfile.preferredCountry || savedProfile.targetCountries?.join(", ")} />
-                  <InfoRow label="Budget" value={savedProfile.budgetMin && savedProfile.budgetMax ? `$${Number(savedProfile.budgetMin).toLocaleString()} - $${Number(savedProfile.budgetMax).toLocaleString()}` : undefined} />
+                  <InfoRow label="Budget" value={savedProfile.budgetMin && savedProfile.budgetMax ? budgetLabel([
+                    numberFrom(savedProfile.budgetMin, 0, savedProfile.budgetCurrency),
+                    numberFrom(savedProfile.budgetMax, 0, savedProfile.budgetCurrency),
+                  ]) : undefined} />
                 </div>
               </Card>
             )}
