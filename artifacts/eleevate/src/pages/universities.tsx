@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "wouter";
 import {
   useListUniversities, getListUniversitiesQueryKey,
@@ -21,7 +21,12 @@ import { useToast } from "@/hooks/use-toast";
 import { isDemoMode, listFromApi } from "@/lib/demo-mode";
 import { DEMO_UNIVERSITIES } from "@/lib/demo-catalog";
 import { ensureDemoApplicationForUniversity, readDemoShortlistIds, writeDemoShortlistIds } from "@/lib/demo-flow";
-import { hasStudentWorkspaceProfile, useStudentWorkspaceProfile } from "@/lib/student-workspace";
+import {
+  hasStudentWorkspaceProfile,
+  readStudentWorkspaceProfile,
+  useStudentWorkspaceProfile,
+  type StudentWorkspaceProfile,
+} from "@/lib/student-workspace";
 import { cn } from "@/lib/utils";
 
 const COUNTRIES = ["All", "GB", "US", "CA", "AU", "DE", "NL", "SG", "IE"];
@@ -69,17 +74,35 @@ interface Filters {
 
 const DEFAULT_FILTERS: Filters = { minRanking: "", maxRanking: "", maxTuitionK: "", maxAcceptanceRate: "" };
 
-function getInitialCountryFilter() {
-  if (typeof window === "undefined") return "All";
-  const value = new URLSearchParams(window.location.search).get("country");
-  if (!value) return "All";
+function getCountryFilterFromValue(value: string | null | undefined) {
+  if (!value) return null;
   const normalized = value.trim().toLowerCase();
+  if (normalized === "all") return "All";
   const directCode = COUNTRIES.find((code) => code.toLowerCase() === normalized);
-  if (directCode) return directCode;
+  if (directCode && directCode !== "All") return directCode;
   const byLabel = Object.entries(COUNTRY_NAMES).find(([, label]) => label.toLowerCase() === normalized);
   if (byLabel) return byLabel[0];
   const byMatch = Object.entries(COUNTRY_MATCHES).find(([, aliases]) => aliases.some((alias) => alias.toLowerCase() === normalized));
-  return byMatch?.[0] ?? "All";
+  return byMatch?.[0] ?? null;
+}
+
+function getProfileCountryFilter(profile: StudentWorkspaceProfile | null | undefined) {
+  return getCountryFilterFromValue(profile?.targetCountries?.[0] ?? profile?.preferredCountry) ?? null;
+}
+
+function hasCountryQueryParam() {
+  return typeof window !== "undefined" && new URLSearchParams(window.location.search).has("country");
+}
+
+function getInitialCountryFilter() {
+  if (typeof window === "undefined") return "All";
+  const queryFilter = getCountryFilterFromValue(new URLSearchParams(window.location.search).get("country"));
+  if (queryFilter) return queryFilter;
+  return getProfileCountryFilter(readStudentWorkspaceProfile()) ?? "All";
+}
+
+function profileCountryWasInitialFilter() {
+  return !hasCountryQueryParam() && Boolean(getProfileCountryFilter(readStudentWorkspaceProfile()));
 }
 
 export default function UniversitiesPage() {
@@ -92,12 +115,20 @@ export default function UniversitiesPage() {
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS);
   const [demoSavedIds, setDemoSavedIds] = useState<Set<string>>(() => new Set(readDemoShortlistIds()));
+  const [profileFilterApplied, setProfileFilterApplied] = useState(() => profileCountryWasInitialFilter());
   const profile = useStudentWorkspaceProfile();
   const hasProfile = hasStudentWorkspaceProfile(profile);
+  const profileCountryFilter = getProfileCountryFilter(profile);
+
+  useEffect(() => {
+    if (hasCountryQueryParam() || profileFilterApplied || country !== "All" || !profileCountryFilter) return;
+    setCountry(profileCountryFilter);
+    setProfileFilterApplied(true);
+  }, [country, profileCountryFilter, profileFilterApplied]);
 
   const params = {
     search: search || undefined,
-    country: country === "All" ? undefined : country,
+    country: country === "All" ? undefined : COUNTRY_MATCHES[country]?.[0] ?? country,
     page,
     limit: PAGE_SIZE,
   };

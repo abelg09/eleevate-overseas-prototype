@@ -14,6 +14,11 @@ import { DEMO_COUNTRIES, DEMO_PROGRAMS, DEMO_UNIVERSITIES } from "@/lib/demo-cat
 import { ensureDemoApplicationForUniversity, readDemoShortlistIds, writeDemoShortlistIds } from "@/lib/demo-flow";
 import { addDemoLedgerEvent } from "@/lib/demo-journey";
 import { getCourseInsight } from "@/lib/product-demo";
+import {
+  readStudentWorkspaceProfile,
+  useStudentWorkspaceProfile,
+  type StudentWorkspaceProfile,
+} from "@/lib/student-workspace";
 
 const all = "All";
 const DEGREE_LABELS: Record<string, string> = {
@@ -26,13 +31,45 @@ const DEGREE_LABELS: Record<string, string> = {
 };
 const DEGREE_OPTIONS = ["bachelor", "diploma", "certificate", "master", "mba", "phd"];
 
+function normalizeCourseCountry(value: string | null | undefined) {
+  if (!value) return null;
+  const normalized = value.trim().toLowerCase();
+  if (normalized === "all") return all;
+  const aliases: Record<string, string> = {
+    uk: "United Kingdom",
+    "u.k.": "United Kingdom",
+    "great britain": "United Kingdom",
+    britain: "United Kingdom",
+    england: "United Kingdom",
+    usa: "United States",
+    us: "United States",
+    "u.s.": "United States",
+    "united states of america": "United States",
+    uae: "United Arab Emirates",
+  };
+  const alias = aliases[normalized];
+  if (alias) return DEMO_COUNTRIES.some((country) => country.name === alias) ? alias : null;
+  const match = DEMO_COUNTRIES.find((country) => country.name.toLowerCase() === normalized || country.code.toLowerCase() === normalized);
+  return match?.name ?? null;
+}
+
+function getProfileCourseCountry(profile: StudentWorkspaceProfile | null | undefined) {
+  return normalizeCourseCountry(profile?.targetCountries?.[0] ?? profile?.preferredCountry);
+}
+
+function hasCountryQueryParam() {
+  return typeof window !== "undefined" && new URLSearchParams(window.location.search).has("country");
+}
+
 function getInitialCourseCountry() {
   if (typeof window === "undefined") return all;
-  const value = new URLSearchParams(window.location.search).get("country");
-  if (!value) return all;
-  const normalized = value.trim().toLowerCase();
-  const match = DEMO_COUNTRIES.find((country) => country.name.toLowerCase() === normalized || country.code.toLowerCase() === normalized);
-  return match?.name ?? all;
+  const queryCountry = normalizeCourseCountry(new URLSearchParams(window.location.search).get("country"));
+  if (queryCountry) return queryCountry;
+  return getProfileCourseCountry(readStudentWorkspaceProfile()) ?? all;
+}
+
+function profileCountryWasInitialFilter() {
+  return !hasCountryQueryParam() && Boolean(getProfileCourseCountry(readStudentWorkspaceProfile()));
 }
 
 export default function CourseFinderPage() {
@@ -42,6 +79,17 @@ export default function CourseFinderPage() {
   const [institute, setInstitute] = useState(all);
   const [degree, setDegree] = useState(all);
   const [savedIds, setSavedIds] = useState(() => readDemoShortlistIds());
+  const [profileFilterApplied, setProfileFilterApplied] = useState(() => profileCountryWasInitialFilter());
+  const profile = useStudentWorkspaceProfile();
+  const profileCourseCountry = getProfileCourseCountry(profile);
+
+  useEffect(() => {
+    if (hasCountryQueryParam() || profileFilterApplied || country !== all || !profileCourseCountry) return;
+    setCountry(profileCourseCountry);
+    setState(all);
+    setInstitute(all);
+    setProfileFilterApplied(true);
+  }, [country, profileCourseCountry, profileFilterApplied]);
 
   const countryUniversities = useMemo(() => (
     DEMO_UNIVERSITIES.filter((university) => country === all || university.country === country)
