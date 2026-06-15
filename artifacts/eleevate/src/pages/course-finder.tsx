@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import { Link } from "wouter";
 import { ArrowRight, Globe2, RotateCcw, Search, SlidersHorizontal } from "lucide-react";
@@ -16,6 +16,15 @@ import { addDemoLedgerEvent } from "@/lib/demo-journey";
 import { getCourseInsight } from "@/lib/product-demo";
 
 const all = "All";
+const DEGREE_LABELS: Record<string, string> = {
+  bachelor: "Undergraduate",
+  diploma: "Diploma",
+  certificate: "Certificate",
+  master: "Master's",
+  mba: "MBA",
+  phd: "PhD",
+};
+const DEGREE_OPTIONS = ["bachelor", "diploma", "certificate", "master", "mba", "phd"];
 
 function getInitialCourseCountry() {
   if (typeof window === "undefined") return all;
@@ -31,18 +40,37 @@ export default function CourseFinderPage() {
   const [country, setCountry] = useState(() => getInitialCourseCountry());
   const [state, setState] = useState(all);
   const [institute, setInstitute] = useState(all);
-  const [campus, setCampus] = useState(all);
   const [degree, setDegree] = useState(all);
   const [savedIds, setSavedIds] = useState(() => readDemoShortlistIds());
 
-  const states = useMemo(() => Array.from(new Set(DEMO_UNIVERSITIES.map((university) => university.city))).sort(), []);
-  const institutes = useMemo(() => DEMO_UNIVERSITIES.map((university) => university.name).sort(), []);
-  const campuses = useMemo(() => Array.from(new Set(DEMO_UNIVERSITIES.map((university) => `${university.city} campus`))).sort(), []);
+  const countryUniversities = useMemo(() => (
+    DEMO_UNIVERSITIES.filter((university) => country === all || university.country === country)
+  ), [country]);
+  const states = useMemo(() => Array.from(new Set(countryUniversities.map((university) => university.city))).sort(), [countryUniversities]);
+  const cityUniversities = useMemo(() => (
+    countryUniversities.filter((university) => state === all || university.city === state)
+  ), [countryUniversities, state]);
+  const institutes = useMemo(() => cityUniversities.map((university) => university.name).sort(), [cityUniversities]);
+  const availableDegreeOptions = useMemo(() => {
+    const universityIds = new Set(cityUniversities.map((university) => university.id));
+    return DEGREE_OPTIONS.filter((option) => DEMO_PROGRAMS.some((program) => universityIds.has(program.universityId) && program.degree === option));
+  }, [cityUniversities]);
+
+  useEffect(() => {
+    if (state !== all && !states.includes(state)) setState(all);
+  }, [state, states]);
+
+  useEffect(() => {
+    if (institute !== all && !institutes.includes(institute)) setInstitute(all);
+  }, [institute, institutes]);
+
+  useEffect(() => {
+    if (degree !== all && !availableDegreeOptions.includes(degree)) setDegree(all);
+  }, [availableDegreeOptions, degree]);
 
   const filteredPrograms = useMemo(() => {
     return DEMO_PROGRAMS.filter((program) => {
       const university = program.university;
-      const campusName = `${university?.city} campus`;
       const matchesQuery = !query.trim()
         || program.name.toLowerCase().includes(query.toLowerCase())
         || program.field.toLowerCase().includes(query.toLowerCase())
@@ -50,18 +78,16 @@ export default function CourseFinderPage() {
       const matchesCountry = country === all || university?.country === country;
       const matchesState = state === all || university?.city === state;
       const matchesInstitute = institute === all || university?.name === institute;
-      const matchesCampus = campus === all || campusName === campus;
       const matchesDegree = degree === all || program.degree === degree;
-      return matchesQuery && matchesCountry && matchesState && matchesInstitute && matchesCampus && matchesDegree;
+      return matchesQuery && matchesCountry && matchesState && matchesInstitute && matchesDegree;
     }).sort((a, b) => getCourseInsight(b).fitScore - getCourseInsight(a).fitScore);
-  }, [campus, country, degree, institute, query, state]);
+  }, [country, degree, institute, query, state]);
 
   const resetFilters = () => {
     setQuery("");
     setCountry(all);
     setState(all);
     setInstitute(all);
-    setCampus(all);
     setDegree(all);
   };
 
@@ -114,10 +140,10 @@ export default function CourseFinderPage() {
           </Button>
         </div>
 
-        <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+        <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
           <div>
             <LabelText>Country</LabelText>
-            <Select value={country} onValueChange={setCountry}>
+            <Select value={country} onValueChange={(value) => { setCountry(value); setState(all); setInstitute(all); }}>
               <SelectTrigger><SelectValue placeholder="Select country" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value={all}>All countries</SelectItem>
@@ -126,9 +152,9 @@ export default function CourseFinderPage() {
             </Select>
           </div>
           <div>
-            <LabelText>State / city</LabelText>
-            <Select value={state} onValueChange={setState}>
-              <SelectTrigger><SelectValue placeholder="Select state" /></SelectTrigger>
+            <LabelText>City</LabelText>
+            <Select value={state} onValueChange={(value) => { setState(value); setInstitute(all); }}>
+              <SelectTrigger><SelectValue placeholder="Select city" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value={all}>All cities</SelectItem>
                 {states.map((item) => <SelectItem key={item} value={item}>{item}</SelectItem>)}
@@ -146,23 +172,16 @@ export default function CourseFinderPage() {
             </Select>
           </div>
           <div>
-            <LabelText>Campus</LabelText>
-            <Select value={campus} onValueChange={setCampus}>
-              <SelectTrigger><SelectValue placeholder="Select campus" /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value={all}>All campuses</SelectItem>
-                {campuses.map((item) => <SelectItem key={item} value={item}>{item}</SelectItem>)}
-              </SelectContent>
-            </Select>
-          </div>
-          <div>
             <LabelText>Level</LabelText>
             <Select value={degree} onValueChange={setDegree}>
               <SelectTrigger><SelectValue placeholder="Select level" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value={all}>All levels</SelectItem>
-                <SelectItem value="master">Master</SelectItem>
-                <SelectItem value="mba">MBA</SelectItem>
+                {DEGREE_OPTIONS.map((option) => (
+                  <SelectItem key={option} value={option} disabled={!availableDegreeOptions.includes(option)}>
+                    {DEGREE_LABELS[option]}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -219,7 +238,7 @@ export default function CourseFinderPage() {
                 <div className="flex items-start gap-3">
                   <UniversityLogo name={university?.name ?? "University"} website={university?.website} className="h-12 w-12" />
                   <div className="min-w-0">
-                    <div className="text-xs font-semibold capitalize text-muted-foreground">{program.degree}</div>
+                    <div className="text-xs font-semibold text-muted-foreground">{DEGREE_LABELS[program.degree] ?? program.degree}</div>
                     <h3 className="mt-1 line-clamp-2 font-serif text-base font-bold leading-tight text-foreground">{program.name}</h3>
                   </div>
                 </div>
@@ -234,7 +253,7 @@ export default function CourseFinderPage() {
                   <CourseInfo label="Duration" value={`${program.duration} ${program.durationUnit}`} />
                   <CourseInfo label="Intake months" value={startDate ? startDate.toLocaleString("en", { month: "short" }) : "Review"} />
                   <CourseInfo label="Intake years" value={startDate ? startDate.getFullYear().toString() : "Review"} />
-                  <CourseInfo label="Level" value={program.degree} />
+                  <CourseInfo label="Level" value={DEGREE_LABELS[program.degree] ?? program.degree} />
                   <CourseInfo label="Requirements" value={program.ieltsRequirement ? `IELTS ${program.ieltsRequirement}` : "Review"} />
                 </div>
               </div>
