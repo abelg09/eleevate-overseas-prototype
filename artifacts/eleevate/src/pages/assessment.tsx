@@ -7,6 +7,7 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@clerk/react";
 import { isDemoMode } from "@/lib/demo-mode";
+import { writeStudentAssessmentResult } from "@/lib/student-assessment";
 
 interface Question {
   id: string;
@@ -208,7 +209,11 @@ export default function AssessmentPage() {
       });
       return res.json();
     },
-    onSuccess: (data) => { setResult(data); setPhase("result"); },
+    onSuccess: (data) => {
+      writeStudentAssessmentResult(data);
+      setResult(data);
+      setPhase("result");
+    },
   });
 
   const handleAnswer = (optionIdx: number) => {

@@ -17,9 +17,18 @@ import { getCourseInsight } from "@/lib/product-demo";
 
 const all = "All";
 
+function getInitialCourseCountry() {
+  if (typeof window === "undefined") return all;
+  const value = new URLSearchParams(window.location.search).get("country");
+  if (!value) return all;
+  const normalized = value.trim().toLowerCase();
+  const match = DEMO_COUNTRIES.find((country) => country.name.toLowerCase() === normalized || country.code.toLowerCase() === normalized);
+  return match?.name ?? all;
+}
+
 export default function CourseFinderPage() {
   const [query, setQuery] = useState("");
-  const [country, setCountry] = useState(all);
+  const [country, setCountry] = useState(() => getInitialCourseCountry());
   const [state, setState] = useState(all);
   const [institute, setInstitute] = useState(all);
   const [campus, setCampus] = useState(all);

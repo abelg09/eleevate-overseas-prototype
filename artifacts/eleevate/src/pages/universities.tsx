@@ -69,12 +69,25 @@ interface Filters {
 
 const DEFAULT_FILTERS: Filters = { minRanking: "", maxRanking: "", maxTuitionK: "", maxAcceptanceRate: "" };
 
+function getInitialCountryFilter() {
+  if (typeof window === "undefined") return "All";
+  const value = new URLSearchParams(window.location.search).get("country");
+  if (!value) return "All";
+  const normalized = value.trim().toLowerCase();
+  const directCode = COUNTRIES.find((code) => code.toLowerCase() === normalized);
+  if (directCode) return directCode;
+  const byLabel = Object.entries(COUNTRY_NAMES).find(([, label]) => label.toLowerCase() === normalized);
+  if (byLabel) return byLabel[0];
+  const byMatch = Object.entries(COUNTRY_MATCHES).find(([, aliases]) => aliases.some((alias) => alias.toLowerCase() === normalized));
+  return byMatch?.[0] ?? "All";
+}
+
 export default function UniversitiesPage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const demoMode = isDemoMode();
   const [search, setSearch] = useState("");
-  const [country, setCountry] = useState("All");
+  const [country, setCountry] = useState(() => getInitialCountryFilter());
   const [page, setPage] = useState(1);
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS);

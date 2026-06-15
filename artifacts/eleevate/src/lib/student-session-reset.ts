@@ -7,6 +7,7 @@ import { STUDENT_GUIDE_WELCOME_STORAGE_KEY } from "@/lib/student-guide";
 import { ELEE_REPORT_GENERATED_STORAGE_KEY } from "@/lib/student-journey-state";
 import { STUDENT_PACKAGE_STORAGE_KEY } from "@/lib/student-packages";
 import { STUDENT_PROFILE_STORAGE_KEY } from "@/lib/student-workspace";
+import { STUDENT_ASSESSMENT_STORAGE_KEY } from "@/lib/student-assessment";
 
 const STUDENT_RESET_VERSION_KEY = "eleevate.student-first.global.reset.v2";
 const LEGACY_STUDENT_KEYS = [
@@ -21,6 +22,7 @@ const LEGACY_STUDENT_KEYS = [
   "eleevate.student-first.package.v1",
   "eleevate.student-first.documents.v1",
   "eleevate.student-first.report.generated.v1",
+  "eleevate.student-first.assessment.result.v1",
 ];
 const STUDENT_OWNED_EXTRA_KEYS = [
   "eleevate.student-first.test-prep.scores.v1",
@@ -42,6 +44,7 @@ export function resetStudentOwnedSessionData() {
   localStorage.removeItem(ELEE_REPORT_GENERATED_STORAGE_KEY);
   localStorage.removeItem(STUDENT_PROFILE_STORAGE_KEY);
   localStorage.removeItem(STUDENT_GUIDE_WELCOME_STORAGE_KEY);
+  localStorage.removeItem(STUDENT_ASSESSMENT_STORAGE_KEY);
   STUDENT_OWNED_EXTRA_KEYS.forEach((key) => localStorage.removeItem(key));
   LEGACY_STUDENT_KEYS.forEach((key) => localStorage.removeItem(key));
   resetDemoLedgerEvents();
