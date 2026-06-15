@@ -250,7 +250,7 @@ export default function SupportPage() {
                   <MessageSquare className="h-6 w-6 text-green-600" />
                 </div>
                 <h3 className="font-semibold text-foreground mb-1">Live Chat</h3>
-                <p className="text-xs text-muted-foreground mb-3">Instant answers during business hours (9am–6pm GMT)</p>
+                <p className="text-xs text-muted-foreground mb-3">Instant answers during business hours (9am-6pm IST)</p>
                 <Badge variant="secondary" className="text-xs text-green-700 bg-green-100">● Online Now</Badge>
               </Card>
               <Card className="p-5 border border-border text-center" data-testid="contact-card-email">
@@ -299,7 +299,7 @@ export default function SupportPage() {
                   <MessageSquare className="h-4 w-4" />
                   Start Chat
                 </Button>
-                <p className="text-xs text-muted-foreground mt-4">Live chat is available Monday–Friday, 9am–6pm GMT</p>
+                <p className="text-xs text-muted-foreground mt-4">Live chat is available Monday-Friday, 9am-6pm IST</p>
               </div>
             </Card>
           </div>

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
-import { Bell } from "lucide-react";
+import { Bell, LifeBuoy } from "lucide-react";
 import { Sidebar } from "./sidebar";
 import { EleeBuddy } from "@/components/common/elee-buddy";
 import { StudentJourneyWelcomeDialog } from "@/components/common/student-journey-welcome";
@@ -74,6 +74,21 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                 <Badge variant="outline" className="max-w-32 truncate border-primary/25 bg-primary/5 px-4 py-1.5 font-serif text-sm font-bold text-primary">
                   {packageTier}
                 </Badge>
+              </Link>
+            )}
+
+            {!consultant && (
+              <Link
+                href="/support"
+                className={cn(
+                  "flex h-8 items-center gap-2 rounded-lg border border-border bg-card px-2 font-serif text-sm font-bold text-foreground transition-colors hover:border-primary/40 hover:text-primary sm:px-3",
+                  location === "/support" && "border-primary/40 bg-primary/5 text-primary",
+                )}
+                aria-label="Support"
+                data-testid="header-support-link"
+              >
+                <LifeBuoy className="h-4 w-4" />
+                <span className="hidden sm:inline">Support</span>
               </Link>
             )}
 
