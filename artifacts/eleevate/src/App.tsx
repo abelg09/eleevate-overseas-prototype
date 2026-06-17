@@ -63,6 +63,18 @@ import InsurancePage from "@/pages/insurance";
 import InvoicingPage from "@/pages/invoicing";
 import MorePage from "@/pages/more";
 import NotFound from "@/pages/not-found";
+import {
+  StudentV6ApplicationsPage,
+  StudentV6DashboardPage,
+  StudentV6DocumentsPage,
+  StudentV6ExplorePage,
+  StudentV6FinancePage,
+  StudentV6LandingPage,
+  StudentV6PackagesPage,
+  StudentV6ResetPage,
+  StudentV6StartPage,
+  StudentV6SupportPage,
+} from "@/pages/student-v6";
 import { useDemoAuthState } from "@/lib/demo-auth";
 import { writeDemoJourneyMode } from "@/lib/demo-journey";
 import { resetStudentOwnedSessionData } from "@/lib/student-session-reset";
@@ -355,6 +367,16 @@ function Router() {
       <Switch>
         <Route path="/" component={HomeRedirect} />
         <Route path="/product" component={LandingPage} />
+        <Route path="/student-v6" component={StudentV6LandingPage} />
+        <Route path="/student-v6/start" component={StudentV6StartPage} />
+        <Route path="/student-v6/dashboard" component={StudentV6DashboardPage} />
+        <Route path="/student-v6/explore" component={StudentV6ExplorePage} />
+        <Route path="/student-v6/applications" component={StudentV6ApplicationsPage} />
+        <Route path="/student-v6/documents" component={StudentV6DocumentsPage} />
+        <Route path="/student-v6/finance" component={StudentV6FinancePage} />
+        <Route path="/student-v6/packages" component={StudentV6PackagesPage} />
+        <Route path="/student-v6/support" component={StudentV6SupportPage} />
+        <Route path="/student-v6/reset" component={StudentV6ResetPage} />
         <Route path="/demo/preliminary" component={StudentEntryRoute} />
         <Route path="/demo/canada" component={StudentEntryRoute} />
         <Route path="/login" component={() => demoMode ? <LoginPage /> : <Redirect to="/sign-in" />} />
