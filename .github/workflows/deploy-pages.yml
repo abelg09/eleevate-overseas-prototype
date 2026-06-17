@@ -42,6 +42,29 @@ jobs:
           BASE_PATH: /eleevate-overseas-prototype/
           VITE_DEMO_MODE: "true"
 
+      - name: Add current portal route fallbacks
+        shell: bash
+        run: |
+          current_dist="$GITHUB_WORKSPACE/artifacts/eleevate/dist/public"
+          current_routes=(
+            product
+            student-v6
+            student-v6/start
+            student-v6/dashboard
+            student-v6/explore
+            student-v6/applications
+            student-v6/documents
+            student-v6/finance
+            student-v6/packages
+            student-v6/support
+            student-v6/reset
+          )
+
+          for route in "${current_routes[@]}"; do
+            mkdir -p "$current_dist/$route"
+            cp "$current_dist/index.html" "$current_dist/$route/index.html"
+          done
+
       - name: Build archived AI super-app version
         shell: bash
         run: |
