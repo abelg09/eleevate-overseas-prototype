@@ -42,6 +42,7 @@ import {
   useStudentV6Snapshot,
   useStudentV6State,
   type StudentV6ApplicationStatus,
+  type StudentV6JourneyStep,
   type StudentV6Profile,
   type StudentV6RouteChoice,
 } from "@/lib/student-v6";
@@ -563,98 +564,142 @@ export function StudentV6DashboardPage() {
   const snapshot = useStudentV6Snapshot();
   const avatar = profileInitials(snapshot.studentName);
   const next = snapshot.currentStep;
+  const firstName = snapshot.studentName === "Student" ? "Student" : snapshot.studentName.split(" ")[0];
+  const currentStepIndex = Math.max(0, snapshot.steps.findIndex((step) => step.id === next.id));
+  const currentStepNumber = Math.min(snapshot.steps.length, currentStepIndex + 1);
+  const allDone = snapshot.steps.every((step) => step.complete);
+  const nextTitle = allDone ? "Main journey complete" : next.label;
+  const nextText = allDone
+    ? "You have finished the main setup. Ask Eleevate support to review your file before final submission."
+    : next.studentTask;
+  const nextRequirement = allDone ? "Final review with counsellor." : next.required;
 
   return (
     <StudentV6Shell>
       <PageIntro
         eyebrow="Dashboard"
-        title="What should you do next?"
-        description="This page changes as you complete each step. Keep following the main button."
-        action={<Link href={next.href}><Button className="rounded-full font-serif">{next.cta}</Button></Link>}
+        title={`Hi ${firstName}, do this next`}
+        description="One clear step at a time. Complete the green button first, then come back here."
+        action={<Link href={next.href}><Button className="rounded-full font-serif">{allDone ? "Review file" : next.cta}</Button></Link>}
       />
 
-      <section className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
+      <section className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_300px]">
         <Card className="overflow-hidden border border-primary/20 bg-white shadow-sm">
           <div className="h-1.5 bg-gradient-to-r from-primary to-accent" />
-          <div className="p-5 md:p-6">
-            <Badge className="rounded-full bg-primary/10 text-primary hover:bg-primary/10">Next step</Badge>
-            <h2 className="mt-4 font-serif text-3xl font-bold leading-tight text-foreground">{next.label}</h2>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">{next.studentTask}</p>
-            <div className="mt-5 flex flex-wrap gap-2">
-              <Link href={next.href}>
-                <Button className="rounded-full font-serif">{next.cta} <ArrowRight className="h-4 w-4" /></Button>
-              </Link>
-              <Link href="/student-v6/support">
-                <Button variant="outline" className="rounded-full font-serif">Ask for help</Button>
-              </Link>
+          <div className="grid gap-5 p-5 md:grid-cols-[minmax(0,1fr)_220px] md:p-6">
+            <div>
+              <Badge className="rounded-full bg-primary/10 px-3 py-1 text-primary hover:bg-primary/10">
+                {allDone ? "Ready for review" : `Step ${currentStepNumber} of ${snapshot.steps.length}`}
+              </Badge>
+              <h2 className="mt-4 font-serif text-3xl font-bold leading-tight text-foreground md:text-4xl">{nextTitle}</h2>
+              <p className="mt-3 max-w-2xl text-base leading-7 text-muted-foreground">{nextText}</p>
+              <div className="mt-4 rounded-lg border border-border bg-muted/25 p-3">
+                <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">Needed now</div>
+                <p className="mt-1 text-sm font-semibold leading-6 text-foreground">{nextRequirement}</p>
+              </div>
+              <div className="mt-5 flex flex-col gap-2 sm:flex-row">
+                <Link href={next.href}>
+                  <Button size="lg" className="w-full rounded-full font-serif sm:w-auto">
+                    {allDone ? "Review file" : next.cta}
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </Link>
+                <Link href="/student-v6/support">
+                  <Button size="lg" variant="outline" className="w-full rounded-full font-serif sm:w-auto">Talk to support</Button>
+                </Link>
+              </div>
+            </div>
+            <div className="rounded-xl border border-border bg-muted/20 p-4">
+              <div className="flex items-center gap-3">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 font-serif font-bold text-primary">{avatar}</div>
+                <div className="min-w-0">
+                  <div className="truncate font-serif text-lg font-bold">{snapshot.studentName}</div>
+                  <div className="text-sm text-muted-foreground">{snapshot.packageLabel} package</div>
+                </div>
+              </div>
+              <div className="mt-5">
+                <div className="mb-2 flex justify-between text-sm">
+                  <span className="font-semibold text-muted-foreground">Journey done</span>
+                  <span className="font-serif font-bold">{snapshot.progress}%</span>
+                </div>
+                <Progress value={snapshot.progress} className="h-2" />
+              </div>
+              <div className="mt-4 rounded-lg border border-border bg-white p-3 text-sm leading-6 text-muted-foreground">
+                {snapshot.selectedCountry
+                  ? `Current country focus: ${snapshot.selectedCountry}.`
+                  : "No country chosen yet. Add study goal first."}
+              </div>
             </div>
           </div>
         </Card>
 
         <Card className="border border-border bg-white p-5 shadow-sm">
-          <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 font-serif font-bold text-primary">{avatar}</div>
-            <div>
-              <div className="font-serif text-lg font-bold">{snapshot.studentName}</div>
-              <div className="text-sm text-muted-foreground">{snapshot.packageLabel} package</div>
-            </div>
-          </div>
-          <div className="mt-5">
-            <div className="mb-2 flex justify-between text-sm"><span className="font-semibold text-muted-foreground">Journey progress</span><span className="font-serif font-bold">{snapshot.progress}%</span></div>
-            <Progress value={snapshot.progress} className="h-2" />
-          </div>
-          <div className="mt-4 grid grid-cols-2 gap-2">
-            <MiniMetric label="Country" value={snapshot.selectedCountry ?? "Not chosen"} />
-            <MiniMetric label="Shortlist" value={String(snapshot.state.shortlistedUniversityIds.length)} />
-            <MiniMetric label="Docs" value={`${snapshot.documentReadiness}%`} />
-            <MiniMetric label="Rewards" value={String(snapshot.state.rewardPoints)} />
+          <h2 className="font-serif text-xl font-bold">At a glance</h2>
+          <p className="mt-1 text-sm text-muted-foreground">Your file status in simple words.</p>
+          <div className="mt-4 grid gap-3">
+            <DashboardStatusCard label="Country" value={snapshot.selectedCountry ?? "Not chosen"} hint="Used for course and visa guidance" />
+            <DashboardStatusCard label="Saved universities" value={String(snapshot.state.shortlistedUniversityIds.length)} hint="Creates applications automatically" />
+            <DashboardStatusCard label="Documents ready" value={`${snapshot.documentReadiness}%`} hint="Upload early to avoid delay" />
+            <DashboardStatusCard label="Rewards" value={`${snapshot.state.rewardPoints} points`} hint="Earn as you complete steps" />
           </div>
         </Card>
       </section>
 
-      <section className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,1fr)_360px]">
+      <section className="mt-5 grid gap-4 md:grid-cols-4">
+        <AnswerCard question="Where am I?" answer={allDone ? "Review stage" : `Step ${currentStepNumber}`} detail={next.label} />
+        <AnswerCard question="What is done?" answer={`${snapshot.completed.length} steps`} detail={snapshot.completed.length ? snapshot.completed.slice(-1)[0] : "Nothing yet"} />
+        <AnswerCard question="What is missing?" answer={`${snapshot.missing.length} items`} detail={snapshot.missing[0] ?? "Nothing missing"} />
+        <AnswerCard question="Who can help?" answer="Eleevate support" detail="Chat or request a call anytime" href="/student-v6/support" />
+      </section>
+
+      <section className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
         <Card className="border border-border bg-white p-5 shadow-sm">
-          <h2 className="font-serif text-xl font-bold">Your journey</h2>
-          <p className="mt-1 text-sm text-muted-foreground">Done, missing, and locked steps are shown clearly.</p>
-          <div className="mt-4 space-y-3">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <h2 className="font-serif text-xl font-bold">Your 7-step path</h2>
+              <p className="mt-1 text-sm text-muted-foreground">Green is done. Blue is what to do now. Grey can wait.</p>
+            </div>
+            <Link href="/student-v6/start">
+              <Button variant="outline" size="sm" className="rounded-full font-serif">Edit answers</Button>
+            </Link>
+          </div>
+          <div className="mt-4 grid gap-2">
             {snapshot.steps.map((step, index) => (
-              <Link key={step.id} href={step.href}>
-                <div className={cn("flex items-start gap-3 rounded-lg border p-3", step.status === "current" ? "border-primary/30 bg-primary/5" : "border-border bg-white")}>
-                  <div className={cn("flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full font-serif text-xs font-bold", step.status === "done" ? "bg-emerald-600 text-white" : step.status === "current" ? "bg-primary text-white" : "bg-muted text-muted-foreground")}>
-                    {step.status === "done" ? <CheckCircle2 className="h-4 w-4" /> : index + 1}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="font-serif text-base font-bold text-foreground">{step.label}</div>
-                    <p className="mt-1 text-sm leading-6 text-muted-foreground">{step.status === "done" ? "Completed" : step.studentTask}</p>
-                  </div>
-                </div>
-              </Link>
+              <JourneyStepLine key={step.id} step={step} index={index} />
             ))}
           </div>
         </Card>
 
         <aside className="space-y-5">
           <Card className="border border-border bg-white p-5 shadow-sm">
-            <h2 className="font-serif text-xl font-bold">What is missing?</h2>
+            <h2 className="font-serif text-xl font-bold">Missing right now</h2>
+            <p className="mt-1 text-sm text-muted-foreground">Finish these to move forward.</p>
             <div className="mt-4 space-y-2">
-              {snapshot.missing.slice(0, 4).map((item) => (
-                <div key={item} className="rounded-lg border border-border bg-muted/25 p-3 text-sm leading-6 text-muted-foreground">{item}</div>
+              {snapshot.missing.slice(0, 3).map((item, index) => (
+                <div key={item} className="flex gap-3 rounded-lg border border-border bg-muted/25 p-3">
+                  <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-white font-serif text-xs font-bold text-primary">{index + 1}</span>
+                  <span className="text-sm leading-6 text-muted-foreground">{item}</span>
+                </div>
               ))}
               {snapshot.missing.length === 0 && <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-800">All main steps are complete.</div>}
             </div>
           </Card>
 
           <Card className="border border-border bg-white p-5 shadow-sm">
-            <h2 className="font-serif text-xl font-bold">Need help with more?</h2>
+            <h2 className="font-serif text-xl font-bold">Quick help</h2>
+            <p className="mt-1 text-sm text-muted-foreground">Use these only when needed.</p>
             <div className="mt-4 grid gap-2">
               {[
-                ["Packages", "/student-v6/packages"],
-                ["Documents", "/student-v6/documents"],
-                ["Finance", "/student-v6/finance"],
-                ["Support", "/student-v6/support"],
+                ["Choose package", "/student-v6/packages"],
+                ["Upload documents", "/student-v6/documents"],
+                ["Plan finance", "/student-v6/finance"],
+                ["Ask support", "/student-v6/support"],
               ].map(([label, href]) => (
                 <Link key={label} href={href}>
-                  <div className="rounded-lg border border-border bg-white p-3 font-serif text-sm font-bold hover:border-primary/35 hover:bg-primary/5">{label}</div>
+                  <div className="flex items-center justify-between rounded-lg border border-border bg-white p-3 font-serif text-sm font-bold hover:border-primary/35 hover:bg-primary/5">
+                    <span>{label}</span>
+                    <ArrowRight className="h-4 w-4 text-muted-foreground" />
+                  </div>
                 </Link>
               ))}
             </div>
@@ -662,6 +707,64 @@ export function StudentV6DashboardPage() {
         </aside>
       </section>
     </StudentV6Shell>
+  );
+}
+
+function DashboardStatusCard({ label, value, hint }: { label: string; value: string; hint: string }) {
+  return (
+    <div className="rounded-lg border border-border bg-muted/20 p-3">
+      <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">{label}</div>
+      <div className="mt-1 font-serif text-lg font-bold leading-tight text-foreground">{value}</div>
+      <p className="mt-1 text-xs leading-5 text-muted-foreground">{hint}</p>
+    </div>
+  );
+}
+
+function AnswerCard({ question, answer, detail, href }: { question: string; answer: string; detail: string; href?: string }) {
+  const content = (
+    <Card className="h-full border border-border bg-white p-4 shadow-sm">
+      <div className="text-xs font-bold uppercase tracking-[0.18em] text-primary">{question}</div>
+      <div className="mt-2 font-serif text-xl font-bold leading-tight text-foreground">{answer}</div>
+      <p className="mt-1 text-sm leading-6 text-muted-foreground">{detail}</p>
+    </Card>
+  );
+
+  return href ? <Link href={href}>{content}</Link> : content;
+}
+
+function JourneyStepLine({ step, index }: { step: StudentV6JourneyStep; index: number }) {
+  const isDone = step.status === "done";
+  const isCurrent = step.status === "current";
+  const statusLabel = isDone ? "Done" : isCurrent ? "Do now" : "Later";
+
+  return (
+    <Link href={step.href}>
+      <div className={cn(
+        "flex items-center gap-3 rounded-lg border p-3 transition-colors",
+        isDone && "border-emerald-200 bg-emerald-50",
+        isCurrent && "border-primary/30 bg-primary/5",
+        !isDone && !isCurrent && "border-border bg-white hover:border-primary/25",
+      )}>
+        <div className={cn(
+          "flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full font-serif text-xs font-bold",
+          isDone ? "bg-emerald-600 text-white" : isCurrent ? "bg-primary text-white" : "bg-muted text-muted-foreground",
+        )}>
+          {isDone ? <CheckCircle2 className="h-4 w-4" /> : index + 1}
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="font-serif text-base font-bold text-foreground">{step.label}</div>
+            <Badge variant="outline" className={cn(
+              "rounded-full px-2 py-0.5 text-[11px]",
+              isDone && "border-emerald-200 bg-white text-emerald-800",
+              isCurrent && "border-primary/20 bg-white text-primary",
+            )}>{statusLabel}</Badge>
+          </div>
+          <p className="mt-1 text-sm leading-6 text-muted-foreground">{isDone ? "Completed" : step.studentTask}</p>
+        </div>
+        <ArrowRight className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
+      </div>
+    </Link>
   );
 }
 
