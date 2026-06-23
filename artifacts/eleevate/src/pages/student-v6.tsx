@@ -10,7 +10,9 @@ import {
   GraduationCap,
   HandCoins,
   HelpCircle,
+  Home,
   MapPinned,
+  PackageCheck,
   Plane,
   Search,
   ShieldCheck,
@@ -69,6 +71,17 @@ const WIZARD_STEPS = [
   "Finance and arrival",
 ];
 
+const STUDENT_V6_NAV_ITEMS = [
+  { label: "Dashboard", href: "/student-v6/dashboard", icon: Home },
+  { label: "My details", href: "/student-v6/start", icon: UserRound },
+  { label: "Find courses", href: "/student-v6/explore", icon: Search },
+  { label: "Applications", href: "/student-v6/applications", icon: BookOpenCheck },
+  { label: "Documents & Visa", href: "/student-v6/documents", icon: FileCheck2 },
+  { label: "Finance", href: "/student-v6/finance", icon: HandCoins },
+  { label: "Packages", href: "/student-v6/packages", icon: PackageCheck },
+  { label: "Support", href: "/student-v6/support", icon: HelpCircle },
+];
+
 function profileInitials(name: string) {
   return name.split(" ").filter(Boolean).slice(0, 2).map((part) => part[0]).join("").toUpperCase() || "S";
 }
@@ -94,69 +107,178 @@ function StepPill({ number, label, active, done }: { number: number; label: stri
 
 function StudentV6Shell({ children }: { children: React.ReactNode }) {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [location] = useLocation();
   const snapshot = useStudentV6Snapshot();
 
   useEffect(() => setNotificationsOpen(false), [snapshot.currentStep.id]);
 
   return (
-    <div className="min-h-screen bg-[#F7FAFC] text-foreground" data-testid="student-v6-shell">
-      <header className="sticky top-0 z-40 border-b border-border bg-white/95 backdrop-blur">
-        <div className="mx-auto flex min-h-16 max-w-6xl items-center gap-3 px-4 sm:px-5">
+    <div className="min-h-screen bg-[#F7FAFC] text-foreground lg:flex" data-testid="student-v6-shell">
+      <aside className="hidden h-screen w-72 flex-shrink-0 border-r border-border bg-white lg:sticky lg:top-0 lg:flex lg:flex-col" data-testid="student-v6-side-nav">
+        <div className="border-b border-border p-5">
           <Link href="/student-v6/dashboard" aria-label="Student V6 dashboard">
-            <img src={assetUrl("logo.webp")} alt="EleevateOverseas" className="h-12 w-12 rounded-full object-cover ring-1 ring-border" />
+            <img src={assetUrl("logo.webp")} alt="EleevateOverseas" className="h-20 w-20 rounded-full object-cover ring-1 ring-border" />
           </Link>
-          <div className="min-w-0 flex-1">
-            <div className="text-[10px] font-bold uppercase tracking-[0.22em] text-primary">Student journey</div>
-            <div className="truncate font-serif text-sm font-bold text-foreground">{snapshot.studentName}</div>
-          </div>
+          <div className="mt-4 text-[10px] font-bold uppercase tracking-[0.24em] text-primary">Student journey</div>
+          <div className="mt-1 truncate font-serif text-lg font-bold text-foreground">{snapshot.studentName}</div>
           <Link href="/student-v6/packages">
-            <Badge variant="outline" className="hidden rounded-full border-primary/25 bg-primary/5 px-3 py-1.5 font-serif text-sm font-bold text-primary sm:inline-flex">
+            <Badge variant="outline" className="mt-3 rounded-full border-primary/25 bg-primary/5 px-3 py-1.5 font-serif text-sm font-bold text-primary">
               {snapshot.packageLabel}
             </Badge>
           </Link>
-          <Link href="/student-v6/support">
-            <Button variant="outline" size="sm" className="rounded-full font-serif" data-testid="v6-support-top">
-              <HelpCircle className="h-4 w-4" />
-              <span className="hidden sm:inline">Support</span>
-            </Button>
-          </Link>
-          <div className="relative">
-            <button
-              type="button"
-              onClick={() => setNotificationsOpen((value) => !value)}
-              className="relative flex h-9 w-9 items-center justify-center rounded-full border border-border bg-white text-muted-foreground shadow-sm hover:text-foreground"
-              aria-label="Journey notifications"
-            >
-              <Bell className="h-4 w-4" />
-              {snapshot.notifications.length > 0 && (
-                <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-white">
-                  {snapshot.notifications.length}
-                </span>
-              )}
-            </button>
-            {notificationsOpen && (
-              <div className="absolute right-0 top-11 z-50 w-[min(calc(100vw-2rem),360px)] overflow-hidden rounded-lg border border-border bg-white shadow-xl">
-                <div className="border-b border-border p-3">
-                  <div className="font-serif text-sm font-bold">What needs attention?</div>
-                  <p className="mt-1 text-xs text-muted-foreground">These change as you complete each step.</p>
-                </div>
-                <div className="space-y-2 p-2">
-                  {snapshot.notifications.map((item) => (
-                    <Link key={item.id} href={item.href}>
-                      <div className="rounded-lg border border-border bg-muted/25 p-3 hover:border-primary/35 hover:bg-primary/5">
-                        <div className="font-serif text-sm font-bold text-foreground">{item.title}</div>
-                        <p className="mt-1 text-xs leading-5 text-muted-foreground">{item.detail}</p>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
+        </div>
+
+        <nav className="flex-1 overflow-y-auto p-3" aria-label="Student V6 navigation">
+          <div className="space-y-1">
+            {STUDENT_V6_NAV_ITEMS.map((item) => (
+              <StudentV6NavLink key={item.href} item={item} active={isStudentV6ActiveRoute(location, item.href)} />
+            ))}
+          </div>
+        </nav>
+
+        <div className="border-t border-border p-4">
+          <div className="rounded-xl border border-border bg-[#F7FAFC] p-4">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-primary">Next step</div>
+                <div className="mt-1 font-serif text-sm font-bold leading-tight">{snapshot.currentStep.label}</div>
               </div>
-            )}
+              <div className="font-serif text-lg font-bold text-primary">{snapshot.progress}%</div>
+            </div>
+            <Progress value={snapshot.progress} className="mt-3 h-2" />
+            <Link href={snapshot.currentStep.href}>
+              <Button size="sm" className="mt-4 w-full rounded-full bg-gradient-to-r from-primary to-accent font-serif text-white">
+                Continue
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            </Link>
           </div>
         </div>
-      </header>
-      <main className="mx-auto max-w-6xl px-4 py-5 sm:px-5 lg:py-7">{children}</main>
+      </aside>
+
+      <div className="min-w-0 flex-1">
+        <header className="sticky top-0 z-40 border-b border-border bg-white/95 backdrop-blur">
+          <div className="mx-auto flex min-h-16 max-w-6xl items-center gap-3 px-4 sm:px-5">
+            <Link href="/student-v6/dashboard" aria-label="Student V6 dashboard" className="lg:hidden">
+              <img src={assetUrl("logo.webp")} alt="EleevateOverseas" className="h-12 w-12 rounded-full object-cover ring-1 ring-border" />
+            </Link>
+            <div className="min-w-0 flex-1">
+              <div className="text-[10px] font-bold uppercase tracking-[0.22em] text-primary">Student journey</div>
+              <div className="truncate font-serif text-sm font-bold text-foreground">{snapshot.studentName}</div>
+            </div>
+            <Link href="/student-v6/packages">
+              <Badge variant="outline" className="hidden rounded-full border-primary/25 bg-primary/5 px-3 py-1.5 font-serif text-sm font-bold text-primary sm:inline-flex">
+                {snapshot.packageLabel}
+              </Badge>
+            </Link>
+            <Link href="/student-v6/support">
+              <Button variant="outline" size="sm" className="rounded-full font-serif" data-testid="v6-support-top">
+                <HelpCircle className="h-4 w-4" />
+                <span className="hidden sm:inline">Support</span>
+              </Button>
+            </Link>
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setNotificationsOpen((value) => !value)}
+                className="relative flex h-9 w-9 items-center justify-center rounded-full border border-border bg-white text-muted-foreground shadow-sm hover:text-foreground"
+                aria-label="Journey notifications"
+              >
+                <Bell className="h-4 w-4" />
+                {snapshot.notifications.length > 0 && (
+                  <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-white">
+                    {snapshot.notifications.length}
+                  </span>
+                )}
+              </button>
+              {notificationsOpen && (
+                <div className="absolute right-0 top-11 z-50 w-[min(calc(100vw-2rem),360px)] overflow-hidden rounded-lg border border-border bg-white shadow-xl">
+                  <div className="border-b border-border p-3">
+                    <div className="font-serif text-sm font-bold">What needs attention?</div>
+                    <p className="mt-1 text-xs text-muted-foreground">These change as you complete each step.</p>
+                  </div>
+                  <div className="space-y-2 p-2">
+                    {snapshot.notifications.map((item) => (
+                      <Link key={item.id} href={item.href}>
+                        <div className="rounded-lg border border-border bg-muted/25 p-3 hover:border-primary/35 hover:bg-primary/5">
+                          <div className="font-serif text-sm font-bold text-foreground">{item.title}</div>
+                          <p className="mt-1 text-xs leading-5 text-muted-foreground">{item.detail}</p>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <nav className="border-t border-border bg-white px-4 py-2 lg:hidden" aria-label="Student V6 quick navigation">
+            <div className="flex gap-2 overflow-x-auto pb-1">
+              {STUDENT_V6_NAV_ITEMS.slice(0, 6).map((item) => (
+                <MobileV6NavPill key={item.href} item={item} active={isStudentV6ActiveRoute(location, item.href)} />
+              ))}
+            </div>
+          </nav>
+        </header>
+
+        <main className="mx-auto max-w-6xl px-4 py-5 sm:px-5 lg:py-7">{children}</main>
+      </div>
     </div>
+  );
+}
+
+function isStudentV6ActiveRoute(location: string, href: string) {
+  if (href === "/student-v6/dashboard") return location === href;
+  return location === href || location.startsWith(`${href}/`);
+}
+
+function StudentV6NavLink({
+  item,
+  active,
+}: {
+  item: (typeof STUDENT_V6_NAV_ITEMS)[number];
+  active: boolean;
+}) {
+  const Icon = item.icon;
+  return (
+    <Link href={item.href}>
+      <div
+        className={cn(
+          "flex items-center gap-3 rounded-xl px-3 py-3 font-serif text-sm font-bold transition-colors",
+          active
+            ? "bg-gradient-to-r from-primary to-accent text-white shadow-md"
+            : "text-muted-foreground hover:bg-primary/5 hover:text-foreground",
+        )}
+      >
+        <Icon className="h-4 w-4 flex-shrink-0" />
+        <span>{item.label}</span>
+      </div>
+    </Link>
+  );
+}
+
+function MobileV6NavPill({
+  item,
+  active,
+}: {
+  item: (typeof STUDENT_V6_NAV_ITEMS)[number];
+  active: boolean;
+}) {
+  const Icon = item.icon;
+  return (
+    <Link href={item.href}>
+      <div
+        className={cn(
+          "flex min-w-max items-center gap-2 rounded-full border px-3 py-2 font-serif text-xs font-bold",
+          active
+            ? "border-primary bg-primary text-white"
+            : "border-border bg-white text-muted-foreground",
+        )}
+      >
+        <Icon className="h-3.5 w-3.5" />
+        <span>{item.label}</span>
+      </div>
+    </Link>
   );
 }
 
