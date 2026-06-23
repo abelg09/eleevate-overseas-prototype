@@ -594,7 +594,7 @@ export function StudentV6DashboardPage() {
             <Badge className="rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.24em] text-emerald-200 hover:bg-white/10">
               Powered by ELEE
             </Badge>
-            <h1 className="mt-5 max-w-3xl font-serif text-4xl font-bold leading-tight md:text-6xl">
+            <h1 className="mt-5 max-w-3xl font-serif text-3xl font-bold leading-[1.08] sm:text-4xl md:text-6xl">
               Your study abroad, step by step.
             </h1>
             <p className="mt-4 max-w-2xl text-base leading-7 text-white/75 md:text-lg">
