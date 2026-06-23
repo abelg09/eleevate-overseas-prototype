@@ -589,8 +589,8 @@ export function StudentV6DashboardPage() {
       <section className="relative overflow-hidden rounded-2xl bg-[#0E132F] p-5 text-white shadow-xl md:p-7 lg:p-9">
         <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-primary/30 blur-3xl" />
         <div className="pointer-events-none absolute -bottom-28 left-1/4 h-72 w-72 rounded-full bg-accent/25 blur-3xl" />
-        <div className="relative grid gap-7 lg:grid-cols-[minmax(0,1fr)_430px] lg:items-center">
-          <div>
+        <div className="relative grid min-w-0 gap-7 lg:grid-cols-[minmax(0,1fr)_430px] lg:items-center">
+          <div className="min-w-0">
             <Badge className="rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.24em] text-emerald-200 hover:bg-white/10">
               Powered by ELEE
             </Badge>
@@ -630,7 +630,7 @@ export function StudentV6DashboardPage() {
             </div>
           </div>
 
-          <div className="relative">
+          <div className="relative min-w-0">
             <Card className="border border-white/14 bg-white/92 p-5 text-foreground shadow-2xl">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-3">
