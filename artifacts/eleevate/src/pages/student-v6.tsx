@@ -573,83 +573,124 @@ export function StudentV6DashboardPage() {
     ? "You have finished the main setup. Ask Eleevate support to review your file before final submission."
     : next.studentTask;
   const nextRequirement = allDone ? "Final review with counsellor." : next.required;
+  const appPreview = snapshot.state.applications.slice(0, 3);
+  const visaChecks = [
+    snapshot.state.visa.offerReceived,
+    snapshot.state.visa.casOrAcceptance,
+    snapshot.state.visa.tuitionDeposit,
+    snapshot.state.visa.visaFormStarted,
+    snapshot.state.visa.biometricsBooked,
+  ];
+  const visaProgress = Math.round((visaChecks.filter(Boolean).length / visaChecks.length) * 100);
+  const pendingDocs = Math.max(0, getRequiredV6Documents().length - snapshot.state.documents.filter((doc) => doc.status === "uploaded").length);
 
   return (
     <StudentV6Shell>
-      <PageIntro
-        eyebrow="Dashboard"
-        title={`Hi ${firstName}, do this next`}
-        description="One clear step at a time. Complete the green button first, then come back here."
-        action={<Link href={next.href}><Button className="rounded-full font-serif">{allDone ? "Review file" : next.cta}</Button></Link>}
-      />
-
-      <section className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_300px]">
-        <Card className="overflow-hidden border border-primary/20 bg-white shadow-sm">
-          <div className="h-1.5 bg-gradient-to-r from-primary to-accent" />
-          <div className="grid gap-5 p-5 md:grid-cols-[minmax(0,1fr)_220px] md:p-6">
-            <div>
-              <Badge className="rounded-full bg-primary/10 px-3 py-1 text-primary hover:bg-primary/10">
-                {allDone ? "Ready for review" : `Step ${currentStepNumber} of ${snapshot.steps.length}`}
-              </Badge>
-              <h2 className="mt-4 font-serif text-3xl font-bold leading-tight text-foreground md:text-4xl">{nextTitle}</h2>
-              <p className="mt-3 max-w-2xl text-base leading-7 text-muted-foreground">{nextText}</p>
-              <div className="mt-4 rounded-lg border border-border bg-muted/25 p-3">
-                <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">Needed now</div>
-                <p className="mt-1 text-sm font-semibold leading-6 text-foreground">{nextRequirement}</p>
-              </div>
-              <div className="mt-5 flex flex-col gap-2 sm:flex-row">
-                <Link href={next.href}>
-                  <Button size="lg" className="w-full rounded-full font-serif sm:w-auto">
-                    {allDone ? "Review file" : next.cta}
-                    <ArrowRight className="h-4 w-4" />
-                  </Button>
-                </Link>
-                <Link href="/student-v6/support">
-                  <Button size="lg" variant="outline" className="w-full rounded-full font-serif sm:w-auto">Talk to support</Button>
-                </Link>
+      <section className="relative overflow-hidden rounded-2xl bg-[#0E132F] p-5 text-white shadow-xl md:p-7 lg:p-9">
+        <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-primary/30 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-28 left-1/4 h-72 w-72 rounded-full bg-accent/25 blur-3xl" />
+        <div className="relative grid gap-7 lg:grid-cols-[minmax(0,1fr)_430px] lg:items-center">
+          <div>
+            <Badge className="rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.24em] text-emerald-200 hover:bg-white/10">
+              Powered by ELEE
+            </Badge>
+            <h1 className="mt-5 max-w-3xl font-serif text-4xl font-bold leading-tight md:text-6xl">
+              Your study abroad, step by step.
+            </h1>
+            <p className="mt-4 max-w-2xl text-base leading-7 text-white/75 md:text-lg">
+              Hi {firstName}, this dashboard shows only what matters now: where you are, what is missing, and the next button to press.
+            </p>
+            <div className="mt-6 rounded-xl border border-white/10 bg-white/8 p-4 backdrop-blur">
+              <div className="text-xs font-bold uppercase tracking-[0.2em] text-emerald-200">Do this next</div>
+              <div className="mt-2 font-serif text-2xl font-bold">{nextTitle}</div>
+              <p className="mt-2 text-sm leading-6 text-white/72">{nextText}</p>
+              <div className="mt-3 rounded-lg border border-white/10 bg-white/8 p-3">
+                <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-white/50">Needed now</div>
+                <p className="mt-1 text-sm font-semibold leading-6 text-white">{nextRequirement}</p>
               </div>
             </div>
-            <div className="rounded-xl border border-border bg-muted/20 p-4">
-              <div className="flex items-center gap-3">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 font-serif font-bold text-primary">{avatar}</div>
-                <div className="min-w-0">
-                  <div className="truncate font-serif text-lg font-bold">{snapshot.studentName}</div>
-                  <div className="text-sm text-muted-foreground">{snapshot.packageLabel} package</div>
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+              <Link href={next.href}>
+                <Button size="lg" className="w-full rounded-full bg-gradient-to-r from-primary to-accent px-7 font-serif text-white shadow-lg hover:opacity-95 sm:w-auto">
+                  {allDone ? "Review file" : next.cta}
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </Link>
+              <Link href="/student-v6/support">
+                <Button size="lg" variant="outline" className="w-full rounded-full border-white/30 bg-white/10 font-serif text-white hover:bg-white/15 sm:w-auto">
+                  Talk to support
+                </Button>
+              </Link>
+            </div>
+            <div className="mt-7 grid gap-3 sm:grid-cols-4">
+              <HeroStat label="Journey" value={`${snapshot.progress}%`} />
+              <HeroStat label="Country" value={snapshot.selectedCountry ?? "Not chosen"} />
+              <HeroStat label="Applications" value={String(snapshot.state.applications.length)} />
+              <HeroStat label="Documents" value={`${snapshot.documentReadiness}%`} />
+            </div>
+          </div>
+
+          <div className="relative">
+            <Card className="border border-white/14 bg-white/92 p-5 text-foreground shadow-2xl">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent font-serif font-bold text-white">{avatar}</div>
+                  <div>
+                    <div className="font-serif text-lg font-bold">{snapshot.studentName}</div>
+                    <div className="text-sm text-muted-foreground">{snapshot.packageLabel} package</div>
+                  </div>
                 </div>
+                <Badge className="rounded-full bg-emerald-50 text-emerald-800 hover:bg-emerald-50">
+                  {allDone ? "Review" : "Active"}
+                </Badge>
               </div>
               <div className="mt-5">
                 <div className="mb-2 flex justify-between text-sm">
-                  <span className="font-semibold text-muted-foreground">Journey done</span>
+                  <span className="font-semibold text-muted-foreground">Application journey</span>
                   <span className="font-serif font-bold">{snapshot.progress}%</span>
                 </div>
                 <Progress value={snapshot.progress} className="h-2" />
               </div>
-              <div className="mt-4 rounded-lg border border-border bg-white p-3 text-sm leading-6 text-muted-foreground">
-                {snapshot.selectedCountry
-                  ? `Current country focus: ${snapshot.selectedCountry}.`
-                  : "No country chosen yet. Add study goal first."}
+              <div className="mt-5 space-y-3">
+                {(appPreview.length ? appPreview : [
+                  {
+                    id: "empty-application",
+                    universityName: "Shortlist a university",
+                    city: snapshot.selectedCountry ?? "Choose country",
+                    country: "Application tracker will start",
+                    status: "shortlisted" as StudentV6ApplicationStatus,
+                  },
+                ]).map((application) => (
+                  <div key={application.id} className="flex items-center justify-between gap-3 rounded-xl border border-border bg-muted/25 p-3">
+                    <div className="min-w-0">
+                      <div className="truncate font-serif text-sm font-bold text-foreground">{application.universityName}</div>
+                      <div className="truncate text-xs text-muted-foreground">{application.city}, {application.country}</div>
+                    </div>
+                    <Badge variant="outline" className="rounded-full capitalize">{application.status}</Badge>
+                  </div>
+                ))}
               </div>
+            </Card>
+
+            <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:mt-5">
+              <DarkFloatCard label="Visa status" value={`${visaProgress}%`} detail={visaProgress ? "Checklist started" : "Starts after offer"} />
+              <DarkFloatCard label="Documents" value={`${pendingDocs}`} detail="items pending" />
             </div>
           </div>
-        </Card>
-
-        <Card className="border border-border bg-white p-5 shadow-sm">
-          <h2 className="font-serif text-xl font-bold">At a glance</h2>
-          <p className="mt-1 text-sm text-muted-foreground">Your file status in simple words.</p>
-          <div className="mt-4 grid gap-3">
-            <DashboardStatusCard label="Country" value={snapshot.selectedCountry ?? "Not chosen"} hint="Used for course and visa guidance" />
-            <DashboardStatusCard label="Saved universities" value={String(snapshot.state.shortlistedUniversityIds.length)} hint="Creates applications automatically" />
-            <DashboardStatusCard label="Documents ready" value={`${snapshot.documentReadiness}%`} hint="Upload early to avoid delay" />
-            <DashboardStatusCard label="Rewards" value={`${snapshot.state.rewardPoints} points`} hint="Earn as you complete steps" />
-          </div>
-        </Card>
+        </div>
       </section>
 
-      <section className="mt-5 grid gap-4 md:grid-cols-4">
+      <section className="mt-6 grid gap-4 md:grid-cols-4">
         <AnswerCard question="Where am I?" answer={allDone ? "Review stage" : `Step ${currentStepNumber}`} detail={next.label} />
         <AnswerCard question="What is done?" answer={`${snapshot.completed.length} steps`} detail={snapshot.completed.length ? snapshot.completed.slice(-1)[0] : "Nothing yet"} />
         <AnswerCard question="What is missing?" answer={`${snapshot.missing.length} items`} detail={snapshot.missing[0] ?? "Nothing missing"} />
         <AnswerCard question="Who can help?" answer="Eleevate support" detail="Chat or request a call anytime" href="/student-v6/support" />
+      </section>
+
+      <section className="mt-6 grid gap-4 md:grid-cols-3">
+        <FeatureTile icon={Sparkles} title="ELEE guide" text="One next action, no confusing menus." href={next.href} />
+        <FeatureTile icon={MapPinned} title="University explorer" text="Country and course filters follow your profile." href="/student-v6/explore" />
+        <FeatureTile icon={FileCheck2} title="Documents and visa" text="Readiness changes when you mark documents ready." href="/student-v6/documents" />
       </section>
 
       <section className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
@@ -707,6 +748,39 @@ export function StudentV6DashboardPage() {
         </aside>
       </section>
     </StudentV6Shell>
+  );
+}
+
+function HeroStat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-xl border border-white/10 bg-white/8 p-3 backdrop-blur">
+      <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-white/45">{label}</div>
+      <div className="mt-1 break-words font-serif text-base font-bold leading-tight text-white">{value}</div>
+    </div>
+  );
+}
+
+function DarkFloatCard({ label, value, detail }: { label: string; value: string; detail: string }) {
+  return (
+    <div className="rounded-xl border border-white/12 bg-white/10 p-4 text-white shadow-lg backdrop-blur">
+      <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/50">{label}</div>
+      <div className="mt-1 font-serif text-3xl font-bold">{value}</div>
+      <p className="mt-1 text-xs leading-5 text-white/68">{detail}</p>
+    </div>
+  );
+}
+
+function FeatureTile({ icon: Icon, title, text, href }: { icon: React.ElementType; title: string; text: string; href: string }) {
+  return (
+    <Link href={href}>
+      <Card className="h-full border border-border bg-white p-5 shadow-sm transition-colors hover:border-primary/30 hover:bg-primary/5">
+        <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10 text-primary">
+          <Icon className="h-5 w-5" />
+        </div>
+        <h2 className="mt-4 font-serif text-xl font-bold text-foreground">{title}</h2>
+        <p className="mt-2 text-sm leading-6 text-muted-foreground">{text}</p>
+      </Card>
+    </Link>
   );
 }
 
