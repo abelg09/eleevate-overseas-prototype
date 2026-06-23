@@ -51,6 +51,16 @@ export interface StudentV6Document {
   group: "identity" | "academic" | "application" | "finance" | "visa";
   status: "missing" | "uploaded";
   updatedAt: string;
+  hint?: string;
+  countrySpecific?: boolean;
+}
+
+export type StudentV6VisaField = "offerReceived" | "casOrAcceptance" | "tuitionDeposit" | "visaFormStarted" | "biometricsBooked";
+
+export interface StudentV6VisaChecklistItem {
+  key: StudentV6VisaField;
+  label: string;
+  detail: string;
 }
 
 export interface StudentV6VisaState {
@@ -153,23 +163,193 @@ const EMPTY_STATE: StudentV6State = {
   rewardPoints: 0,
 };
 
-const REQUIRED_DOCUMENTS: Array<Omit<StudentV6Document, "id" | "status" | "updatedAt">> = [
-  { group: "identity", label: "Passport" },
-  { group: "identity", label: "Passport-size photo" },
-  { group: "academic", label: "10th marksheet" },
-  { group: "academic", label: "12th marksheet" },
-  { group: "academic", label: "Degree marksheets" },
-  { group: "academic", label: "English test score" },
-  { group: "application", label: "SOP" },
-  { group: "application", label: "LOR" },
-  { group: "application", label: "Resume" },
-  { group: "finance", label: "Bank statement" },
-  { group: "finance", label: "Sponsor income proof" },
-  { group: "finance", label: "Loan sanction letter" },
-  { group: "visa", label: "Offer / CAS / I-20 / CoE" },
-  { group: "visa", label: "Visa application receipt" },
-  { group: "visa", label: "Biometric appointment proof" },
+type StudentV6DocumentTemplate = Omit<StudentV6Document, "id" | "status" | "updatedAt">;
+
+const REQUIRED_DOCUMENTS: StudentV6DocumentTemplate[] = [
+  { group: "identity", label: "Passport", hint: "Valid passport or travel document." },
+  { group: "identity", label: "Passport-size photo", hint: "Recent photo as per visa/college format." },
+  { group: "academic", label: "10th marksheet", hint: "For academic history and visa file." },
+  { group: "academic", label: "12th marksheet", hint: "For undergraduate entry or academic background." },
+  { group: "academic", label: "Degree marksheets / transcripts", hint: "Semester marksheets, transcript, provisional/degree certificate." },
+  { group: "academic", label: "English test score", hint: "IELTS, PTE, TOEFL, Duolingo, or university-approved proof." },
+  { group: "application", label: "SOP / personal statement", hint: "Course-specific statement of purpose." },
+  { group: "application", label: "LOR", hint: "Academic or professional recommendation letters." },
+  { group: "application", label: "Resume", hint: "Updated CV with study, work, projects, and gaps." },
+  { group: "finance", label: "Bank statement / proof of funds", hint: "Funds evidence for tuition and living cost." },
+  { group: "finance", label: "Sponsor income proof", hint: "Income tax return, salary slip, business proof, or sponsor documents." },
+  { group: "finance", label: "Loan sanction letter", hint: "If education loan is part of the funding plan." },
 ];
+
+const COUNTRY_REQUIRED_DOCUMENTS: Record<string, StudentV6DocumentTemplate[]> = {
+  "United Kingdom": [
+    { group: "visa", label: "CAS from university", hint: "Confirmation of Acceptance for Studies issued by the UK sponsor.", countrySpecific: true },
+    { group: "finance", label: "UK maintenance funds evidence", hint: "Tuition balance plus living funds, if required for your case.", countrySpecific: true },
+    { group: "visa", label: "TB test certificate", hint: "Needed for Indian applicants and other listed countries.", countrySpecific: true },
+    { group: "visa", label: "ATAS certificate if course requires", hint: "For selected science, engineering, and research courses.", countrySpecific: true },
+    { group: "visa", label: "IHS payment confirmation", hint: "Immigration Health Surcharge receipt before submission.", countrySpecific: true },
+    { group: "visa", label: "UK visa application and biometrics receipt", hint: "Application confirmation plus VAC/UKVCAS appointment proof.", countrySpecific: true },
+  ],
+  "United States": [
+    { group: "visa", label: "Form I-20 from SEVP school", hint: "Certificate of Eligibility signed by student and school.", countrySpecific: true },
+    { group: "visa", label: "SEVIS I-901 fee receipt", hint: "Proof that SEVIS fee is paid before interview.", countrySpecific: true },
+    { group: "visa", label: "DS-160 confirmation page", hint: "Printed confirmation page for the visa interview.", countrySpecific: true },
+    { group: "visa", label: "MRV fee and interview appointment", hint: "Visa fee receipt and appointment confirmation.", countrySpecific: true },
+    { group: "finance", label: "US tuition and living cost proof", hint: "Evidence that family/loan/sponsor can pay education and stay costs.", countrySpecific: true },
+    { group: "academic", label: "US academic and test evidence", hint: "Transcripts, diplomas, standardized test scores if requested.", countrySpecific: true },
+  ],
+  Canada: [
+    { group: "visa", label: "Letter of Acceptance (LOA)", hint: "Upload the official acceptance letter from the DLI.", countrySpecific: true },
+    { group: "visa", label: "PAL / TAL or CAQ if required", hint: "Provincial/territorial attestation, or CAQ for Quebec.", countrySpecific: true },
+    { group: "identity", label: "Canada identity documents", hint: "Passport information page and two recent passport-size photos.", countrySpecific: true },
+    { group: "finance", label: "Canada proof of financial support", hint: "Tuition, living, return travel, GIC/loan/sponsor where relevant.", countrySpecific: true },
+    { group: "application", label: "Letter of explanation", hint: "Study plan and responsibilities as an international student.", countrySpecific: true },
+    { group: "visa", label: "Medical exam / police certificate if requested", hint: "Complete if your application or IRCC checklist asks for it.", countrySpecific: true },
+  ],
+  Australia: [
+    { group: "visa", label: "Confirmation of Enrolment (CoE)", hint: "Current CoE uploaded to ImmiAccount.", countrySpecific: true },
+    { group: "application", label: "Genuine Student answers and evidence", hint: "Evidence for course choice, circumstances, employment, and future value.", countrySpecific: true },
+    { group: "finance", label: "Australia financial capacity evidence", hint: "Tuition, living cost, travel, loan/sponsor/scholarship evidence if required.", countrySpecific: true },
+    { group: "academic", label: "Australia academic and English evidence", hint: "Academic records and English proof if the checklist asks for it.", countrySpecific: true },
+    { group: "visa", label: "OSHC health cover", hint: "Overseas Student Health Cover for the visa period.", countrySpecific: true },
+    { group: "visa", label: "Health exam / biometrics if requested", hint: "Complete medicals or biometrics after ImmiAccount request.", countrySpecific: true },
+  ],
+  Germany: [
+    { group: "visa", label: "German university admission letter", hint: "Admission, Studienkolleg, or language course confirmation.", countrySpecific: true },
+    { group: "finance", label: "Blocked account / proof of funds", hint: "Proof of secure livelihood, commonly a Sperrkonto or accepted sponsor/scholarship.", countrySpecific: true },
+    { group: "academic", label: "APS certificate if applicable", hint: "Generally required for Indian academic credential verification.", countrySpecific: true },
+    { group: "academic", label: "Previous academic qualifications", hint: "10th, 12th, degree, transcripts, certificates as applicable.", countrySpecific: true },
+    { group: "application", label: "CV and motivation letter", hint: "Study purpose and academic/work timeline.", countrySpecific: true },
+    { group: "visa", label: "German health insurance / travel insurance", hint: "Insurance proof requested for visa and enrolment.", countrySpecific: true },
+  ],
+  Netherlands: [
+    { group: "visa", label: "Dutch university admission confirmation", hint: "Your recognised sponsor/university starts MVV/VVR with IND.", countrySpecific: true },
+    { group: "finance", label: "Netherlands proof of financial means", hint: "Income/funds evidence requested by the educational institution.", countrySpecific: true },
+    { group: "identity", label: "Legalised birth certificate if requested", hint: "Some municipalities ask for legalised/apostilled birth certificate after arrival.", countrySpecific: true },
+    { group: "visa", label: "MVV / residence permit forms", hint: "Institution-led immigration forms and declarations.", countrySpecific: true },
+    { group: "visa", label: "Health insurance plan", hint: "Insurance check for study and after arrival.", countrySpecific: true },
+    { group: "visa", label: "TB test appointment if required", hint: "Some nationalities need TB screening after arrival.", countrySpecific: true },
+  ],
+  Ireland: [
+    { group: "visa", label: "Ireland visa summary application form", hint: "Signed and dated online application summary.", countrySpecific: true },
+    { group: "identity", label: "Ireland passport and photos", hint: "Current passport, prior passport copies if asked, and passport photos.", countrySpecific: true },
+    { group: "visa", label: "College acceptance / enrolment letter", hint: "Full-time course acceptance and course details.", countrySpecific: true },
+    { group: "finance", label: "Proof of fees paid", hint: "Receipt or college letter showing fees paid.", countrySpecific: true },
+    { group: "finance", label: "Ireland finance evidence", hint: "Bank, sponsor, scholarship, or bond evidence if requested.", countrySpecific: true },
+    { group: "visa", label: "Private medical insurance", hint: "Medical cover for Ireland before travel/registration.", countrySpecific: true },
+  ],
+  "New Zealand": [
+    { group: "visa", label: "Offer of place", hint: "Offer from an approved New Zealand education provider.", countrySpecific: true },
+    { group: "finance", label: "Tuition fee evidence or scholarship", hint: "Proof that tuition is paid or will be paid.", countrySpecific: true },
+    { group: "finance", label: "New Zealand living funds evidence", hint: "Funds or acceptable sponsorship for living expenses.", countrySpecific: true },
+    { group: "visa", label: "Medical and travel insurance", hint: "Insurance accepted by your education provider.", countrySpecific: true },
+    { group: "visa", label: "Onward travel funds / ticket evidence", hint: "Evidence for return/onward travel if required.", countrySpecific: true },
+    { group: "visa", label: "Medical / police certificate if requested", hint: "Health and character evidence based on application.", countrySpecific: true },
+  ],
+  Singapore: [
+    { group: "visa", label: "Singapore school acceptance / SOLAR registration", hint: "Institute registers you for Student's Pass application.", countrySpecific: true },
+    { group: "visa", label: "eForm 16", hint: "Student's Pass application form through ICA e-Service.", countrySpecific: true },
+    { group: "identity", label: "Passport particulars page", hint: "Travel document information page.", countrySpecific: true },
+    { group: "identity", label: "Digital passport photo", hint: "Recent photo as per ICA requirements.", countrySpecific: true },
+    { group: "finance", label: "Parent/sponsor financial evidence if requested", hint: "Financial support evidence for school or ICA if asked.", countrySpecific: true },
+    { group: "visa", label: "IPA / medical exam if required", hint: "In-principle approval and medical steps before Student's Pass issuance.", countrySpecific: true },
+  ],
+  "United Arab Emirates": [
+    { group: "visa", label: "UAE university admission letter", hint: "University or sponsor confirms admission for student residence visa.", countrySpecific: true },
+    { group: "identity", label: "Passport copy and photo", hint: "Passport plus recent photo as per UAE visa format.", countrySpecific: true },
+    { group: "finance", label: "UAE sponsor / tuition proof", hint: "Proof of sponsor, tuition payment, or financial capacity if requested.", countrySpecific: true },
+    { group: "academic", label: "Attested academic documents if requested", hint: "Attestation may be needed by university or authority.", countrySpecific: true },
+    { group: "visa", label: "Medical fitness test", hint: "Medical fitness exam for residence visa.", countrySpecific: true },
+    { group: "visa", label: "Emirates ID and health insurance", hint: "Post-arrival identity and insurance steps.", countrySpecific: true },
+  ],
+  France: [
+    { group: "visa", label: "France-Visas long-stay application", hint: "Completed online application and appointment receipt.", countrySpecific: true },
+    { group: "visa", label: "Certificate of enrolment / acceptance", hint: "Proof of admission at the French higher education institution.", countrySpecific: true },
+    { group: "finance", label: "France proof of resources", hint: "Funds/sponsor proof shown through the France-Visas checklist.", countrySpecific: true },
+    { group: "visa", label: "Accommodation proof", hint: "Residence booking, host letter, or rental evidence if requested.", countrySpecific: true },
+    { group: "identity", label: "France passport and ICAO photos", hint: "Passport plus two recent photos.", countrySpecific: true },
+    { group: "visa", label: "Etudes en France / Campus France file if applicable", hint: "Required for countries using the EEF procedure.", countrySpecific: true },
+  ],
+};
+
+const VISA_CHECKLISTS: Record<string, StudentV6VisaChecklistItem[]> = {
+  "United Kingdom": [
+    { key: "offerReceived", label: "Unconditional offer received", detail: "University offer is accepted and any academic condition is cleared." },
+    { key: "casOrAcceptance", label: "CAS issued", detail: "CAS from the university is ready before visa submission." },
+    { key: "tuitionDeposit", label: "Deposit and maintenance funds ready", detail: "Tuition deposit, bank proof, sponsor/loan evidence are ready if required." },
+    { key: "visaFormStarted", label: "UK visa form and IHS started", detail: "Online visa application and health surcharge are in progress." },
+    { key: "biometricsBooked", label: "Biometrics / VAC appointment booked", detail: "Appointment confirmation and document upload are ready." },
+  ],
+  "United States": [
+    { key: "offerReceived", label: "SEVP school offer accepted", detail: "University has issued or will issue the I-20." },
+    { key: "casOrAcceptance", label: "I-20 and SEVIS ready", detail: "I-20 signed and SEVIS I-901 fee paid." },
+    { key: "tuitionDeposit", label: "Finance proof ready", detail: "Funds evidence covers tuition, living, and travel costs." },
+    { key: "visaFormStarted", label: "DS-160 submitted", detail: "DS-160 confirmation and MRV fee receipt are ready." },
+    { key: "biometricsBooked", label: "Visa interview booked", detail: "Embassy/consulate appointment is scheduled." },
+  ],
+  Canada: [
+    { key: "offerReceived", label: "LOA received", detail: "Letter of Acceptance from the DLI is ready." },
+    { key: "casOrAcceptance", label: "PAL / TAL or CAQ ready", detail: "Attestation letter or CAQ is ready where required." },
+    { key: "tuitionDeposit", label: "Proof of funds ready", detail: "Funds, GIC/loan/sponsor, and tuition receipts are organised." },
+    { key: "visaFormStarted", label: "Study permit form started", detail: "Online study permit application is in progress." },
+    { key: "biometricsBooked", label: "Biometrics / medical step booked", detail: "Biometrics appointment and medical/police requests are tracked." },
+  ],
+  Australia: [
+    { key: "offerReceived", label: "Offer accepted", detail: "Education provider has confirmed admission." },
+    { key: "casOrAcceptance", label: "CoE ready", detail: "Current Confirmation of Enrolment is uploaded to ImmiAccount." },
+    { key: "tuitionDeposit", label: "OSHC and finance evidence ready", detail: "Health cover and financial capacity documents are ready if required." },
+    { key: "visaFormStarted", label: "Subclass 500 application started", detail: "ImmiAccount application and GS answers are in progress." },
+    { key: "biometricsBooked", label: "Health / biometrics request handled", detail: "Medical or biometrics requests are completed when asked." },
+  ],
+  Germany: [
+    { key: "offerReceived", label: "Admission letter received", detail: "German university, Studienkolleg, or language course admission is ready." },
+    { key: "casOrAcceptance", label: "APS and visa file ready", detail: "APS certificate and visa checklist documents are prepared where applicable." },
+    { key: "tuitionDeposit", label: "Blocked account / sponsor proof ready", detail: "Financial means are ready through blocked account, sponsor, or scholarship." },
+    { key: "visaFormStarted", label: "National visa appointment prepared", detail: "Visa form, photos, insurance, and copies are organised." },
+    { key: "biometricsBooked", label: "VFS / consulate appointment booked", detail: "Biometric submission appointment is scheduled." },
+  ],
+  Netherlands: [
+    { key: "offerReceived", label: "University admission accepted", detail: "Recognised sponsor/university can start MVV/VVR process." },
+    { key: "casOrAcceptance", label: "MVV/VVR documents ready", detail: "Institution immigration forms and declarations are complete." },
+    { key: "tuitionDeposit", label: "Financial means submitted", detail: "Proof of income/funds is submitted to the institution." },
+    { key: "visaFormStarted", label: "IND application started by institution", detail: "University has started residence permit process." },
+    { key: "biometricsBooked", label: "Biometrics / TB step tracked", detail: "Biometrics and TB test steps are tracked if needed." },
+  ],
+  Ireland: [
+    { key: "offerReceived", label: "College acceptance received", detail: "Full-time course acceptance/enrolment letter is ready." },
+    { key: "casOrAcceptance", label: "Visa summary form ready", detail: "Signed application summary and passport photos are ready." },
+    { key: "tuitionDeposit", label: "Fees, finance, and insurance ready", detail: "Fee receipt, finance evidence, and medical insurance are ready." },
+    { key: "visaFormStarted", label: "Long-stay study visa file started", detail: "Supporting documents are organised for submission." },
+    { key: "biometricsBooked", label: "Appointment / registration step tracked", detail: "Submission, decision, and post-arrival registration are tracked." },
+  ],
+  "New Zealand": [
+    { key: "offerReceived", label: "Offer of place received", detail: "Approved education provider offer is ready." },
+    { key: "casOrAcceptance", label: "Visa application evidence ready", detail: "Offer, tuition, insurance, and identity evidence are ready." },
+    { key: "tuitionDeposit", label: "Funds and tuition evidence ready", detail: "Living funds, tuition, scholarship, or sponsor proof is ready." },
+    { key: "visaFormStarted", label: "Student visa application started", detail: "Online fee-paying student visa application is in progress." },
+    { key: "biometricsBooked", label: "Medical / police requests tracked", detail: "Health and character documents are completed if requested." },
+  ],
+  Singapore: [
+    { key: "offerReceived", label: "School acceptance received", detail: "Institute has accepted you and can support Student's Pass." },
+    { key: "casOrAcceptance", label: "SOLAR / eForm 16 ready", detail: "eForm 16 and school registration details are ready." },
+    { key: "tuitionDeposit", label: "Fee / sponsor proof ready", detail: "School fee and support documents are ready if requested." },
+    { key: "visaFormStarted", label: "Student's Pass application started", detail: "ICA e-Service application is in progress." },
+    { key: "biometricsBooked", label: "IPA / medical step tracked", detail: "In-principle approval and medical exam are tracked." },
+  ],
+  "United Arab Emirates": [
+    { key: "offerReceived", label: "University admission confirmed", detail: "UAE institution can sponsor student residence visa." },
+    { key: "casOrAcceptance", label: "Entry permit / sponsor file ready", detail: "Passport, photo, offer, and sponsor documents are ready." },
+    { key: "tuitionDeposit", label: "Tuition / sponsor proof ready", detail: "Payment or sponsor evidence is organised." },
+    { key: "visaFormStarted", label: "Residence visa process started", detail: "University or sponsor has started visa process." },
+    { key: "biometricsBooked", label: "Medical fitness and Emirates ID step", detail: "Post-arrival medical and ID steps are tracked." },
+  ],
+  France: [
+    { key: "offerReceived", label: "French acceptance received", detail: "Certificate of enrolment/admission is ready." },
+    { key: "casOrAcceptance", label: "France-Visas / EEF file ready", detail: "France-Visas and Etudes en France/Campus France file are prepared if applicable." },
+    { key: "tuitionDeposit", label: "Resources and accommodation ready", detail: "Funds, sponsor, housing, and insurance evidence are organised." },
+    { key: "visaFormStarted", label: "Long-stay visa application started", detail: "Online application and appointment booking are in progress." },
+    { key: "biometricsBooked", label: "Appointment and biometrics booked", detail: "Visa centre appointment and passport submission are scheduled." },
+  ],
+};
 
 const COUNTRY_ALIASES: Record<string, string> = {
   uk: "United Kingdom",
@@ -282,6 +462,29 @@ function getSelectedCountry(profile: StudentV6Profile) {
   return normalizeV6Country(profile.targetCountries?.[0]);
 }
 
+function documentId(label: string) {
+  return `v6-doc-${label.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}`;
+}
+
+function getCountryDocumentTemplates(country: string | null): StudentV6DocumentTemplate[] {
+  if (!country) return REQUIRED_DOCUMENTS;
+  return [...REQUIRED_DOCUMENTS, ...(COUNTRY_REQUIRED_DOCUMENTS[country] ?? [])];
+}
+
+export function getStudentV6VisaChecklist(countryOverride?: string | null): StudentV6VisaChecklistItem[] {
+  const state = readStudentV6State();
+  const country = normalizeV6Country(countryOverride) ?? getSelectedCountry(state.profile) ?? normalizeV6Country(state.visa.country);
+  return country && VISA_CHECKLISTS[country]
+    ? VISA_CHECKLISTS[country]
+    : [
+        { key: "offerReceived", label: "Offer received", detail: "Get the official university offer or admission letter." },
+        { key: "casOrAcceptance", label: "Visa acceptance document ready", detail: "Prepare CAS, I-20, CoE, LOA, or country-specific acceptance proof." },
+        { key: "tuitionDeposit", label: "Fees and funds proof ready", detail: "Organise tuition receipt, bank proof, sponsor, or loan evidence." },
+        { key: "visaFormStarted", label: "Visa form started", detail: "Start the correct country visa application form after offer stage." },
+        { key: "biometricsBooked", label: "Biometrics / appointment booked", detail: "Book biometrics, interview, medical, or visa centre appointment if required." },
+      ];
+}
+
 function queryTokens(query: string) {
   return query
     .toLowerCase()
@@ -301,6 +504,8 @@ function matchesV6Query(haystack: string, query: string) {
 
 function getStepDefinitions(state: StudentV6State): StudentV6JourneyStep[] {
   const profile = state.profile;
+  const requiredDocs = getRequiredV6Documents(getSelectedCountry(profile), state);
+  const uploadedRequiredCount = requiredDocs.filter((doc) => doc.status === "uploaded").length;
   const detailsComplete = [
     profile.firstName,
     profile.mobile,
@@ -319,7 +524,7 @@ function getStepDefinitions(state: StudentV6State): StudentV6JourneyStep[] {
   const academicComplete = [profile.degree, profile.stream, profile.marks, profile.testStatus].every(hasValue);
   const routeComplete = Boolean(state.routeChoice && state.reportGenerated);
   const exploreComplete = state.shortlistedUniversityIds.length > 0;
-  const applicationComplete = state.applications.length > 0 && (state.documents.length >= 2 || Boolean(state.visa.visaFormStarted));
+  const applicationComplete = state.applications.length > 0 && (uploadedRequiredCount >= 2 || Boolean(state.visa.visaFormStarted));
   const financeComplete = Boolean(
     (state.finance.loanAmountInr ?? 0) > 0 ||
     state.finance.remittance ||
@@ -410,7 +615,7 @@ export function getStudentV6Snapshot(state = readStudentV6State()): StudentV6Sna
   const packageLabel = state.packageSelection?.packageId
     ? state.packageSelection.packageId[0].toUpperCase() + state.packageSelection.packageId.slice(1)
     : "No tier";
-  const requiredLabels = new Set(REQUIRED_DOCUMENTS.map((doc) => doc.label));
+  const requiredLabels = new Set(getRequiredV6Documents(getSelectedCountry(state.profile), state).map((doc) => doc.label));
   const uploadedLabels = new Set(state.documents.filter((doc) => doc.status === "uploaded").map((doc) => doc.label));
   const documentReadiness = Math.round((Array.from(requiredLabels).filter((label) => uploadedLabels.has(label)).length / requiredLabels.size) * 100);
   const notifications: StudentV6Notification[] = [
@@ -468,8 +673,19 @@ export function useStudentV6Snapshot() {
   return useMemo(() => getStudentV6Snapshot(state), [state]);
 }
 
-export function getRequiredV6Documents() {
-  return REQUIRED_DOCUMENTS;
+export function getRequiredV6Documents(countryOverride?: string | null, stateOverride?: StudentV6State): StudentV6Document[] {
+  const state = stateOverride ?? readStudentV6State();
+  const country = normalizeV6Country(countryOverride) ?? getSelectedCountry(state.profile) ?? normalizeV6Country(state.visa.country);
+  const savedByLabel = new Map(state.documents.map((doc) => [doc.label, doc]));
+  return getCountryDocumentTemplates(country).map((template) => {
+    const saved = savedByLabel.get(template.label);
+    return {
+      ...template,
+      id: saved?.id ?? documentId(template.label),
+      status: saved?.status ?? "missing",
+      updatedAt: saved?.updatedAt ?? "",
+    };
+  });
 }
 
 export function filterV6Universities(state: StudentV6State, countryOverride?: string | null, query = ""): University[] {

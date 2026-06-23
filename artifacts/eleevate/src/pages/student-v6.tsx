@@ -35,6 +35,7 @@ import {
   filterV6Universities,
   formatV6Inr,
   getRequiredV6Documents,
+  getStudentV6VisaChecklist,
   getStudentV6CountryOptions,
   selectV6Package,
   setV6ApplicationStatus,
@@ -314,7 +315,8 @@ function getV6NavIndicator(item: StudentV6NavItem, snapshot: StudentV6Snapshot) 
   if (item.indicator === "applications" && snapshot.state.applications.length > 0) return String(snapshot.state.applications.length);
   if (item.indicator === "tasks" && snapshot.missing.length > 0) return String(snapshot.missing.length);
   if (item.indicator === "documents") {
-    const pending = Math.max(0, getRequiredV6Documents().length - snapshot.state.documents.filter((doc) => doc.status === "uploaded").length);
+    const requiredDocs = getRequiredV6Documents(snapshot.selectedCountry, snapshot.state);
+    const pending = Math.max(0, requiredDocs.length - requiredDocs.filter((doc) => doc.status === "uploaded").length);
     return pending > 0 ? String(pending) : null;
   }
   if (item.indicator === "dot") return "dot";
@@ -807,8 +809,8 @@ export function StudentV6DashboardPage() {
     snapshot.state.visa.biometricsBooked,
   ];
   const visaProgress = Math.round((visaChecks.filter(Boolean).length / visaChecks.length) * 100);
-  const requiredDocs = getRequiredV6Documents();
-  const uploadedDocCount = snapshot.state.documents.filter((doc) => doc.status === "uploaded").length;
+  const requiredDocs = getRequiredV6Documents(snapshot.selectedCountry, snapshot.state);
+  const uploadedDocCount = requiredDocs.filter((doc) => doc.status === "uploaded").length;
   const pendingDocs = Math.max(0, requiredDocs.length - uploadedDocCount);
   const selectedCountry = snapshot.selectedCountry ?? "Not chosen";
   const budgetMax = snapshot.state.profile.budgetMaxInr ?? 0;
@@ -1276,15 +1278,19 @@ export function StudentV6ApplicationsPage() {
 export function StudentV6DocumentsPage() {
   const snapshot = useStudentV6Snapshot();
   const state = useStudentV6State();
-  const uploaded = new Set(state.documents.filter((doc) => doc.status === "uploaded").map((doc) => doc.label));
-  const selectedCountry = snapshot.selectedCountry ?? state.visa.country ?? "your selected country";
+  const selectedCountry = snapshot.selectedCountry ?? state.visa.country ?? null;
+  const requiredDocs = getRequiredV6Documents(selectedCountry, state);
+  const visaChecklist = getStudentV6VisaChecklist(selectedCountry);
+  const readyCount = requiredDocs.filter((doc) => doc.status === "uploaded").length;
+  const readiness = Math.round((readyCount / requiredDocs.length) * 100);
+  const countryLabel = selectedCountry ?? "your selected country";
 
   return (
     <StudentV6Shell>
       <PageIntro
         eyebrow="Documents and visa"
         title="Prepare documents early"
-        description="Mark documents as ready. This updates dashboard readiness and visa prompts."
+        description="Choose a country in your profile first. ELEE will then show the right document and visa checklist for that route."
         action={<Link href="/student-v6/finance"><Button variant="outline" className="rounded-full font-serif">Go to finance</Button></Link>}
       />
 
@@ -1293,13 +1299,26 @@ export function StudentV6DocumentsPage() {
           <div className="mb-4 flex items-center justify-between">
             <div>
               <h2 className="font-serif text-xl font-bold">Document checklist</h2>
-              <p className="text-sm text-muted-foreground">{snapshot.documentReadiness}% ready</p>
+              <p className="text-sm text-muted-foreground">
+                {readyCount}/{requiredDocs.length} ready {selectedCountry ? `for ${selectedCountry}` : ""}
+              </p>
             </div>
-            <Progress value={snapshot.documentReadiness} className="h-2 w-32" />
+            <Progress value={readiness} className="h-2 w-32" />
+          </div>
+          <div className={cn("mb-4 rounded-xl border p-4 text-sm leading-6", selectedCountry ? "border-sky-100 bg-sky-50 text-sky-950" : "border-amber-100 bg-amber-50 text-amber-950")}>
+            {selectedCountry ? (
+              <>
+                Showing the checklist for <strong>{selectedCountry}</strong>. Requirements can change by embassy, university, course, and profile, so your counsellor should confirm the final official checklist before submission.
+              </>
+            ) : (
+              <>
+                No country is selected yet. Add your preferred country in profile so ELEE can show UK, USA, Canada, Australia, Germany, Netherlands, Singapore, Ireland, UAE, New Zealand, or France requirements.
+              </>
+            )}
           </div>
           <div className="grid gap-3 md:grid-cols-2">
-            {getRequiredV6Documents().map((doc) => {
-              const ready = uploaded.has(doc.label);
+            {requiredDocs.map((doc) => {
+              const ready = doc.status === "uploaded";
               return (
                 <button
                   key={doc.label}
@@ -1311,7 +1330,11 @@ export function StudentV6DocumentsPage() {
                     <CheckCircle2 className={cn("h-4 w-4", ready ? "text-emerald-600" : "text-muted-foreground")} />
                     <span className="font-serif text-sm font-bold text-foreground">{doc.label}</span>
                   </div>
-                  <div className="mt-1 text-xs capitalize text-muted-foreground">{doc.group}</div>
+                  <div className="mt-1 flex flex-wrap items-center gap-2 text-xs capitalize text-muted-foreground">
+                    <span>{doc.group}</span>
+                    {doc.countrySpecific ? <Badge className="rounded-full bg-sky-50 px-2 py-0.5 text-[10px] font-serif text-sky-800 hover:bg-sky-50">country-specific</Badge> : null}
+                  </div>
+                  {doc.hint ? <p className="mt-2 text-xs leading-5 text-muted-foreground">{doc.hint}</p> : null}
                 </button>
               );
             })}
@@ -1320,24 +1343,19 @@ export function StudentV6DocumentsPage() {
 
         <Card className="border border-border bg-white p-5 shadow-sm">
           <h2 className="font-serif text-xl font-bold">Visa checklist</h2>
-          <p className="mt-1 text-sm leading-6 text-muted-foreground">For {selectedCountry}. Complete these after offer stage.</p>
+          <p className="mt-1 text-sm leading-6 text-muted-foreground">For {countryLabel}. Complete these after offer stage.</p>
           <div className="mt-4 space-y-3">
-            {[
-              ["offerReceived", "Offer received"],
-              ["casOrAcceptance", "CAS / I-20 / CoE ready"],
-              ["tuitionDeposit", "Tuition deposit paid"],
-              ["visaFormStarted", "Visa form started"],
-              ["biometricsBooked", "Biometrics booked"],
-            ].map(([key, label]) => {
+            {visaChecklist.map(({ key, label, detail }) => {
               const active = Boolean(state.visa[key as keyof typeof state.visa]);
               return (
                 <button
                   key={key}
                   type="button"
-                  onClick={() => updateStudentV6State((current) => ({ ...current, visa: { ...current.visa, [key]: !active, country: selectedCountry } }))}
-                  className={cn("w-full rounded-lg border p-3 text-left font-serif text-sm font-bold", active ? "border-emerald-200 bg-emerald-50 text-emerald-800" : "border-border bg-white text-foreground")}
+                  onClick={() => updateStudentV6State((current) => ({ ...current, visa: { ...current.visa, [key]: !active, country: selectedCountry ?? current.visa.country } }))}
+                  className={cn("w-full rounded-lg border p-3 text-left", active ? "border-emerald-200 bg-emerald-50 text-emerald-800" : "border-border bg-white text-foreground")}
                 >
-                  {label}
+                  <span className="font-serif text-sm font-bold">{label}</span>
+                  <span className={cn("mt-1 block text-xs leading-5", active ? "text-emerald-800/75" : "text-muted-foreground")}>{detail}</span>
                 </button>
               );
             })}
