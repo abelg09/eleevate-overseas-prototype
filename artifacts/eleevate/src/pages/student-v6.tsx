@@ -47,6 +47,7 @@ import {
   type StudentV6JourneyStep,
   type StudentV6Profile,
   type StudentV6RouteChoice,
+  type StudentV6Snapshot,
 } from "@/lib/student-v6";
 import { assetUrl, cn } from "@/lib/utils";
 
@@ -71,16 +72,48 @@ const WIZARD_STEPS = [
   "Finance and arrival",
 ];
 
-const STUDENT_V6_NAV_ITEMS = [
-  { label: "Dashboard", href: "/student-v6/dashboard", icon: Home },
-  { label: "My details", href: "/student-v6/start", icon: UserRound },
-  { label: "Find courses", href: "/student-v6/explore", icon: Search },
-  { label: "Applications", href: "/student-v6/applications", icon: BookOpenCheck },
-  { label: "Documents & Visa", href: "/student-v6/documents", icon: FileCheck2 },
-  { label: "Finance", href: "/student-v6/finance", icon: HandCoins },
-  { label: "Packages", href: "/student-v6/packages", icon: PackageCheck },
-  { label: "Support", href: "/student-v6/support", icon: HelpCircle },
+type StudentV6NavItem = {
+  label: string;
+  href: string;
+  icon: React.ElementType;
+  indicator?: "catalog" | "applications" | "documents" | "tasks" | "dot";
+};
+
+const STUDENT_V6_NAV_SECTIONS: Array<{ title: string; items: StudentV6NavItem[] }> = [
+  {
+    title: "Main",
+    items: [
+      { label: "Dashboard", href: "/student-v6/dashboard", icon: Home },
+      { label: "University Explorer", href: "/student-v6/explore", icon: GraduationCap, indicator: "catalog" },
+      { label: "My Applications", href: "/student-v6/applications", icon: BookOpenCheck, indicator: "applications" },
+      { label: "Scholarships", href: "/student-v6/finance", icon: Sparkles, indicator: "dot" },
+    ],
+  },
+  {
+    title: "Visa & Finance",
+    items: [
+      { label: "Visa Tracker", href: "/student-v6/documents", icon: ShieldCheck },
+      { label: "Documents", href: "/student-v6/documents", icon: FileCheck2, indicator: "documents" },
+      { label: "Loans & Finance", href: "/student-v6/finance", icon: HandCoins },
+    ],
+  },
+  {
+    title: "Support",
+    items: [
+      { label: "My Counsellor", href: "/student-v6/support", icon: UserRound },
+      { label: "My Tasks", href: "/student-v6/dashboard", icon: CheckCircle2, indicator: "tasks" },
+    ],
+  },
+  {
+    title: "Account",
+    items: [
+      { label: "Packages", href: "/student-v6/packages", icon: PackageCheck },
+      { label: "Support Center", href: "/student-v6/support", icon: HelpCircle },
+    ],
+  },
 ];
+
+const STUDENT_V6_NAV_ITEMS = STUDENT_V6_NAV_SECTIONS.flatMap((section) => section.items);
 
 function profileInitials(name: string) {
   return name.split(" ").filter(Boolean).slice(0, 2).map((part) => part[0]).join("").toUpperCase() || "S";
@@ -109,46 +142,62 @@ function StudentV6Shell({ children }: { children: React.ReactNode }) {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [location] = useLocation();
   const snapshot = useStudentV6Snapshot();
+  const avatar = profileInitials(snapshot.studentName);
 
   useEffect(() => setNotificationsOpen(false), [snapshot.currentStep.id]);
 
   return (
-    <div className="min-h-screen bg-[#F7FAFC] text-foreground lg:flex" data-testid="student-v6-shell">
-      <aside className="hidden h-screen w-72 flex-shrink-0 border-r border-border bg-white lg:sticky lg:top-0 lg:flex lg:flex-col" data-testid="student-v6-side-nav">
-        <div className="border-b border-border p-5">
+    <div className="min-h-screen bg-[#f4f4f4] text-[#151d3d] lg:flex" data-testid="student-v6-shell">
+      <aside className="hidden h-screen w-[260px] flex-shrink-0 bg-[#1b2444] text-white lg:sticky lg:top-0 lg:flex lg:flex-col" data-testid="student-v6-side-nav">
+        <div className="flex h-20 items-center gap-4 border-b border-white/10 px-5">
           <Link href="/student-v6/dashboard" aria-label="Student V6 dashboard">
-            <img src={assetUrl("logo.webp")} alt="EleevateOverseas" className="h-20 w-20 rounded-full object-cover ring-1 ring-border" />
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-[#35b64a] to-[#07a8e5] font-serif text-xl font-black text-white shadow-lg">
+              E
+            </div>
           </Link>
-          <div className="mt-4 text-[10px] font-bold uppercase tracking-[0.24em] text-primary">Student journey</div>
-          <div className="mt-1 truncate font-serif text-lg font-bold text-foreground">{snapshot.studentName}</div>
-          <Link href="/student-v6/packages">
-            <Badge variant="outline" className="mt-3 rounded-full border-primary/25 bg-primary/5 px-3 py-1.5 font-serif text-sm font-bold text-primary">
-              {snapshot.packageLabel}
-            </Badge>
-          </Link>
+          <div>
+            <div className="font-serif text-xl font-black leading-none text-white">Eleevate</div>
+            <div className="mt-1 text-[11px] font-semibold text-white/45">Student Journey</div>
+          </div>
         </div>
 
-        <nav className="flex-1 overflow-y-auto p-3" aria-label="Student V6 navigation">
-          <div className="space-y-1">
-            {STUDENT_V6_NAV_ITEMS.map((item) => (
-              <StudentV6NavLink key={item.href} item={item} active={isStudentV6ActiveRoute(location, item.href)} />
-            ))}
-          </div>
+        <nav className="flex-1 overflow-y-auto px-3 py-6" aria-label="Student V6 navigation">
+          {STUDENT_V6_NAV_SECTIONS.map((section) => (
+            <div key={section.title} className="mb-7 last:mb-0">
+              <div className="px-2 text-[12px] font-black uppercase tracking-[0.16em] text-white/35">{section.title}</div>
+              <div className="mt-3 space-y-1.5">
+                {section.items.map((item) => (
+                  <StudentV6NavLink
+                    key={`${section.title}-${item.label}`}
+                    item={item}
+                    active={isStudentV6ActiveRoute(location, item.href)}
+                    snapshot={snapshot}
+                  />
+                ))}
+              </div>
+            </div>
+          ))}
         </nav>
 
-        <div className="border-t border-border p-4">
-          <div className="rounded-xl border border-border bg-[#F7FAFC] p-4">
-            <div className="flex items-center justify-between gap-3">
-              <div>
-                <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-primary">Next step</div>
-                <div className="mt-1 font-serif text-sm font-bold leading-tight">{snapshot.currentStep.label}</div>
+        <div className="border-t border-white/10 p-4">
+          <div className="rounded-2xl bg-white/6 p-4">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[#35b64a] to-[#07a8e5] font-serif text-sm font-black text-white">
+                {avatar}
               </div>
-              <div className="font-serif text-lg font-bold text-primary">{snapshot.progress}%</div>
+              <div className="min-w-0">
+                <div className="truncate font-serif text-sm font-bold text-white">{snapshot.studentName}</div>
+                <div className="mt-0.5 text-xs text-white/50">{snapshot.packageLabel} plan</div>
+              </div>
             </div>
-            <Progress value={snapshot.progress} className="mt-3 h-2" />
+            <div className="mt-4 flex items-center justify-between text-xs">
+              <span className="font-semibold text-white/45">Journey</span>
+              <span className="font-serif font-bold text-[#79e49f]">{snapshot.progress}%</span>
+            </div>
+            <Progress value={snapshot.progress} className="mt-2 h-2 bg-white/10" />
             <Link href={snapshot.currentStep.href}>
-              <Button size="sm" className="mt-4 w-full rounded-full bg-gradient-to-r from-primary to-accent font-serif text-white">
-                Continue
+              <Button size="sm" className="mt-4 w-full rounded-xl bg-gradient-to-r from-[#31b63f] to-[#06a8e7] font-serif text-white shadow-lg">
+                Continue next step
                 <ArrowRight className="h-4 w-4" />
               </Button>
             </Link>
@@ -157,42 +206,65 @@ function StudentV6Shell({ children }: { children: React.ReactNode }) {
       </aside>
 
       <div className="min-w-0 flex-1">
-        <header className="sticky top-0 z-40 border-b border-border bg-white/95 backdrop-blur">
-          <div className="mx-auto flex min-h-16 max-w-6xl items-center gap-3 px-4 sm:px-5">
+        <header className="sticky top-0 z-40 border-b border-white/10 bg-[#121a36] text-white shadow-sm">
+          <div className="mx-auto flex min-h-20 max-w-[1480px] items-center gap-3 px-4 sm:px-6">
             <Link href="/student-v6/dashboard" aria-label="Student V6 dashboard" className="lg:hidden">
-              <img src={assetUrl("logo.webp")} alt="EleevateOverseas" className="h-12 w-12 rounded-full object-cover ring-1 ring-border" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#35b64a] to-[#07a8e5] font-serif text-lg font-black text-white">
+                E
+              </div>
             </Link>
-            <div className="min-w-0 flex-1">
-              <div className="text-[10px] font-bold uppercase tracking-[0.22em] text-primary">Student journey</div>
-              <div className="truncate font-serif text-sm font-bold text-foreground">{snapshot.studentName}</div>
+            <div className="min-w-0 flex-1 lg:hidden">
+              <div className="text-[10px] font-bold uppercase tracking-[0.22em] text-[#79e49f]">Student journey</div>
+              <div className="truncate font-serif text-sm font-bold text-white">{snapshot.studentName}</div>
             </div>
+
+            <div className="hidden rounded-xl bg-white/8 p-1 md:flex">
+              <div className="rounded-lg bg-gradient-to-r from-[#31b63f] to-[#06a8e7] px-5 py-2 font-serif text-sm font-black text-white shadow">
+                Student
+              </div>
+              <Link href="/student-v6/support">
+                <div className="rounded-lg px-5 py-2 font-serif text-sm font-bold text-white/55 hover:text-white">Counsellor</div>
+              </Link>
+              <Link href="/student-v6/packages">
+                <div className="rounded-lg px-5 py-2 font-serif text-sm font-bold text-white/55 hover:text-white">Plan</div>
+              </Link>
+            </div>
+
+            <Link href="/student-v6/explore" className="ml-auto hidden min-w-0 flex-1 justify-end lg:flex">
+              <div className="flex h-12 w-full max-w-sm items-center gap-3 rounded-xl border border-white/10 bg-white/8 px-4 text-white/45">
+                <Search className="h-5 w-5" />
+                <span className="truncate text-sm font-semibold">Search universities, programs, documents</span>
+              </div>
+            </Link>
+
             <Link href="/student-v6/packages">
-              <Badge variant="outline" className="hidden rounded-full border-primary/25 bg-primary/5 px-3 py-1.5 font-serif text-sm font-bold text-primary sm:inline-flex">
+              <Badge variant="outline" className="hidden rounded-xl border-white/10 bg-white/8 px-3 py-2 font-serif text-sm font-bold text-white sm:inline-flex">
                 {snapshot.packageLabel}
               </Badge>
             </Link>
+
             <Link href="/student-v6/support">
-              <Button variant="outline" size="sm" className="rounded-full font-serif" data-testid="v6-support-top">
-                <HelpCircle className="h-4 w-4" />
-                <span className="hidden sm:inline">Support</span>
+              <Button variant="ghost" size="icon" className="hidden h-12 w-12 rounded-xl bg-white/8 text-white hover:bg-white/12 hover:text-white sm:inline-flex" data-testid="v6-support-top">
+                <HelpCircle className="h-5 w-5" />
               </Button>
             </Link>
+
             <div className="relative">
               <button
                 type="button"
                 onClick={() => setNotificationsOpen((value) => !value)}
-                className="relative flex h-9 w-9 items-center justify-center rounded-full border border-border bg-white text-muted-foreground shadow-sm hover:text-foreground"
+                className="relative flex h-12 w-12 items-center justify-center rounded-xl bg-white/8 text-white shadow-sm hover:bg-white/12"
                 aria-label="Journey notifications"
               >
-                <Bell className="h-4 w-4" />
+                <Bell className="h-5 w-5" />
                 {snapshot.notifications.length > 0 && (
-                  <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-white">
+                  <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-[#08aeea] px-1 text-[11px] font-black text-white">
                     {snapshot.notifications.length}
                   </span>
                 )}
               </button>
               {notificationsOpen && (
-                <div className="absolute right-0 top-11 z-50 w-[min(calc(100vw-2rem),360px)] overflow-hidden rounded-lg border border-border bg-white shadow-xl">
+                <div className="absolute right-0 top-14 z-50 w-[min(calc(100vw-2rem),360px)] overflow-hidden rounded-xl border border-border bg-white text-foreground shadow-xl">
                   <div className="border-b border-border p-3">
                     <div className="font-serif text-sm font-bold">What needs attention?</div>
                     <p className="mt-1 text-xs text-muted-foreground">These change as you complete each step.</p>
@@ -210,21 +282,43 @@ function StudentV6Shell({ children }: { children: React.ReactNode }) {
                 </div>
               )}
             </div>
+
+            <div className="hidden items-center gap-3 sm:flex">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-[#35b64a] to-[#07a8e5] font-serif font-black text-white ring-2 ring-white/15">
+                {avatar}
+              </div>
+              <div className="hidden min-w-0 xl:block">
+                <div className="truncate font-serif text-sm font-bold text-white">{snapshot.studentName}</div>
+                <div className="text-xs text-white/50">Student · {snapshot.packageLabel} Plan</div>
+              </div>
+            </div>
           </div>
 
-          <nav className="border-t border-border bg-white px-4 py-2 lg:hidden" aria-label="Student V6 quick navigation">
+          <nav className="border-t border-white/10 bg-[#121a36] px-4 py-2 lg:hidden" aria-label="Student V6 quick navigation">
             <div className="flex gap-2 overflow-x-auto pb-1">
               {STUDENT_V6_NAV_ITEMS.slice(0, 6).map((item) => (
-                <MobileV6NavPill key={item.href} item={item} active={isStudentV6ActiveRoute(location, item.href)} />
+                <MobileV6NavPill key={`${item.label}-${item.href}`} item={item} active={isStudentV6ActiveRoute(location, item.href)} />
               ))}
             </div>
           </nav>
         </header>
 
-        <main className="mx-auto max-w-6xl px-4 py-5 sm:px-5 lg:py-7">{children}</main>
+        <main className="mx-auto max-w-[1480px] px-4 py-7 sm:px-6 lg:py-8">{children}</main>
       </div>
     </div>
   );
+}
+
+function getV6NavIndicator(item: StudentV6NavItem, snapshot: StudentV6Snapshot) {
+  if (item.indicator === "catalog") return "450+";
+  if (item.indicator === "applications" && snapshot.state.applications.length > 0) return String(snapshot.state.applications.length);
+  if (item.indicator === "tasks" && snapshot.missing.length > 0) return String(snapshot.missing.length);
+  if (item.indicator === "documents") {
+    const pending = Math.max(0, getRequiredV6Documents().length - snapshot.state.documents.filter((doc) => doc.status === "uploaded").length);
+    return pending > 0 ? String(pending) : null;
+  }
+  if (item.indicator === "dot") return "dot";
+  return null;
 }
 
 function isStudentV6ActiveRoute(location: string, href: string) {
@@ -235,23 +329,33 @@ function isStudentV6ActiveRoute(location: string, href: string) {
 function StudentV6NavLink({
   item,
   active,
+  snapshot,
 }: {
-  item: (typeof STUDENT_V6_NAV_ITEMS)[number];
+  item: StudentV6NavItem;
   active: boolean;
+  snapshot: StudentV6Snapshot;
 }) {
   const Icon = item.icon;
+  const indicator = getV6NavIndicator(item, snapshot);
   return (
     <Link href={item.href}>
       <div
         className={cn(
-          "flex items-center gap-3 rounded-xl px-3 py-3 font-serif text-sm font-bold transition-colors",
+          "group relative flex items-center gap-3 rounded-xl px-3 py-3 font-serif text-[15px] font-bold transition-colors",
           active
-            ? "bg-gradient-to-r from-primary to-accent text-white shadow-md"
-            : "text-muted-foreground hover:bg-primary/5 hover:text-foreground",
+            ? "bg-gradient-to-r from-[#22445f] to-[#224c4d] text-white shadow-lg"
+            : "text-white/55 hover:bg-white/6 hover:text-white",
         )}
       >
+        {active && <span className="absolute left-0 top-3 h-7 w-1 rounded-r-full bg-[#25d37b]" />}
         <Icon className="h-4 w-4 flex-shrink-0" />
-        <span>{item.label}</span>
+        <span className="min-w-0 flex-1">{item.label}</span>
+        {indicator === "dot" && <span className="h-2.5 w-2.5 rounded-full bg-amber-400" />}
+        {indicator && indicator !== "dot" && (
+          <span className="rounded-full bg-gradient-to-r from-[#35b64a] to-[#07a8e5] px-2 py-0.5 text-xs font-black text-white">
+            {indicator}
+          </span>
+        )}
       </div>
     </Link>
   );
@@ -261,7 +365,7 @@ function MobileV6NavPill({
   item,
   active,
 }: {
-  item: (typeof STUDENT_V6_NAV_ITEMS)[number];
+  item: StudentV6NavItem;
   active: boolean;
 }) {
   const Icon = item.icon;
@@ -271,8 +375,8 @@ function MobileV6NavPill({
         className={cn(
           "flex min-w-max items-center gap-2 rounded-full border px-3 py-2 font-serif text-xs font-bold",
           active
-            ? "border-primary bg-primary text-white"
-            : "border-border bg-white text-muted-foreground",
+            ? "border-transparent bg-gradient-to-r from-[#31b63f] to-[#06a8e7] text-white"
+            : "border-white/10 bg-white/8 text-white/65",
         )}
       >
         <Icon className="h-3.5 w-3.5" />
@@ -684,7 +788,6 @@ function SimpleStep({ icon: Icon, title, text, href, cta }: { icon: React.Elemen
 
 export function StudentV6DashboardPage() {
   const snapshot = useStudentV6Snapshot();
-  const avatar = profileInitials(snapshot.studentName);
   const next = snapshot.currentStep;
   const firstName = snapshot.studentName === "Student" ? "Student" : snapshot.studentName.split(" ")[0];
   const currentStepIndex = Math.max(0, snapshot.steps.findIndex((step) => step.id === next.id));
@@ -704,126 +807,116 @@ export function StudentV6DashboardPage() {
     snapshot.state.visa.biometricsBooked,
   ];
   const visaProgress = Math.round((visaChecks.filter(Boolean).length / visaChecks.length) * 100);
-  const pendingDocs = Math.max(0, getRequiredV6Documents().length - snapshot.state.documents.filter((doc) => doc.status === "uploaded").length);
+  const requiredDocs = getRequiredV6Documents();
+  const uploadedDocCount = snapshot.state.documents.filter((doc) => doc.status === "uploaded").length;
+  const pendingDocs = Math.max(0, requiredDocs.length - uploadedDocCount);
+  const selectedCountry = snapshot.selectedCountry ?? "Not chosen";
+  const budgetMax = snapshot.state.profile.budgetMaxInr ?? 0;
+  const packageSelected = snapshot.packageLabel !== "No tier";
+  const counsellorTitle = snapshot.state.applications.length > 0 ? "Book application review" : "Book your first guidance call";
 
   return (
     <StudentV6Shell>
-      <section className="relative overflow-hidden rounded-2xl bg-[#0E132F] p-5 text-white shadow-xl md:p-7 lg:p-9">
-        <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-primary/30 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-28 left-1/4 h-72 w-72 rounded-full bg-accent/25 blur-3xl" />
-        <div className="relative grid min-w-0 gap-7 lg:grid-cols-[minmax(0,1fr)_430px] lg:items-center">
-          <div className="min-w-0">
-            <Badge className="rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.24em] text-emerald-200 hover:bg-white/10">
-              Powered by ELEE
-            </Badge>
-            <h1 className="mt-5 max-w-3xl font-serif text-3xl font-bold leading-[1.08] sm:text-4xl md:text-6xl">
-              Your study abroad, step by step.
-            </h1>
-            <p className="mt-4 max-w-2xl text-base leading-7 text-white/75 md:text-lg">
-              Hi {firstName}, this dashboard shows only what matters now: where you are, what is missing, and the next button to press.
-            </p>
-            <div className="mt-6 rounded-xl border border-white/10 bg-white/8 p-4 backdrop-blur">
-              <div className="text-xs font-bold uppercase tracking-[0.2em] text-emerald-200">Do this next</div>
-              <div className="mt-2 font-serif text-2xl font-bold">{nextTitle}</div>
-              <p className="mt-2 text-sm leading-6 text-white/72">{nextText}</p>
-              <div className="mt-3 rounded-lg border border-white/10 bg-white/8 p-3">
-                <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-white/50">Needed now</div>
-                <p className="mt-1 text-sm font-semibold leading-6 text-white">{nextRequirement}</p>
-              </div>
+      <section className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+        <div>
+          <div className="text-sm font-semibold text-muted-foreground">Home</div>
+          <h1 className="mt-3 font-serif text-3xl font-black leading-tight text-[#172040] md:text-4xl">
+            Welcome back, {firstName}
+          </h1>
+          <p className="mt-2 text-base font-medium text-muted-foreground">
+            Here is what needs attention in your study abroad journey today.
+          </p>
+        </div>
+        <Link href="/student-v6/explore">
+          <Button className="rounded-lg bg-gradient-to-r from-[#31b63f] to-[#06a8e7] px-5 font-serif text-white shadow-lg">
+            Explore Universities
+            <ArrowRight className="h-4 w-4" />
+          </Button>
+        </Link>
+      </section>
+
+      <section className="mt-7 overflow-hidden rounded-2xl bg-gradient-to-r from-[#31b63f] via-[#20ad7b] to-[#06a8e7] p-5 text-white shadow-lg">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex gap-4">
+            <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-white/16">
+              <Sparkles className="h-5 w-5" />
             </div>
-            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-              <Link href={next.href}>
-                <Button size="lg" className="w-full rounded-full bg-gradient-to-r from-primary to-accent px-7 font-serif text-white shadow-lg hover:opacity-95 sm:w-auto">
-                  {allDone ? "Review file" : next.cta}
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
-              </Link>
-              <Link href="/student-v6/support">
-                <Button size="lg" variant="outline" className="w-full rounded-full border-white/30 bg-white/10 font-serif text-white hover:bg-white/15 sm:w-auto">
-                  Talk to support
-                </Button>
-              </Link>
-            </div>
-            <div className="mt-7 grid gap-3 sm:grid-cols-4">
-              <HeroStat label="Journey" value={`${snapshot.progress}%`} />
-              <HeroStat label="Country" value={snapshot.selectedCountry ?? "Not chosen"} />
-              <HeroStat label="Applications" value={String(snapshot.state.applications.length)} />
-              <HeroStat label="Documents" value={`${snapshot.documentReadiness}%`} />
+            <div>
+              <h2 className="font-serif text-xl font-black">
+                {packageSelected ? `${snapshot.packageLabel} plan active` : "Choose a student package"}
+              </h2>
+              <p className="mt-1 text-sm font-medium text-white/86">
+                {packageSelected
+                  ? "You can upgrade anytime for more counsellor review, document help, and application support."
+                  : "Unlock guided applications, counsellor review, visa support, finance help, and rewards."}
+              </p>
             </div>
           </div>
-
-          <div className="relative min-w-0">
-            <Card className="border border-white/14 bg-white/92 p-5 text-foreground shadow-2xl">
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent font-serif font-bold text-white">{avatar}</div>
-                  <div>
-                    <div className="font-serif text-lg font-bold">{snapshot.studentName}</div>
-                    <div className="text-sm text-muted-foreground">{snapshot.packageLabel} package</div>
-                  </div>
-                </div>
-                <Badge className="rounded-full bg-emerald-50 text-emerald-800 hover:bg-emerald-50">
-                  {allDone ? "Review" : "Active"}
-                </Badge>
-              </div>
-              <div className="mt-5">
-                <div className="mb-2 flex justify-between text-sm">
-                  <span className="font-semibold text-muted-foreground">Application journey</span>
-                  <span className="font-serif font-bold">{snapshot.progress}%</span>
-                </div>
-                <Progress value={snapshot.progress} className="h-2" />
-              </div>
-              <div className="mt-5 space-y-3">
-                {(appPreview.length ? appPreview : [
-                  {
-                    id: "empty-application",
-                    universityName: "Shortlist a university",
-                    city: snapshot.selectedCountry ?? "Choose country",
-                    country: "Application tracker will start",
-                    status: "shortlisted" as StudentV6ApplicationStatus,
-                  },
-                ]).map((application) => (
-                  <div key={application.id} className="flex items-center justify-between gap-3 rounded-xl border border-border bg-muted/25 p-3">
-                    <div className="min-w-0">
-                      <div className="truncate font-serif text-sm font-bold text-foreground">{application.universityName}</div>
-                      <div className="truncate text-xs text-muted-foreground">{application.city}, {application.country}</div>
-                    </div>
-                    <Badge variant="outline" className="rounded-full capitalize">{application.status}</Badge>
-                  </div>
-                ))}
-              </div>
-            </Card>
-
-            <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:mt-5">
-              <DarkFloatCard label="Visa status" value={`${visaProgress}%`} detail={visaProgress ? "Checklist started" : "Starts after offer"} />
-              <DarkFloatCard label="Documents" value={`${pendingDocs}`} detail="items pending" />
-            </div>
-          </div>
+          <Link href="/student-v6/packages">
+            <Button variant="secondary" className="rounded-lg bg-white px-5 font-serif text-[#172040] hover:bg-white/90">
+              {packageSelected ? "Manage plan" : "View packages"}
+            </Button>
+          </Link>
         </div>
       </section>
 
-      <section className="mt-6 grid gap-4 md:grid-cols-4">
-        <AnswerCard question="Where am I?" answer={allDone ? "Review stage" : `Step ${currentStepNumber}`} detail={next.label} />
-        <AnswerCard question="What is done?" answer={`${snapshot.completed.length} steps`} detail={snapshot.completed.length ? snapshot.completed.slice(-1)[0] : "Nothing yet"} />
-        <AnswerCard question="What is missing?" answer={`${snapshot.missing.length} items`} detail={snapshot.missing[0] ?? "Nothing missing"} />
-        <AnswerCard question="Who can help?" answer="Eleevate support" detail="Chat or request a call anytime" href="/student-v6/support" />
+      <section className="mt-7 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+        <ReferenceMetricCard icon={BookOpenCheck} label="Applications" value={String(snapshot.state.applications.length)} note={snapshot.state.applications.length ? "Active tracker items" : "Shortlist first"} tone="blue" />
+        <ReferenceMetricCard icon={FileCheck2} label="Documents ready" value={`${uploadedDocCount}/${requiredDocs.length}`} note={pendingDocs ? `${pendingDocs} pending` : "All marked ready"} tone="neutral" />
+        <ReferenceMetricCard icon={ShieldCheck} label="Visa progress" value={`${visaProgress}%`} note={visaProgress ? "Checklist started" : "Starts after offer"} tone="blue" />
+        <ReferenceMetricCard icon={Sparkles} label="Scholarships found" value={snapshot.state.profile.targetCountries?.length ? "Ready" : "0"} note={snapshot.state.profile.targetCountries?.length ? "Open finance to check" : "Add country to match"} tone="gold" />
       </section>
 
-      <section className="mt-6 grid gap-4 md:grid-cols-3">
-        <FeatureTile icon={Sparkles} title="ELEE guide" text="One next action, no confusing menus." href={next.href} />
-        <FeatureTile icon={MapPinned} title="University explorer" text="Country and course filters follow your profile." href="/student-v6/explore" />
-        <FeatureTile icon={FileCheck2} title="Documents and visa" text="Readiness changes when you mark documents ready." href="/student-v6/documents" />
-      </section>
+      <section className="mt-7 grid gap-6 xl:grid-cols-[minmax(0,1fr)_420px]">
+        <div className="space-y-6">
+          <Card className="rounded-2xl border-0 bg-white p-6 shadow-sm">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <h2 className="font-serif text-2xl font-black text-[#172040]">My Applications</h2>
+              <Link href="/student-v6/applications">
+                <Button variant="outline" className="rounded-lg border-[#172040] font-serif text-[#172040]">
+                  View all
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </Link>
+            </div>
+            <div className="mt-5 space-y-3">
+              {appPreview.length ? (
+                appPreview.map((application) => (
+                  <div key={application.id} className="flex flex-col gap-3 rounded-xl border border-border bg-white px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="min-w-0">
+                      <div className="font-serif text-lg font-bold text-[#172040]">{application.universityName}</div>
+                      <div className="mt-1 text-sm font-medium text-muted-foreground">
+                        {application.city}, {application.country}
+                      </div>
+                    </div>
+                    <Badge className="w-fit rounded-full bg-cyan-50 px-4 py-1.5 font-serif text-cyan-800 hover:bg-cyan-50">
+                      {application.status.replace("-", " ")}
+                    </Badge>
+                  </div>
+                ))
+              ) : (
+                <div className="rounded-xl border border-dashed border-border bg-[#f8fafc] p-5">
+                  <div className="font-serif text-lg font-black text-[#172040]">No applications yet</div>
+                  <p className="mt-1 text-sm leading-6 text-muted-foreground">Shortlist a university and ELEE will create your application tracker here.</p>
+                  <Link href="/student-v6/explore">
+                    <Button className="mt-4 rounded-lg bg-gradient-to-r from-[#31b63f] to-[#06a8e7] font-serif text-white">
+                      Find universities
+                      <ArrowRight className="h-4 w-4" />
+                    </Button>
+                  </Link>
+                </div>
+              )}
+            </div>
+          </Card>
 
-      <section className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
-        <Card className="border border-border bg-white p-5 shadow-sm">
+          <Card className="rounded-2xl border-0 bg-white p-6 shadow-sm">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <h2 className="font-serif text-xl font-bold">Your 7-step path</h2>
+              <h2 className="font-serif text-2xl font-black text-[#172040]">Your journey steps</h2>
               <p className="mt-1 text-sm text-muted-foreground">Green is done. Blue is what to do now. Grey can wait.</p>
             </div>
             <Link href="/student-v6/start">
-              <Button variant="outline" size="sm" className="rounded-full font-serif">Edit answers</Button>
+              <Button variant="outline" size="sm" className="rounded-lg font-serif">Edit answers</Button>
             </Link>
           </div>
           <div className="mt-4 grid gap-2">
@@ -831,45 +924,117 @@ export function StudentV6DashboardPage() {
               <JourneyStepLine key={step.id} step={step} index={index} />
             ))}
           </div>
-        </Card>
+          </Card>
+        </div>
 
-        <aside className="space-y-5">
-          <Card className="border border-border bg-white p-5 shadow-sm">
-            <h2 className="font-serif text-xl font-bold">Missing right now</h2>
-            <p className="mt-1 text-sm text-muted-foreground">Finish these to move forward.</p>
-            <div className="mt-4 space-y-2">
-              {snapshot.missing.slice(0, 3).map((item, index) => (
-                <div key={item} className="flex gap-3 rounded-lg border border-border bg-muted/25 p-3">
-                  <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-white font-serif text-xs font-bold text-primary">{index + 1}</span>
-                  <span className="text-sm leading-6 text-muted-foreground">{item}</span>
+        <aside className="space-y-6">
+          <Card className="overflow-hidden rounded-2xl border-0 bg-white shadow-sm">
+            <div className="bg-gradient-to-r from-[#31b63f] to-[#06a8e7] p-6 text-white">
+              <div className="text-xs font-black uppercase tracking-[0.16em] text-white/75">Next counsellor session</div>
+              <div className="mt-4 font-serif text-2xl font-black">{counsellorTitle}</div>
+              <p className="mt-1 text-sm font-medium text-white/86">Available 10:00 AM - 7:00 PM IST</p>
+            </div>
+            <div className="p-5">
+              <div className="flex items-center gap-3">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-[#31b63f] to-[#06a8e7] font-serif font-black text-white">EO</div>
+                <div>
+                  <div className="font-serif font-black text-[#172040]">Eleevate Counsellor</div>
+                  <div className="text-sm text-muted-foreground">Study abroad guidance</div>
                 </div>
-              ))}
-              {snapshot.missing.length === 0 && <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-800">All main steps are complete.</div>}
+              </div>
+              <div className="mt-5 grid grid-cols-2 gap-3">
+                <Link href="/student-v6/support">
+                  <Button className="w-full rounded-lg bg-gradient-to-r from-[#31b63f] to-[#06a8e7] font-serif text-white">Book call</Button>
+                </Link>
+                <Link href="/student-v6/support">
+                  <Button variant="outline" className="w-full rounded-lg border-[#172040] font-serif text-[#172040]">Ask now</Button>
+                </Link>
+              </div>
             </div>
           </Card>
 
-          <Card className="border border-border bg-white p-5 shadow-sm">
-            <h2 className="font-serif text-xl font-bold">Quick help</h2>
-            <p className="mt-1 text-sm text-muted-foreground">Use these only when needed.</p>
-            <div className="mt-4 grid gap-2">
-              {[
-                ["Choose package", "/student-v6/packages"],
-                ["Upload documents", "/student-v6/documents"],
-                ["Plan finance", "/student-v6/finance"],
-                ["Ask support", "/student-v6/support"],
-              ].map(([label, href]) => (
-                <Link key={label} href={href}>
-                  <div className="flex items-center justify-between rounded-lg border border-border bg-white p-3 font-serif text-sm font-bold hover:border-primary/35 hover:bg-primary/5">
-                    <span>{label}</span>
-                    <ArrowRight className="h-4 w-4 text-muted-foreground" />
+          <Card className="rounded-2xl border-0 bg-white p-6 shadow-sm">
+            <div className="flex items-center justify-between">
+              <h2 className="font-serif text-2xl font-black text-[#172040]">Documents</h2>
+              <Badge className="rounded-full bg-amber-50 px-3 py-1 font-serif text-amber-800 hover:bg-amber-50">{pendingDocs} pending</Badge>
+            </div>
+            <div className="mt-4 space-y-3">
+              {requiredDocs.slice(0, 5).map((doc) => {
+                const uploaded = snapshot.state.documents.some((item) => item.label === doc.label && item.status === "uploaded");
+                return (
+                  <Link key={doc.label} href="/student-v6/documents">
+                    <div className="flex items-center justify-between rounded-xl border border-border bg-[#f8fafc] p-3">
+                      <div className="min-w-0">
+                        <div className="truncate font-serif text-sm font-bold text-[#172040]">{doc.label}</div>
+                        <div className="text-xs text-muted-foreground">{doc.group}</div>
+                      </div>
+                      <Badge variant="outline" className={cn("rounded-full", uploaded ? "border-emerald-200 bg-emerald-50 text-emerald-800" : "border-amber-200 bg-amber-50 text-amber-800")}>
+                        {uploaded ? "Ready" : "Pending"}
+                      </Badge>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </Card>
+
+          <Card className="rounded-2xl border-0 bg-white p-6 shadow-sm">
+            <h2 className="font-serif text-2xl font-black text-[#172040]">My Tasks</h2>
+            <div className="mt-4 space-y-3">
+              {snapshot.tasks.map((task, index) => (
+                <Link key={task.id} href={task.href}>
+                  <div className="flex items-start gap-3 rounded-xl border border-border bg-[#f8fafc] p-3 hover:border-primary/35 hover:bg-primary/5">
+                    <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#31b63f] to-[#06a8e7] font-serif text-xs font-black text-white">{index + 1}</span>
+                    <div className="min-w-0 flex-1">
+                      <div className="font-serif text-sm font-black text-[#172040]">{task.title}</div>
+                      <p className="mt-1 text-xs leading-5 text-muted-foreground">{task.detail}</p>
+                    </div>
+                    <ArrowRight className="mt-1 h-4 w-4 flex-shrink-0 text-muted-foreground" />
                   </div>
                 </Link>
               ))}
+              {snapshot.tasks.length === 0 && <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-800">All main steps are complete.</div>}
             </div>
           </Card>
         </aside>
       </section>
     </StudentV6Shell>
+  );
+}
+
+function ReferenceMetricCard({
+  icon: Icon,
+  label,
+  value,
+  note,
+  tone,
+}: {
+  icon: React.ElementType;
+  label: string;
+  value: string;
+  note: string;
+  tone: "blue" | "neutral" | "gold";
+}) {
+  const iconClass = tone === "gold"
+    ? "bg-amber-50 text-amber-700"
+    : tone === "blue"
+      ? "bg-sky-50 text-sky-700"
+      : "bg-slate-50 text-slate-600";
+  const noteClass = tone === "gold" ? "text-amber-600" : "text-teal-600";
+
+  return (
+    <Card className="rounded-2xl border-0 bg-white p-6 shadow-sm">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <div className="text-xs font-black uppercase tracking-[0.12em] text-muted-foreground">{label}</div>
+          <div className="mt-9 font-serif text-4xl font-black leading-none text-[#172040]">{value}</div>
+          <div className={cn("mt-3 text-sm font-black", noteClass)}>{note}</div>
+        </div>
+        <div className={cn("flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl", iconClass)}>
+          <Icon className="h-5 w-5" />
+        </div>
+      </div>
+    </Card>
   );
 }
 
