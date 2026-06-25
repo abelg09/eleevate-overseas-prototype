@@ -2,22 +2,29 @@ import { useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
 import {
   ArrowRight,
+  BadgeCheck,
   Bell,
   BookOpenCheck,
+  Building2,
   CheckCircle2,
   ChevronLeft,
+  ClipboardCheck,
   FileCheck2,
+  FileText,
   GraduationCap,
   HandCoins,
   HelpCircle,
   Home,
+  House,
   MapPinned,
   PackageCheck,
   Plane,
   Search,
   ShieldCheck,
   Sparkles,
+  Smartphone,
   UserRound,
+  WalletCards,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -489,95 +496,290 @@ function ContinueButtons({
 }
 
 export function StudentV6LandingPage() {
+  const serviceCards = [
+    { icon: FileText, title: "Credential review", text: "Check academic documents, marksheets, transcripts, passport, and format gaps before applying." },
+    { icon: HandCoins, title: "Education loan", text: "Plan funding in INR, estimate EMI, and keep sanction-letter tasks linked to the dashboard." },
+    { icon: WalletCards, title: "Forex and remittance", text: "Prepare fee payment, living expense transfers, forex card, and receipts in one place." },
+    { icon: House, title: "Housing and arrival", text: "Track accommodation, airport pickup, SIM, bank account, and first-week arrival tasks." },
+    { icon: ShieldCheck, title: "Visa preparation", text: "Country-wise checklist for CAS, I-20, CoE, LOA, funds proof, biometrics, and medical steps." },
+    { icon: GraduationCap, title: "University applications", text: "Shortlist universities, move them into applications, and see what is pending for each file." },
+    { icon: Smartphone, title: "Student services", text: "Keep SIM, insurance, banking, travel, and support requests visible when the student needs them." },
+    { icon: BadgeCheck, title: "Counsellor support", text: "Ask for help when a step is confusing, from first profile to final visa and arrival." },
+  ];
+
+  const journeySteps = [
+    { title: "Create profile", text: "Name, mobile, city, parent contact, passport status, education details." },
+    { title: "Generate ELEE report", text: "Know whether you need psychometric guidance or a direct route report." },
+    { title: "Find country and course", text: "Compare countries, course fit, fees, intakes, and career direction." },
+    { title: "Apply properly", text: "Shortlist creates application trackers with next tasks and deadlines." },
+    { title: "Prepare documents and visa", text: "Country-specific checklist changes when your selected country changes." },
+    { title: "Plan finance and arrival", text: "Loan, scholarship, remittance, forex, insurance, accommodation, and travel." },
+  ];
+
+  const destinations = ["United Kingdom", "Canada", "United States", "Australia", "Germany", "Netherlands", "Ireland", "Singapore"];
+
   return (
-    <div className="min-h-screen bg-white text-foreground" data-testid="student-v6-landing">
-      <header className="border-b border-border bg-white">
-        <div className="mx-auto flex min-h-20 max-w-6xl items-center justify-between px-4 sm:px-5">
+    <div className="min-h-screen bg-[#f5f6f8] text-[#151d3d]" data-testid="student-v6-landing">
+      <header className="sticky top-0 z-50 border-b border-[#dce2ef] bg-white/95 backdrop-blur">
+        <div className="mx-auto flex min-h-24 max-w-[1280px] items-center justify-between gap-4 px-4 sm:px-6">
           <Link href="/student-v6">
-            <img src={assetUrl("logo.webp")} alt="EleevateOverseas" className="h-14 w-14 rounded-full object-cover ring-1 ring-border" />
+            <div className="flex items-center gap-3">
+              <img src={assetUrl("logo.webp")} alt="EleevateOverseas" className="h-16 w-16 rounded-full object-cover ring-1 ring-border" />
+              <div className="hidden sm:block">
+                <div className="font-serif text-xl font-black leading-tight text-[#172040]">Eleevate</div>
+                <div className="text-xs font-semibold text-muted-foreground">Student Journey</div>
+              </div>
+            </div>
           </Link>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 sm:gap-3">
             <Link href="/student-v6/support">
-              <Button variant="outline" className="rounded-full font-serif">Need help?</Button>
+              <Button variant="outline" className="hidden rounded-xl border-[#172040] font-serif text-[#172040] sm:inline-flex">Need help?</Button>
             </Link>
             <Link href="/student-v6/start">
-              <Button className="rounded-full font-serif">Start my journey</Button>
+              <Button className="rounded-xl bg-gradient-to-r from-[#31b63f] to-[#06a8e7] px-5 font-serif text-white shadow-lg">Create profile</Button>
+            </Link>
+            <Link href="/student-v6/dashboard">
+              <Button variant="outline" className="rounded-xl font-serif">Login</Button>
             </Link>
           </div>
         </div>
       </header>
 
       <main>
-        <section className="bg-[linear-gradient(135deg,#EEF9FF_0%,#FFFFFF_55%,#F2FFF2_100%)] px-4 py-14 sm:px-5 lg:py-20">
-          <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[minmax(0,1fr)_380px] lg:items-center">
-            <div>
-              <Badge className="rounded-full bg-primary/10 px-4 py-2 text-primary hover:bg-primary/10">For students and families</Badge>
-              <h1 className="mt-5 max-w-3xl font-serif text-4xl font-bold leading-tight text-foreground md:text-6xl">
-                Study abroad, step by step.
+        <section className="overflow-hidden bg-[#121a36] px-4 py-10 text-white sm:px-6 lg:py-16">
+          <div className="mx-auto grid max-w-[1280px] gap-8 lg:grid-cols-[minmax(0,1fr)_440px] lg:items-center">
+            <div className="max-w-4xl">
+              <Badge className="rounded-full border border-white/10 bg-white/10 px-4 py-2 font-serif text-white hover:bg-white/10">For students, parents, and counsellors</Badge>
+              <h1 className="mt-6 max-w-4xl font-serif text-4xl font-black leading-tight text-white md:text-6xl">
+                Study abroad support, from first question to arrival.
               </h1>
-              <p className="mt-5 max-w-2xl text-base leading-8 text-muted-foreground md:text-lg">
-                Eleevate helps you understand what to do first, what documents are missing, which country fits, and how to move from profile to visa and arrival.
+              <p className="mt-5 max-w-3xl text-base leading-8 text-white/72 md:text-lg">
+                Build your profile, find the right country and course, prepare documents, apply to universities, plan visa and finance, and get help whenever you are stuck.
               </p>
               <div className="mt-7 flex flex-col gap-3 sm:flex-row">
                 <Link href="/student-v6/start" data-testid="v6-start-journey">
-                  <Button size="lg" className="rounded-full px-7 font-serif">Start my journey <ArrowRight className="h-4 w-4" /></Button>
+                  <Button size="lg" className="rounded-xl bg-gradient-to-r from-[#31b63f] to-[#06a8e7] px-7 font-serif text-white shadow-xl">Start my journey <ArrowRight className="h-4 w-4" /></Button>
                 </Link>
                 <Link href="/student-v6/dashboard">
-                  <Button size="lg" variant="outline" className="rounded-full px-7 font-serif">Open my dashboard</Button>
+                  <Button size="lg" variant="outline" className="rounded-xl border-white/30 bg-white/5 px-7 font-serif text-white hover:bg-white/10 hover:text-white">Student login</Button>
                 </Link>
+              </div>
+              <div className="mt-8 grid max-w-2xl grid-cols-3 gap-3">
+                {[
+                  ["450+", "universities"],
+                  ["10+", "study routes"],
+                  ["24/7", "journey view"],
+                ].map(([value, label]) => (
+                  <div key={label} className="rounded-2xl border border-white/10 bg-white/8 p-4">
+                    <div className="font-serif text-2xl font-black text-white">{value}</div>
+                    <div className="mt-1 text-xs font-semibold uppercase tracking-wide text-white/45">{label}</div>
+                  </div>
+                ))}
               </div>
             </div>
 
-            <Card className="border border-border bg-white p-5 shadow-lg">
-              <div className="flex items-center gap-3">
-                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                  <Sparkles className="h-6 w-6" />
-                </div>
-                <div>
-                  <div className="font-serif text-lg font-bold">ELEE will guide you</div>
-                  <p className="text-sm text-muted-foreground">One clear action at a time.</p>
+            <Card className="overflow-hidden border-0 bg-white text-[#172040] shadow-2xl">
+              <div className="bg-gradient-to-r from-[#31b63f] to-[#06a8e7] p-5 text-white">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <div className="text-xs font-black uppercase tracking-[0.2em] text-white/70">Student dashboard preview</div>
+                    <div className="mt-2 font-serif text-2xl font-black">Your next step is always clear</div>
+                  </div>
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/16">
+                    <Sparkles className="h-6 w-6" />
+                  </div>
                 </div>
               </div>
-              <div className="mt-5 space-y-3">
-                {[
-                  "Tell us about you",
-                  "Choose country and course",
-                  "Shortlist universities",
-                  "Prepare documents",
-                  "Plan visa and finance",
-                  "Arrive ready",
-                ].map((item, index) => (
-                  <div key={item} className="flex items-center gap-3 rounded-lg border border-border bg-muted/25 p-3">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white font-serif text-xs font-bold text-primary">{index + 1}</span>
-                    <span className="font-serif text-sm font-bold text-foreground">{item}</span>
-                  </div>
-                ))}
+              <div className="p-5">
+                <div className="rounded-2xl border border-[#dce2ef] bg-[#f8fafc] p-4">
+                  <div className="text-xs font-black uppercase tracking-wide text-muted-foreground">Next best action</div>
+                  <div className="mt-2 font-serif text-xl font-black">Complete your student profile</div>
+                  <p className="mt-2 text-sm leading-6 text-muted-foreground">Tell ELEE your course, budget, country interest, marks, tests, and passport status.</p>
+                  <Link href="/student-v6/start">
+                    <Button className="mt-4 rounded-xl bg-gradient-to-r from-[#31b63f] to-[#06a8e7] font-serif text-white">Start now</Button>
+                  </Link>
+                </div>
+                <div className="mt-4 grid grid-cols-2 gap-3">
+                  {[
+                    ["Documents", "0% ready"],
+                    ["Applications", "Shortlist first"],
+                    ["Visa", "Starts after offer"],
+                    ["Finance", "Plan in INR"],
+                  ].map(([label, value]) => (
+                    <div key={label} className="rounded-xl border border-[#dce2ef] bg-white p-3">
+                      <div className="text-[10px] font-black uppercase tracking-wide text-muted-foreground">{label}</div>
+                      <div className="mt-1 font-serif text-sm font-black text-[#172040]">{value}</div>
+                    </div>
+                  ))}
+                </div>
               </div>
             </Card>
           </div>
         </section>
 
-        <section className="px-4 py-12 sm:px-5">
-          <div className="mx-auto max-w-6xl">
-            <div className="mb-6 max-w-3xl">
-              <div className="text-xs font-bold uppercase tracking-[0.24em] text-primary">Simple flow</div>
-              <h2 className="mt-2 font-serif text-3xl font-bold text-foreground">No confusion. Only the next useful step.</h2>
+        <section className="px-4 py-8 sm:px-6">
+          <div className="mx-auto max-w-[1280px] overflow-hidden rounded-2xl bg-gradient-to-r from-[#31b63f] via-[#1fae7d] to-[#06a8e7] p-5 text-white shadow-lg">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+              <div>
+                <div className="font-serif text-xl font-black">Start free. Upgrade only when you need more help.</div>
+                <p className="mt-1 text-sm font-medium text-white/82">Silver, Gold, and Platinum packages can unlock counsellor support, document review, application help, visa preparation, rewards, and finance support.</p>
+              </div>
+              <Link href="/student-v6/packages">
+                <Button className="rounded-xl bg-white px-6 font-serif text-[#172040] hover:bg-white/90">View packages</Button>
+              </Link>
             </div>
-            <div className="grid gap-4 md:grid-cols-3">
-              {[
-                { icon: UserRound, title: "First, build your file", text: "Add details once. ELEE uses it for country, course, report, documents, and finance prompts." },
-                { icon: MapPinned, title: "Then choose direction", text: "If you select UK, the course and university search starts with UK options." },
-                { icon: ShieldCheck, title: "Then prepare properly", text: "Applications, documents, visa, loan, forex, insurance, and arrival stay connected." },
-              ].map((item) => {
+          </div>
+        </section>
+
+        <section className="px-4 py-10 sm:px-6">
+          <div className="mx-auto max-w-[1280px]">
+            <div className="mb-6 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+              <div className="max-w-3xl">
+                <div className="text-xs font-black uppercase tracking-[0.24em] text-[#08aeea]">Student support services</div>
+                <h2 className="mt-2 font-serif text-3xl font-black text-[#172040] md:text-4xl">Everything a student asks for, organised in one journey.</h2>
+                <p className="mt-3 text-sm leading-7 text-muted-foreground md:text-base">Inspired by service marketplaces, but connected to the student journey so every action updates the dashboard, tasks, documents, applications, and finance prompts.</p>
+              </div>
+              <Link href="/student-v6/support">
+                <Button variant="outline" className="rounded-xl border-[#172040] font-serif text-[#172040]">Talk to support</Button>
+              </Link>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+              {serviceCards.map((item) => {
                 const Icon = item.icon;
                 return (
-                  <Card key={item.title} className="border border-border bg-white p-5 shadow-sm">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary"><Icon className="h-6 w-6" /></div>
-                    <h3 className="mt-4 font-serif text-xl font-bold text-foreground">{item.title}</h3>
-                    <p className="mt-2 text-sm leading-6 text-muted-foreground">{item.text}</p>
+                  <Card key={item.title} className="group border-0 bg-white p-5 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-[#31b63f] to-[#06a8e7] text-white shadow">
+                      <Icon className="h-6 w-6" />
+                    </div>
+                    <h3 className="mt-5 font-serif text-xl font-black text-[#172040]">{item.title}</h3>
+                    <p className="mt-2 min-h-[72px] text-sm leading-6 text-muted-foreground">{item.text}</p>
+                    <div className="mt-4 flex items-center gap-2 font-serif text-sm font-black text-[#08aeea]">
+                      Open in journey
+                      <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                    </div>
                   </Card>
                 );
               })}
+            </div>
+          </div>
+        </section>
+
+        <section className="px-4 py-10 sm:px-6">
+          <div className="mx-auto grid max-w-[1280px] gap-6 lg:grid-cols-[400px_minmax(0,1fr)] lg:items-start">
+            <div className="lg:sticky lg:top-32">
+              <div className="text-xs font-black uppercase tracking-[0.24em] text-[#08aeea]">Guided journey</div>
+              <h2 className="mt-2 font-serif text-3xl font-black leading-tight text-[#172040] md:text-4xl">A layman-friendly path for tier 3 and tier 4 city families.</h2>
+              <p className="mt-3 text-sm leading-7 text-muted-foreground md:text-base">Each step uses simple English, shows only what is needed now, and opens the next screen when the student is ready.</p>
+              <Link href="/student-v6/start">
+                <Button className="mt-6 rounded-xl bg-gradient-to-r from-[#31b63f] to-[#06a8e7] px-6 font-serif text-white shadow-lg">Start step 1</Button>
+              </Link>
+            </div>
+            <div className="grid gap-4 md:grid-cols-2">
+              {journeySteps.map((step, index) => (
+                <Card key={step.title} className="border border-[#dce2ef] bg-white p-5 shadow-sm">
+                  <div className="flex items-start gap-4">
+                    <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-[#121a36] font-serif text-sm font-black text-white">
+                      {String(index + 1).padStart(2, "0")}
+                    </div>
+                    <div>
+                      <h3 className="font-serif text-lg font-black text-[#172040]">{step.title}</h3>
+                      <p className="mt-1 text-sm leading-6 text-muted-foreground">{step.text}</p>
+                    </div>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="bg-white px-4 py-12 sm:px-6">
+          <div className="mx-auto max-w-[1280px]">
+            <div className="mb-6 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+              <div>
+                <div className="text-xs font-black uppercase tracking-[0.24em] text-[#08aeea]">Destination discovery</div>
+                <h2 className="mt-2 font-serif text-3xl font-black text-[#172040] md:text-4xl">Choose a country, then the whole portal follows.</h2>
+                <p className="mt-2 max-w-3xl text-sm leading-7 text-muted-foreground md:text-base">If the student selects UK, the explorer, course finder, documents, visa checklist, finance, and reminders should all speak UK first.</p>
+              </div>
+              <Link href="/student-v6/explore">
+                <Button variant="outline" className="rounded-xl border-[#172040] font-serif text-[#172040]">Explore universities</Button>
+              </Link>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              {destinations.map((country) => (
+                <Card key={country} className="border border-[#dce2ef] bg-[#f8fafc] p-4 shadow-sm">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white text-[#08aeea] shadow-sm">
+                      <MapPinned className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <div className="font-serif text-base font-black text-[#172040]">{country}</div>
+                      <div className="text-xs font-semibold text-muted-foreground">Country-specific guidance</div>
+                    </div>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="px-4 py-12 sm:px-6">
+          <div className="mx-auto grid max-w-[1280px] gap-6 lg:grid-cols-[minmax(0,1fr)_420px]">
+            <Card className="border-0 bg-white p-6 shadow-sm">
+              <div className="text-xs font-black uppercase tracking-[0.24em] text-[#08aeea]">Why it feels easier</div>
+              <h2 className="mt-2 font-serif text-3xl font-black text-[#172040]">No scattered tabs. No guessing what to do next.</h2>
+              <div className="mt-6 grid gap-4 md:grid-cols-3">
+              {[
+                { icon: UserRound, title: "Student first", text: "Simple questions before advanced tools." },
+                { icon: ClipboardCheck, title: "Tasks change", text: "Completed and incomplete steps update the dashboard." },
+                { icon: Building2, title: "Support visible", text: "Counsellor, packages, and help stay easy to find." },
+              ].map((item) => {
+                const Icon = item.icon;
+                return (
+                  <div key={item.title} className="rounded-2xl border border-[#dce2ef] bg-[#f8fafc] p-4">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white text-[#08aeea] shadow-sm"><Icon className="h-5 w-5" /></div>
+                    <h3 className="mt-4 font-serif text-lg font-black text-[#172040]">{item.title}</h3>
+                    <p className="mt-2 text-sm leading-6 text-muted-foreground">{item.text}</p>
+                  </div>
+                );
+              })}
+              </div>
+            </Card>
+            <Card className="border-0 bg-[#121a36] p-6 text-white shadow-lg">
+              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/10">
+                <HelpCircle className="h-7 w-7" />
+              </div>
+              <h2 className="mt-5 font-serif text-2xl font-black">Questions before starting?</h2>
+              <p className="mt-3 text-sm leading-7 text-white/70">Students and parents can use support for document doubts, visa steps, package choices, finance planning, or university application guidance.</p>
+              <div className="mt-5 space-y-3">
+                {["What documents do I need?", "Which country suits my budget?", "How do I start an application?"].map((question) => (
+                  <div key={question} className="rounded-xl border border-white/10 bg-white/6 p-3 font-serif text-sm font-bold text-white">
+                    {question}
+                  </div>
+                ))}
+              </div>
+              <Link href="/student-v6/support">
+                <Button className="mt-6 w-full rounded-xl bg-white font-serif text-[#172040] hover:bg-white/90">Open support</Button>
+              </Link>
+            </Card>
+          </div>
+        </section>
+
+        <section className="px-4 pb-14 sm:px-6">
+          <div className="mx-auto max-w-[1280px] rounded-3xl bg-gradient-to-r from-[#31b63f] to-[#06a8e7] p-6 text-white shadow-xl md:p-8">
+            <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+              <div>
+                <div className="font-serif text-3xl font-black">Ready to build your file?</div>
+                <p className="mt-2 max-w-2xl text-sm leading-7 text-white/85">Start with basic student details. ELEE will unlock the next step only when it makes sense.</p>
+              </div>
+              <div className="flex flex-col gap-3 sm:flex-row">
+                <Link href="/student-v6/start">
+                  <Button className="rounded-xl bg-white px-7 font-serif text-[#172040] hover:bg-white/90">Create profile</Button>
+                </Link>
+                <Link href="/student-v6/dashboard">
+                  <Button variant="outline" className="rounded-xl border-white/40 bg-white/5 px-7 font-serif text-white hover:bg-white/10 hover:text-white">Open dashboard</Button>
+                </Link>
+              </div>
             </div>
           </div>
         </section>
