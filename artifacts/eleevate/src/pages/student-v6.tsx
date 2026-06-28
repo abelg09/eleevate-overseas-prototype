@@ -35,6 +35,7 @@ import { Progress } from "@/components/ui/progress";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { STUDENT_PACKAGES, type StudentPackageTier } from "@/lib/student-packages";
+import { StudentV6MarketingLanding } from "@/pages/student-v6-landing";
 import {
   calculateV6Emi,
   clearStudentV6State,
@@ -496,6 +497,8 @@ function ContinueButtons({
 }
 
 export function StudentV6LandingPage() {
+  return <StudentV6MarketingLanding />;
+
   const serviceCards = [
     { icon: FileText, title: "Credential review", text: "Check academic documents, marksheets, transcripts, passport, and format gaps before applying." },
     { icon: HandCoins, title: "Education loan", text: "Plan funding in INR, estimate EMI, and keep sanction-letter tasks linked to the dashboard." },
