@@ -46,18 +46,11 @@ jobs:
         shell: bash
         run: |
           current_dist="$GITHUB_WORKSPACE/artifacts/eleevate/dist/public"
+          # NOTE: /student-v6 (landing) and /student-v6/portal.html (dashboard) are
+          # served as exact static files copied verbatim from artifacts/eleevate/public/student-v6/.
+          # They must NOT receive the SPA index.html fallback, or it would clobber them.
           current_routes=(
             product
-            student-v6
-            student-v6/start
-            student-v6/dashboard
-            student-v6/explore
-            student-v6/applications
-            student-v6/documents
-            student-v6/finance
-            student-v6/packages
-            student-v6/support
-            student-v6/reset
           )
 
           for route in "${current_routes[@]}"; do

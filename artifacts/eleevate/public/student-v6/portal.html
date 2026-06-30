@@ -1,0 +1,2580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eleevate Overseas — Autonomous Education Operating System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+<style>
+/* ═══════════════════════════════════════════════
+   DESIGN TOKENS — from tokens.css v1.1
+═══════════════════════════════════════════════ */
+:root {
+  /* Primary — Navy Blue */
+  --color-primary-0:    #F7F9FF;
+  --color-primary-100:  #EAEFFC;
+  --color-primary-200:  #D9E1F5;
+  --color-primary-400:  #8193C6;
+  --color-primary-600:  #1C2442;
+  --color-primary-700:  #141B38;
+  --color-primary-800:  #0E132F;
+
+  /* Brand Gradient: Green → Blue */
+  --grad-start:  #3AAA35;
+  --grad-end:    #009FE3;
+  --grad-start-h:#26922B;
+  --grad-end-h:  #007BC3;
+  --g90:  linear-gradient(90deg,  #3AAA35, #009FE3);
+  --g90h: linear-gradient(90deg,  #26922B, #007BC3);
+  --g0:   linear-gradient(0deg,   #3AAA35, #009FE3);
+  --g45:  linear-gradient(45deg,  #3AAA35, #009FE3);
+  --g135: linear-gradient(135deg, #3AAA35, #009FE3);
+
+  /* Status */
+  --teal:   #00A699; --teal-l:  #E6FEF3; --teal-d:  #008D8E;
+  --yellow: #F7A707; --yellow-l:#FFF9E1; --yellow-d:#D48805;
+  --red:    #E30A22; --red-l:   #FFEAE3; --red-d:   #C3072D;
+  --blue:   #009FE3; --blue-l:  #DEFEFF;
+  --green:  #3AAA35; --green-l: #EFFCE7;
+
+  /* Accents */
+  --orange: #F25011; --orange-l: #FFE8D9;
+  --purple: #7C3AED; --purple-l: #EDE4FF;
+  --pink:   #DB2777; --pink-l:   #FFD6EE;
+
+  /* Neutrals */
+  --n900: #111111; --n700: #333333; --n500: #555555;
+  --n300: #888888; --n200: #AAAAAA;
+  --nl-0: #FFFFFF; --nl-100: #FAFAFA; --nl-200: #F5F5F5;
+  --nl-300: #EEEEEE; --nl-400: #E5E5E5; --nl-600: #D5D5D5;
+
+  /* Typography */
+  --font-head: 'Exo 2', system-ui, sans-serif;
+  --font-body: 'Poppins', system-ui, sans-serif;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 4px rgba(28,36,66,.06);
+  --shadow-md: 0 4px 12px rgba(28,36,66,.08);
+  --shadow-lg: 0 8px 24px rgba(28,36,66,.10);
+  --shadow-xl: 0 16px 48px rgba(28,36,66,.14);
+  --shadow-brand: 0 8px 32px rgba(58,170,53,.30);
+
+  /* Layout */
+  --sidebar-w: 224px;
+  --topnav-h:  58px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+  --radius-full: 9999px;
+}
+
+/* ═══════════════════════════════════════════════
+   RESET & BASE
+═══════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-body);
+  color: var(--n700);
+  background: var(--nl-100);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+a { text-decoration: none; color: inherit; }
+button { cursor: pointer; font-family: var(--font-body); }
+input, select, textarea { font-family: var(--font-body); }
+img { max-width: 100%; display: block; }
+
+/* ═══════════════════════════════════════════════
+   PRELOADER
+═══════════════════════════════════════════════ */
+#preloader {
+  position: fixed; inset: 0; z-index: 9999;
+  background: var(--color-primary-800);
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column; gap: 20px;
+  transition: opacity .5s ease, visibility .5s ease;
+}
+#preloader.hidden { opacity: 0; visibility: hidden; }
+.preloader-logo {
+  display: flex; align-items: center; gap: 14px;
+  opacity: 0; transform: translateY(20px);
+}
+.preloader-mark {
+  width: 56px; height: 56px; border-radius: 14px;
+  background: var(--g90);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-head); font-size: 24px; font-weight: 700; color: white;
+  box-shadow: var(--shadow-brand);
+}
+.preloader-text {
+  font-family: var(--font-head); font-size: 28px; font-weight: 700;
+  color: white; letter-spacing: .02em;
+}
+.preloader-bar {
+  width: 200px; height: 3px; background: rgba(255,255,255,.15);
+  border-radius: var(--radius-full); overflow: hidden;
+}
+.preloader-fill {
+  height: 100%; width: 0; background: var(--g90);
+  border-radius: var(--radius-full);
+  animation: fillBar 1.4s ease forwards .3s;
+}
+@keyframes fillBar { to { width: 100%; } }
+
+/* ═══════════════════════════════════════════════
+   UTILITY CLASSES
+═══════════════════════════════════════════════ */
+.grad-text {
+  background: var(--g90);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.grad-bg { background: var(--g90); }
+.grad-pill {
+  display: inline-block; background: var(--g90); color: white;
+  font-size: 10px; font-weight: 700; letter-spacing: .08em;
+  text-transform: uppercase; padding: 3px 10px;
+  border-radius: var(--radius-full);
+}
+.grad-divider { height: 3px; background: var(--g90); border-radius: 2px; }
+
+.badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 11px; font-weight: 600; padding: 3px 9px;
+  border-radius: var(--radius-full);
+}
+.b-success { background: var(--teal-l); color: #004D60; }
+.b-warning  { background: var(--yellow-l); color: #7a5200; }
+.b-error    { background: var(--red-l); color: #830334; }
+.b-info     { background: var(--blue-l); color: #004183; }
+.b-primary  { background: var(--color-primary-100); color: var(--color-primary-600); }
+.b-neutral  { background: var(--nl-300); color: #444; }
+.b-purple   { background: var(--purple-l); color: #3B1578; }
+.b-green    { background: var(--green-l); color: #0A511F; }
+.dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+
+/* Buttons */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 7px; font-weight: 600; font-size: 14px;
+  padding: 10px 22px; border-radius: var(--radius-md);
+  border: none; transition: all .2s ease; white-space: nowrap;
+  font-family: var(--font-body);
+}
+.btn-primary {
+  background: var(--g90); color: white;
+  box-shadow: 0 4px 16px rgba(58,170,53,.3);
+}
+.btn-primary:hover {
+  background: var(--g90h);
+  box-shadow: 0 6px 20px rgba(58,170,53,.4);
+  transform: translateY(-1px);
+}
+.btn-outline {
+  background: white; color: var(--grad-start);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  position: relative;
+}
+.btn-outline::before {
+  content: ''; position: absolute; inset: 0;
+  border-radius: var(--radius-md); padding: 2px;
+  background: var(--g90);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude;
+}
+.btn-outline span { background: var(--g90); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.btn-navy { background: var(--color-primary-600); color: white; }
+.btn-navy:hover { background: var(--color-primary-700); transform: translateY(-1px); }
+.btn-ghost { background: transparent; color: var(--color-primary-600); border: 2px solid var(--color-primary-600); }
+.btn-ghost:hover { background: var(--color-primary-600); color: white; }
+.btn-sm { font-size: 12px; padding: 6px 14px; border-radius: var(--radius-sm); }
+.btn-lg { font-size: 16px; padding: 14px 32px; border-radius: 12px; }
+.btn-teal { background: var(--teal); color: white; }
+.btn-teal:hover { background: var(--teal-d); transform: translateY(-1px); }
+
+/* Cards */
+.card {
+  background: white; border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm); overflow: hidden;
+}
+.card:hover { box-shadow: var(--shadow-md); }
+
+/* Screen visibility */
+.screen { display: none; }
+.screen.active { display: block; }
+
+/* ── Stat card hover ── */
+.v-stat-card {
+  transition: transform .2s ease, box-shadow .2s ease;
+  cursor: default;
+}
+.v-stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+}
+
+/* ── Table hover rows ── */
+tr { transition: background .15s ease; }
+
+/* ── Portal content scroll ── */
+.portal-content::-webkit-scrollbar { width: 4px; }
+.portal-content::-webkit-scrollbar-track { background: transparent; }
+.portal-content::-webkit-scrollbar-thumb { background: var(--nl-600); border-radius: 4px; }
+
+/* ── Portal entrance animation ── */
+@keyframes portalIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.portal-content { animation: portalIn .35s ease; }
+
+/* ── Landing section transitions ── */
+.features-section, .elee-section, .destinations-section, .cta-banner {
+  transition: opacity .3s ease;
+}
+
+/* ── Card link cursor ── */
+.card { cursor: default; }
+
+/* ── Scrollbar (global) ── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--nl-200); }
+::-webkit-scrollbar-thumb { background: var(--nl-600); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-primary-400); }
+
+/* ── Input focus ring ── */
+input:focus, select:focus {
+  border-color: var(--green) !important;
+  box-shadow: 0 0 0 3px rgba(58,170,53,.12);
+}
+
+/* ── Responsive: hide hero visual on small screens ── */
+@media (max-width: 1100px) {
+  .hero-visual { display: none; }
+  .hero-content { max-width: 100%; }
+  .features-grid { grid-template-columns: repeat(2, 1fr); }
+  .elee-grid { grid-template-columns: 1fr; gap: 40px; }
+  .dest-grid { grid-template-columns: repeat(2, 1fr); }
+  .portal-switcher { display: none; }
+}
+@media (max-width: 768px) {
+  .landing-nav { padding: 0 20px; }
+  .nav-links { display: none; }
+  .hero { padding: 90px 20px 60px; }
+  .hero-headline { font-size: 32px; }
+  .features-section, .elee-section, .destinations-section, .cta-banner { padding: 60px 20px; }
+  .features-grid { grid-template-columns: 1fr; }
+  .dest-grid { grid-template-columns: 1fr 1fr; }
+  .sidebar { transform: translateX(-100%); transition: transform .3s; }
+  .portal-content { margin-left: 0; padding: 16px; }
+  .landing-footer { flex-direction: column; gap: 12px; text-align: center; padding: 32px 20px; }
+}
+
+/* ── Hero entrance — pure CSS, starts after preloader (1.8s) ── */
+@keyframes heroFadeUp {
+  from { opacity: 0; transform: translateY(22px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes heroFadeRight {
+  from { opacity: 0; transform: translateX(36px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.hero-tag      { animation: heroFadeUp .5s ease both; animation-delay: 1.9s; }
+.hero-headline { animation: heroFadeUp .6s ease both; animation-delay: 2.1s; }
+.hero-sub      { animation: heroFadeUp .5s ease both; animation-delay: 2.3s; }
+.hero-ctas     { animation: heroFadeUp .45s ease both; animation-delay: 2.5s; }
+.hero-stats    { animation: heroFadeUp .45s ease both; animation-delay: 2.65s; }
+.hero-visual   { animation: heroFadeRight .7s ease both; animation-delay: 2.1s; }
+.hero-float-1  { animation: heroFadeUp .4s ease both; animation-delay: 2.6s; }
+.hero-float-2  { animation: heroFadeUp .4s ease both; animation-delay: 2.75s; }
+
+/* ── Scroll reveal — pure CSS animation, no opacity:0 stuck state ── */
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.features-grid .reveal-item {
+  animation: fadeSlideUp .55s ease both;
+}
+.features-grid .reveal-item:nth-child(1) { animation-delay: .05s; }
+.features-grid .reveal-item:nth-child(2) { animation-delay: .13s; }
+.features-grid .reveal-item:nth-child(3) { animation-delay: .21s; }
+.features-grid .reveal-item:nth-child(4) { animation-delay: .29s; }
+.features-grid .reveal-item:nth-child(5) { animation-delay: .37s; }
+.features-grid .reveal-item:nth-child(6) { animation-delay: .45s; }
+
+.dest-grid .reveal-item {
+  animation: fadeSlideUp .5s ease both;
+}
+.dest-grid .reveal-item:nth-child(1) { animation-delay: .05s; }
+.dest-grid .reveal-item:nth-child(2) { animation-delay: .13s; }
+.dest-grid .reveal-item:nth-child(3) { animation-delay: .21s; }
+.dest-grid .reveal-item:nth-child(4) { animation-delay: .29s; }
+
+#eleeGrid .reveal-item {
+  animation: fadeSlideUp .6s ease both;
+  animation-delay: .1s;
+}
+
+/* ── Gradient border utility ── */
+.grad-border {
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  position: relative;
+}
+.grad-border::before {
+  content: ''; position: absolute; inset: -2px;
+  border-radius: inherit;
+  background: var(--g90);
+  z-index: -1;
+}
+
+/* ── Tooltip ── */
+[title] { cursor: help; }
+
+/* ── Elee teal glow on widget btn pulse ── */
+@keyframes eleeGlow {
+  0%, 100% { box-shadow: 0 6px 24px rgba(0,166,153,.45); }
+  50%       { box-shadow: 0 8px 36px rgba(0,166,153,.70); }
+}
+#eleeBtn { animation: eleeGlow 3s ease-in-out infinite; }
+
+/* ═══════════════════════════════════════════════
+   PUBLIC LANDING PAGE
+═══════════════════════════════════════════════ */
+#screen-landing {
+  min-height: 100vh;
+  background: white;
+}
+
+/* Landing Nav */
+.landing-nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  height: 68px;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 48px;
+  background: rgba(255,255,255,.92);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--nl-300);
+  transition: box-shadow .3s ease;
+}
+.landing-nav.scrolled { box-shadow: var(--shadow-md); }
+.nav-brand { display: flex; align-items: center; gap: 10px; }
+.nav-mark {
+  width: 36px; height: 36px; border-radius: 9px;
+  background: var(--g90);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-head); font-size: 16px; font-weight: 700; color: white;
+}
+.nav-brand-name {
+  font-family: var(--font-head); font-size: 20px; font-weight: 700;
+  color: var(--color-primary-600);
+}
+.nav-links { display: flex; align-items: center; gap: 32px; }
+.nav-link {
+  font-size: 14px; font-weight: 500; color: var(--n500);
+  transition: color .2s;
+}
+.nav-link:hover { color: var(--color-primary-600); }
+.nav-ctas { display: flex; align-items: center; gap: 10px; }
+
+/* Hero Section */
+.hero {
+  min-height: 100vh;
+  background: var(--color-primary-800);
+  display: flex; align-items: center;
+  position: relative; overflow: hidden;
+  padding: 100px 48px 80px;
+}
+.hero::before {
+  content: '';
+  position: absolute; top: -120px; right: -120px;
+  width: 600px; height: 600px;
+  background: var(--g45); border-radius: 50%;
+  opacity: .12; filter: blur(60px);
+}
+.hero::after {
+  content: '';
+  position: absolute; bottom: -80px; left: 20%;
+  width: 400px; height: 400px;
+  background: var(--g135); border-radius: 50%;
+  opacity: .1; filter: blur(80px);
+}
+/* Floating shapes */
+.hero-shape {
+  position: absolute; border-radius: 50%;
+  background: var(--g90); opacity: .06;
+  animation: float 6s ease-in-out infinite;
+}
+.hero-shape-1 { width: 300px; height: 300px; top: 10%; right: 5%; animation-delay: 0s; }
+.hero-shape-2 { width: 180px; height: 180px; top: 60%; right: 20%; animation-delay: 2s; }
+.hero-shape-3 { width: 120px; height: 120px; top: 30%; left: 2%; animation-delay: 4s; }
+@keyframes float {
+  0%,100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-24px) scale(1.04); }
+}
+
+.hero-content {
+  max-width: 700px; position: relative; z-index: 1;
+}
+.hero-tag {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15);
+  color: white; font-size: 12px; font-weight: 600;
+  letter-spacing: .08em; text-transform: uppercase;
+  padding: 6px 14px; border-radius: var(--radius-full);
+  margin-bottom: 28px;
+  backdrop-filter: blur(8px);
+}
+.hero-tag-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--g90); }
+.hero-headline {
+  font-family: var(--font-head); font-weight: 700;
+  font-size: clamp(38px, 5vw, 64px);
+  line-height: 1.1; color: white; margin-bottom: 24px;
+}
+.hero-sub {
+  font-size: 18px; font-weight: 400; color: rgba(255,255,255,.72);
+  max-width: 560px; line-height: 1.7; margin-bottom: 40px;
+}
+.hero-ctas { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 56px; }
+.hero-stats {
+  display: flex; gap: 40px; flex-wrap: wrap;
+  padding-top: 32px;
+  border-top: 1px solid rgba(255,255,255,.12);
+}
+.hero-stat-num {
+  font-family: var(--font-head); font-size: 32px; font-weight: 700; color: white;
+}
+.hero-stat-num span { background: var(--g90); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.hero-stat-label { font-size: 13px; color: rgba(255,255,255,.55); margin-top: 2px; }
+
+/* Hero visual card (right side) */
+.hero-visual {
+  position: absolute; right: 48px; top: 50%;
+  transform: translateY(-50%);
+  width: 420px; z-index: 1;
+}
+.hero-card-main {
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: var(--radius-xl);
+  padding: 24px;
+  backdrop-filter: blur(20px);
+}
+.hero-card-header {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 20px;
+}
+.hero-card-avatar {
+  width: 42px; height: 42px; border-radius: 50%;
+  background: var(--g90);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; color: white; font-size: 15px;
+}
+.hero-card-name { font-weight: 600; color: white; font-size: 14px; }
+.hero-card-meta { font-size: 12px; color: rgba(255,255,255,.5); }
+.hero-card-progress { margin-bottom: 18px; }
+.progress-label {
+  display: flex; justify-content: space-between;
+  font-size: 12px; color: rgba(255,255,255,.65); margin-bottom: 7px;
+}
+.progress-track {
+  height: 6px; background: rgba(255,255,255,.1);
+  border-radius: var(--radius-full); overflow: hidden;
+}
+.progress-fill { height: 100%; background: var(--g90); border-radius: var(--radius-full); }
+.hero-card-apps { display: flex; flex-direction: column; gap: 8px; }
+.hero-app-item {
+  display: flex; align-items: center; gap: 10px;
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: var(--radius-md); padding: 10px 12px;
+}
+.hero-app-flag { width: 24px; height: 24px; border-radius: 4px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+.hero-app-info { flex: 1; }
+.hero-app-uni { font-size: 12px; font-weight: 600; color: white; }
+.hero-app-course { font-size: 11px; color: rgba(255,255,255,.5); }
+.hero-app-status { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: var(--radius-full); }
+.status-offer { background: var(--teal-l); color: #004D60; }
+.status-review { background: var(--blue-l); color: #004183; }
+.status-applying { background: var(--yellow-l); color: #7a5200; }
+
+/* Floating mini cards */
+.hero-float-card {
+  position: absolute;
+  background: white; border-radius: var(--radius-lg);
+  padding: 12px 16px; box-shadow: var(--shadow-xl);
+  animation: float 5s ease-in-out infinite;
+}
+.hero-float-1 { bottom: -20px; left: -40px; animation-delay: 1s; }
+.hero-float-2 { top: -20px; right: -20px; animation-delay: 3s; }
+.hf-label { font-size: 10px; color: var(--n300); font-weight: 600; text-transform: uppercase; letter-spacing: .06em; }
+.hf-value { font-size: 18px; font-weight: 700; color: var(--color-primary-600); font-family: var(--font-head); }
+.hf-sub { font-size: 11px; color: var(--teal); font-weight: 600; }
+
+/* Features Section */
+.features-section {
+  padding: 100px 48px;
+  background: white;
+}
+.section-label {
+  font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+  background: var(--g90); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  margin-bottom: 8px;
+}
+.section-title {
+  font-family: var(--font-head); font-size: clamp(28px, 4vw, 44px);
+  font-weight: 700; color: var(--color-primary-600);
+  margin-bottom: 14px;
+}
+.section-sub {
+  font-size: 16px; color: var(--n500);
+  max-width: 560px; line-height: 1.7; margin-bottom: 56px;
+}
+.features-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+.feature-card {
+  background: var(--nl-100);
+  border: 1px solid var(--nl-400);
+  border-radius: var(--radius-xl); padding: 32px;
+  transition: all .25s ease;
+  cursor: default;
+}
+.feature-card:hover {
+  background: white; border-color: transparent;
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-4px);
+}
+.feature-icon {
+  width: 52px; height: 52px; border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; margin-bottom: 20px;
+}
+.feature-title {
+  font-family: var(--font-head); font-size: 20px; font-weight: 700;
+  color: var(--color-primary-600); margin-bottom: 10px;
+}
+.feature-desc { font-size: 14px; color: var(--n500); line-height: 1.7; }
+
+/* Elee Section */
+.elee-section {
+  padding: 100px 48px;
+  background: var(--color-primary-800);
+  position: relative; overflow: hidden;
+}
+.elee-section::before {
+  content: ''; position: absolute;
+  top: -100px; right: -100px; width: 500px; height: 500px;
+  background: var(--g90); opacity: .08; border-radius: 50%; filter: blur(60px);
+}
+.elee-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; position: relative; z-index: 1; }
+.elee-title { font-family: var(--font-head); font-size: 44px; font-weight: 700; color: white; margin-bottom: 16px; }
+.elee-desc { font-size: 16px; color: rgba(255,255,255,.65); line-height: 1.8; margin-bottom: 32px; }
+.elee-points { display: flex; flex-direction: column; gap: 16px; margin-bottom: 36px; }
+.elee-point { display: flex; gap: 14px; }
+.elee-point-icon {
+  width: 28px; height: 28px; border-radius: 8px;
+  background: rgba(0,166,153,.2); flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px;
+}
+.elee-point-text { font-size: 14px; color: rgba(255,255,255,.75); padding-top: 4px; }
+.elee-point-text strong { color: white; display: block; font-size: 14px; margin-bottom: 2px; }
+
+/* Elee Chat Preview */
+.elee-chat-preview {
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: var(--radius-xl); padding: 24px;
+  backdrop-filter: blur(16px);
+}
+.elee-chat-topbar {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 20px;
+  padding-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,.08);
+}
+.elee-avatar {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: var(--teal); display: flex; align-items: center; justify-content: center;
+  font-size: 18px; box-shadow: 0 4px 12px rgba(0,166,153,.4);
+}
+.elee-name { font-weight: 700; color: white; font-size: 14px; }
+.elee-status-label { font-size: 11px; color: var(--teal); }
+.elee-online-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--teal); display: inline-block; margin-right: 4px; animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.6;transform:scale(.85)} }
+
+.chat-msg-ai {
+  background: rgba(0,166,153,.1); border: 1px solid rgba(0,166,153,.2);
+  border-radius: 14px 14px 14px 4px; padding: 11px 14px;
+  font-size: 13px; color: rgba(255,255,255,.85); margin-bottom: 10px;
+  max-width: 85%;
+}
+.chat-msg-user {
+  background: var(--g90); border-radius: 14px 14px 4px 14px;
+  padding: 11px 14px; font-size: 13px; color: white;
+  margin-bottom: 10px; margin-left: auto; max-width: 80%;
+}
+.chat-action-card {
+  background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.1);
+  border-radius: 10px; padding: 12px 14px; margin-top: 6px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.chat-action-label { font-size: 12px; color: rgba(255,255,255,.7); }
+.chat-action-val { font-size: 13px; font-weight: 600; color: white; }
+.chat-confirm-btn {
+  margin-top: 12px; width: 100%; padding: 10px;
+  background: var(--teal); border: none; border-radius: 8px;
+  color: white; font-weight: 600; font-size: 13px;
+  cursor: pointer; font-family: var(--font-body);
+  transition: background .2s;
+}
+.chat-confirm-btn:hover { background: var(--teal-d); }
+
+/* Countries/Destinations */
+.destinations-section { padding: 100px 48px; background: var(--nl-100); }
+.dest-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 20px; margin-top: 48px; }
+.dest-card {
+  border-radius: var(--radius-xl); overflow: hidden;
+  position: relative; height: 220px;
+  cursor: pointer; transition: transform .25s;
+}
+.dest-card:hover { transform: scale(1.02); }
+.dest-bg { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 72px; }
+.dest-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(14,19,47,.85) 40%, transparent);
+}
+.dest-info { position: absolute; bottom: 0; left: 0; right: 0; padding: 20px; }
+.dest-flag { font-size: 28px; margin-bottom: 4px; }
+.dest-name { font-family: var(--font-head); font-size: 20px; font-weight: 700; color: white; }
+.dest-count { font-size: 12px; color: rgba(255,255,255,.65); }
+
+/* CTA Banner */
+.cta-banner {
+  padding: 100px 48px;
+  background: var(--g90);
+  text-align: center;
+}
+.cta-banner h2 {
+  font-family: var(--font-head); font-size: 44px; font-weight: 700;
+  color: white; margin-bottom: 16px;
+}
+.cta-banner p { font-size: 18px; color: rgba(255,255,255,.8); margin-bottom: 36px; }
+.cta-btn-white {
+  background: white; color: var(--color-primary-600);
+  font-weight: 700; font-size: 16px;
+  padding: 16px 40px; border-radius: 12px;
+  border: none; cursor: pointer; font-family: var(--font-body);
+  transition: all .2s; box-shadow: 0 8px 24px rgba(0,0,0,.15);
+}
+.cta-btn-white:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(0,0,0,.2); }
+
+/* Landing Footer */
+.landing-footer {
+  background: var(--color-primary-700);
+  color: rgba(255,255,255,.6);
+  padding: 48px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.footer-brand { font-family: var(--font-head); font-size: 22px; font-weight: 700; color: white; }
+.footer-copy { font-size: 13px; }
+
+/* ═══════════════════════════════════════════════
+   PORTAL SHELL (Logged-in layout)
+═══════════════════════════════════════════════ */
+#screen-portal {
+  display: none;
+  min-height: 100vh;
+  background: var(--nl-200);
+}
+#screen-portal.active { display: flex; flex-direction: column; }
+
+/* Top Navigation Bar */
+.topnav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+  height: var(--topnav-h); background: var(--color-primary-700);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 20px 0 0;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+.topnav-left {
+  display: flex; align-items: center;
+  width: var(--sidebar-w); flex-shrink: 0;
+  padding: 0 16px; border-right: 1px solid rgba(255,255,255,.06);
+  height: 100%;
+}
+.topnav-brand { display: flex; align-items: center; gap: 10px; }
+.topnav-mark {
+  width: 32px; height: 32px; border-radius: 8px;
+  background: var(--g90);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-head); font-weight: 700; font-size: 14px; color: white;
+}
+.topnav-name {
+  font-family: var(--font-head); font-size: 17px; font-weight: 700; color: white;
+}
+
+/* Portal Switcher */
+.portal-switcher {
+  display: flex; gap: 3px;
+  background: rgba(255,255,255,.08); border-radius: 9px; padding: 4px;
+  margin-left: 24px;
+}
+.portal-tab {
+  font-size: 12px; font-weight: 600; color: rgba(255,255,255,.55);
+  padding: 5px 16px; border-radius: 6px; cursor: pointer;
+  transition: all .2s; white-space: nowrap;
+}
+.portal-tab.active { background: var(--g90); color: white; }
+.portal-tab:hover:not(.active) { color: white; background: rgba(255,255,255,.08); }
+
+.topnav-right { display: flex; align-items: center; gap: 16px; }
+.topnav-search {
+  display: flex; align-items: center; gap: 8px;
+  background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.1);
+  border-radius: 8px; padding: 7px 14px;
+  width: 220px;
+}
+.topnav-search input {
+  background: none; border: none; outline: none;
+  color: white; font-size: 13px; width: 100%;
+}
+.topnav-search input::placeholder { color: rgba(255,255,255,.4); }
+.topnav-icon {
+  width: 34px; height: 34px; border-radius: 8px;
+  background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.1);
+  display: flex; align-items: center; justify-content: center;
+  color: rgba(255,255,255,.7); font-size: 16px; cursor: pointer;
+  transition: all .2s; position: relative;
+}
+.topnav-icon:hover { background: rgba(255,255,255,.14); color: white; }
+.notif-badge {
+  position: absolute; top: -3px; right: -3px;
+  width: 16px; height: 16px; border-radius: 50%;
+  background: var(--g90); color: white;
+  font-size: 9px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  border: 2px solid var(--color-primary-700);
+}
+.topnav-avatar {
+  width: 34px; height: 34px; border-radius: 50%;
+  background: var(--g90); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; color: white; font-size: 13px;
+  border: 2px solid rgba(255,255,255,.2);
+}
+.topnav-user { display: flex; flex-direction: column; }
+.topnav-user-name { font-size: 13px; font-weight: 600; color: white; }
+.topnav-user-role { font-size: 10px; color: rgba(255,255,255,.5); }
+
+/* Portal Body */
+.portal-body {
+  display: flex;
+  margin-top: var(--topnav-h);
+  min-height: calc(100vh - var(--topnav-h));
+}
+
+/* Sidebar */
+.sidebar {
+  width: var(--sidebar-w); flex-shrink: 0;
+  background: var(--color-primary-600);
+  position: fixed; left: 0; top: var(--topnav-h);
+  height: calc(100vh - var(--topnav-h));
+  overflow-y: auto; z-index: 100;
+  padding: 16px 10px;
+  border-right: 1px solid rgba(255,255,255,.06);
+}
+.sidebar::-webkit-scrollbar { width: 3px; }
+.sidebar::-webkit-scrollbar-track { background: transparent; }
+.sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 3px; }
+
+.sidebar-section-label {
+  font-size: 10px; font-weight: 700; letter-spacing: .1em;
+  text-transform: uppercase; color: rgba(255,255,255,.3);
+  padding: 0 10px; margin: 16px 0 6px;
+}
+.sidebar-section-label:first-child { margin-top: 4px; }
+
+.sidebar-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 10px; border-radius: 9px;
+  font-size: 13px; font-weight: 500;
+  color: rgba(255,255,255,.6);
+  cursor: pointer; transition: all .18s;
+  margin-bottom: 2px; position: relative;
+}
+.sidebar-item:hover { background: rgba(255,255,255,.07); color: rgba(255,255,255,.9); }
+.sidebar-item.active {
+  background: linear-gradient(90deg, rgba(58,170,53,.22), rgba(0,159,227,.22));
+  color: white;
+}
+.sidebar-item.active::before {
+  content: ''; position: absolute; left: 0; top: 20%; height: 60%;
+  width: 3px; background: var(--g90); border-radius: 0 2px 2px 0;
+}
+.sidebar-icon {
+  width: 18px; height: 18px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px;
+}
+.sidebar-badge {
+  margin-left: auto; background: var(--g90); color: white;
+  font-size: 10px; font-weight: 700; padding: 1px 7px;
+  border-radius: var(--radius-full);
+}
+.sidebar-badge-dot {
+  margin-left: auto; width: 7px; height: 7px; border-radius: 50%;
+  background: var(--yellow);
+}
+
+/* Portal Content */
+.portal-content {
+  flex: 1;
+  margin-left: var(--sidebar-w);
+  padding: 28px 32px 80px;
+  min-height: calc(100vh - var(--topnav-h));
+}
+.portal-view { display: none; }
+.portal-view.active { display: block; }
+
+/* Page Header */
+.page-head {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  margin-bottom: 24px;
+}
+.page-head-text {}
+.page-breadcrumb { font-size: 12px; color: var(--n300); margin-bottom: 4px; }
+.page-title {
+  font-family: var(--font-head); font-size: 28px; font-weight: 700;
+  color: var(--color-primary-600);
+}
+.page-sub { font-size: 14px; color: var(--n300); margin-top: 2px; }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════ PRELOADER ══════════════════ -->
+<div id="preloader">
+  <div class="preloader-logo">
+    <div class="preloader-mark">E</div>
+    <div class="preloader-text">Eleevate</div>
+  </div>
+  <div class="preloader-bar">
+    <div class="preloader-fill"></div>
+  </div>
+</div>
+
+<!-- ══════════════════ LANDING PAGE ══════════════════ -->
+<div id="screen-landing" class="screen active">
+
+  <!-- Nav -->
+  <nav class="landing-nav" id="landingNav">
+    <div class="nav-brand">
+      <div class="nav-mark">E</div>
+      <span class="nav-brand-name">Eleevate Overseas</span>
+    </div>
+    <div class="nav-links">
+      <a href="#" class="nav-link">Features</a>
+      <a href="#" class="nav-link">Universities</a>
+      <a href="#" class="nav-link">Scholarships</a>
+      <a href="#" class="nav-link">For Consultants</a>
+      <a href="#" class="nav-link">Pricing</a>
+    </div>
+    <div class="nav-ctas">
+      <button class="btn btn-ghost btn-sm" onclick="showPortal('student')">Log In</button>
+      <button class="btn btn-primary btn-sm" onclick="showPortal('student')">Get Started Free</button>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-shape hero-shape-1"></div>
+    <div class="hero-shape hero-shape-2"></div>
+    <div class="hero-shape hero-shape-3"></div>
+
+    <div class="hero-content">
+      <div class="hero-tag">
+        <div class="hero-tag-dot"></div>
+        <span>Powered by Elee — Autonomous AI</span>
+      </div>
+      <h1 class="hero-headline">
+        Your Study Abroad<br>
+        <span class="grad-text">Done For You.</span>
+      </h1>
+      <p class="hero-sub">
+        Eleevate is the world's first Autonomous Education Operating System. Elee doesn't just advise — it applies, tracks visas, arranges loans, and books your flights. All while you focus on your future.
+      </p>
+      <div class="hero-ctas">
+        <button class="btn btn-primary btn-lg" onclick="showPortal('student')">
+          🎓 Start Your Journey
+        </button>
+        <button class="btn btn-outline btn-lg">
+          <span>Watch Demo</span>
+        </button>
+      </div>
+      <div class="hero-stats">
+        <div>
+          <div class="hero-stat-num"><span>12,000+</span></div>
+          <div class="hero-stat-label">Students placed abroad</div>
+        </div>
+        <div>
+          <div class="hero-stat-num"><span>450+</span></div>
+          <div class="hero-stat-label">Partner universities</div>
+        </div>
+        <div>
+          <div class="hero-stat-num"><span>98%</span></div>
+          <div class="hero-stat-label">Visa success rate</div>
+        </div>
+        <div>
+          <div class="hero-stat-num"><span>4</span></div>
+          <div class="hero-stat-label">Countries supported</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hero Visual -->
+    <div class="hero-visual">
+      <div class="hero-card-main">
+        <div class="hero-card-header">
+          <div class="hero-card-avatar">AS</div>
+          <div>
+            <div class="hero-card-name">Arjun Sharma</div>
+            <div class="hero-card-meta">B.Tech, IELTS 7.5 · Target: UK MSc CS</div>
+          </div>
+          <span class="badge b-success" style="margin-left:auto;"><span class="dot" style="background:var(--teal)"></span>Active</span>
+        </div>
+        <div class="hero-card-progress">
+          <div class="progress-label"><span>Application Progress</span><span>72%</span></div>
+          <div class="progress-track"><div class="progress-fill" style="width:72%"></div></div>
+        </div>
+        <div class="hero-card-apps">
+          <div class="hero-app-item">
+            <div class="hero-app-flag">🇬🇧</div>
+            <div class="hero-app-info">
+              <div class="hero-app-uni">University of Manchester</div>
+              <div class="hero-app-course">MSc Computer Science</div>
+            </div>
+            <div class="hero-app-status status-offer">Offer ✓</div>
+          </div>
+          <div class="hero-app-item">
+            <div class="hero-app-flag">🇬🇧</div>
+            <div class="hero-app-info">
+              <div class="hero-app-uni">University College London</div>
+              <div class="hero-app-course">MSc Artificial Intelligence</div>
+            </div>
+            <div class="hero-app-status status-review">In Review</div>
+          </div>
+          <div class="hero-app-item">
+            <div class="hero-app-flag">🇬🇧</div>
+            <div class="hero-app-info">
+              <div class="hero-app-uni">University of Edinburgh</div>
+              <div class="hero-app-course">MSc Data Science</div>
+            </div>
+            <div class="hero-app-status status-applying">Applying</div>
+          </div>
+        </div>
+      </div>
+      <div class="hero-float-card hero-float-1">
+        <div class="hf-label">Visa Status</div>
+        <div class="hf-value">82%</div>
+        <div class="hf-sub">↑ 3 docs remaining</div>
+      </div>
+      <div class="hero-float-card hero-float-2">
+        <div class="hf-label">Scholarship Found</div>
+        <div class="hf-value">₹14.2L</div>
+        <div class="hf-sub">Chevening 2026</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="features-section">
+    <div style="text-align:center; margin-bottom:0;">
+      <div class="section-label">What Makes Us Different</div>
+      <div class="section-title">Not a platform. An <span class="grad-text">Operating System.</span></div>
+      <div class="section-sub" style="margin:0 auto 56px;">Elee executes every step of your journey — from shortlisting universities to submitting your visa application — autonomously.</div>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card reveal-item">
+        <div class="feature-icon" style="background:var(--green-l);">🤖</div>
+        <div class="feature-title">Elee — Your AI Counsellor</div>
+        <div class="feature-desc">Elee doesn't just recommend — it acts. It submits applications, tracks deadlines, arranges loan pre-approvals, and books visa appointments autonomously.</div>
+      </div>
+      <div class="feature-card reveal-item">
+        <div class="feature-icon" style="background:var(--blue-l);">🎓</div>
+        <div class="feature-title">University Explorer</div>
+        <div class="feature-desc">Browse 450+ universities across UK, USA, Canada & Australia. Filter by fees, IELTS score, ranking, and program. Apply in one click.</div>
+      </div>
+      <div class="feature-card reveal-item">
+        <div class="feature-icon" style="background:var(--yellow-l);">📋</div>
+        <div class="feature-title">Application Tracker</div>
+        <div class="feature-desc">Real-time status across all your applications. Know exactly where you stand — from shortlist to offer letter — in a single dashboard.</div>
+      </div>
+      <div class="feature-card reveal-item">
+        <div class="feature-icon" style="background:var(--teal-l);">🛂</div>
+        <div class="feature-title">Visa Assistant</div>
+        <div class="feature-desc">Step-by-step visa preparation with document checklist, SOP guidance, and automated appointment booking. 98% success rate.</div>
+      </div>
+      <div class="feature-card reveal-item">
+        <div class="feature-icon" style="background:var(--purple-l);">💰</div>
+        <div class="feature-title">Loans & Scholarships</div>
+        <div class="feature-desc">Access education loan pre-approval from HDFC Credila, Avanse & more. Discover ₹50L+ scholarships matched to your profile.</div>
+      </div>
+      <div class="feature-card reveal-item">
+        <div class="feature-icon" style="background:var(--orange-l);">💼</div>
+        <div class="feature-title">Consultant Suite</div>
+        <div class="feature-desc">For education consultants: full CRM, lead pipeline, WhatsApp integration, commission tracking, and AI-powered student insights.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Elee Spotlight -->
+  <section class="elee-section">
+    <div class="elee-grid" id="eleeGrid">
+      <div class="reveal-item">
+        <div class="section-label" style="color:var(--teal);">Meet Elee</div>
+        <div class="elee-title">She doesn't advise.<br>She <span style="color:var(--teal);">executes.</span></div>
+        <div class="elee-desc">Traditional counsellors give you a list. Elee submits your application, processes your loan, and books your appointment — all in real time.</div>
+        <div class="elee-points">
+          <div class="elee-point">
+            <div class="elee-point-icon">✅</div>
+            <div class="elee-point-text">
+              <strong>Autonomous Applications</strong>
+              "Submitting your application to 3 universities now..."
+            </div>
+          </div>
+          <div class="elee-point">
+            <div class="elee-point-icon">💳</div>
+            <div class="elee-point-text">
+              <strong>Loan Pre-approval</strong>
+              "Your loan pre-approval is being processed with HDFC Credila."
+            </div>
+          </div>
+          <div class="elee-point">
+            <div class="elee-point-icon">📅</div>
+            <div class="elee-point-text">
+              <strong>Smart Scheduling</strong>
+              "Your counsellor is available Thursday 3 PM. Confirm booking?"
+            </div>
+          </div>
+          <div class="elee-point">
+            <div class="elee-point-icon">🛂</div>
+            <div class="elee-point-text">
+              <strong>Visa Completion</strong>
+              "Your visa checklist is 82% complete. 3 documents remaining."
+            </div>
+          </div>
+        </div>
+        <button class="btn btn-teal btn-lg" onclick="showPortal('student')">Chat with Elee →</button>
+      </div>
+      <div class="elee-chat-preview">
+        <div class="elee-chat-topbar">
+          <div class="elee-avatar">🤖</div>
+          <div>
+            <div class="elee-name">Elee</div>
+            <div class="elee-status-label"><span class="elee-online-dot"></span>AI Counsellor · Always Active</div>
+          </div>
+          <span style="margin-left:auto;background:rgba(0,166,153,.15);border:1px solid rgba(0,166,153,.3);color:var(--teal);font-size:10px;font-weight:700;padding:3px 10px;border-radius:var(--radius-full);">LIVE</span>
+        </div>
+        <div class="chat-msg-ai">👋 Hi Arjun! I've found 3 MSc CS programs matching your IELTS 7.5 and budget of £20K/yr.</div>
+        <div class="chat-msg-user">Show me the best one with a scholarship.</div>
+        <div class="chat-msg-ai">
+          ✨ <strong>University of Manchester — MSc CS</strong> is your strongest match.
+          <div class="chat-action-card">
+            <div><div class="chat-action-label">Tuition</div><div class="chat-action-val">£21,000/yr</div></div>
+            <div><div class="chat-action-label">Scholarship</div><div class="chat-action-val">£5,000 ✓</div></div>
+            <div><div class="chat-action-label">Intake</div><div class="chat-action-val">Sep 2026</div></div>
+          </div>
+          <button class="chat-confirm-btn">✅ Submit Application Now</button>
+        </div>
+        <div class="chat-msg-user">Yes, submit it.</div>
+        <div class="chat-msg-ai">
+          🚀 Application submitted to University of Manchester! Tracking confirmation...
+          <div style="margin-top:8px;display:flex;align-items:center;gap:8px;font-size:12px;color:rgba(255,255,255,.6);">
+            <span style="width:8px;height:8px;border-radius:50%;background:var(--teal);display:inline-block;"></span>
+            Application ID: MAN-2026-CS-47821
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Destinations -->
+  <section class="destinations-section">
+    <div class="section-label">Study Destinations</div>
+    <div class="section-title">Top Countries We Cover</div>
+    <div class="dest-grid">
+      <div class="dest-card reveal-item">
+        <div class="dest-bg" style="background:linear-gradient(135deg,#1a2a5e,#2d4a8a);">🇬🇧</div>
+        <div class="dest-overlay"></div>
+        <div class="dest-info">
+          <div class="dest-flag">🇬🇧</div>
+          <div class="dest-name">United Kingdom</div>
+          <div class="dest-count">180+ universities · 1-yr MSc</div>
+        </div>
+      </div>
+      <div class="dest-card reveal-item">
+        <div class="dest-bg" style="background:linear-gradient(135deg,#1a3a6e,#c0392b);">🇺🇸</div>
+        <div class="dest-overlay"></div>
+        <div class="dest-info">
+          <div class="dest-flag">🇺🇸</div>
+          <div class="dest-name">United States</div>
+          <div class="dest-count">120+ universities · OPT available</div>
+        </div>
+      </div>
+      <div class="dest-card reveal-item">
+        <div class="dest-bg" style="background:linear-gradient(135deg,#0d3321,#1a6b3a);">🇨🇦</div>
+        <div class="dest-overlay"></div>
+        <div class="dest-info">
+          <div class="dest-flag">🇨🇦</div>
+          <div class="dest-name">Canada</div>
+          <div class="dest-count">85+ universities · PR pathway</div>
+        </div>
+      </div>
+      <div class="dest-card reveal-item">
+        <div class="dest-bg" style="background:linear-gradient(135deg,#1a3a5e,#b8860b);">🇦🇺</div>
+        <div class="dest-overlay"></div>
+        <div class="dest-info">
+          <div class="dest-flag">🇦🇺</div>
+          <div class="dest-name">Australia</div>
+          <div class="dest-count">65+ universities · Work rights</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Banner -->
+  <section class="cta-banner">
+    <h2>Ready to Study Abroad?</h2>
+    <p>Join 12,000+ students who let Elee handle the hard part.</p>
+    <button class="cta-btn-white" onclick="showPortal('student')">Start Free — No Credit Card</button>
+  </section>
+
+  <!-- Footer -->
+  <footer class="landing-footer">
+    <div>
+      <div class="footer-brand">Eleevate Overseas</div>
+      <div style="font-size:13px;margin-top:4px;color:rgba(255,255,255,.4);">Autonomous Education Operating System</div>
+    </div>
+    <div class="footer-copy">© 2026 Eleevate Overseas. All rights reserved. · CONFIDENTIAL</div>
+  </footer>
+
+</div><!-- /landing -->
+
+<!-- ══════════════════ PORTAL SHELL ══════════════════ -->
+<div id="screen-portal" class="screen">
+
+  <!-- Top Nav -->
+  <nav class="topnav">
+    <div class="topnav-left">
+      <div class="topnav-brand">
+        <div class="topnav-mark">E</div>
+        <span class="topnav-name">Eleevate</span>
+      </div>
+    </div>
+    <!-- Portal Switcher (centered) -->
+    <div class="portal-switcher" id="portalSwitcher">
+      <div class="portal-tab active" data-portal="student" onclick="switchPortal('student')">Student</div>
+      <div class="portal-tab" data-portal="consultant" onclick="switchPortal('consultant')">Consultant</div>
+      <div class="portal-tab" data-portal="admin" onclick="switchPortal('admin')">Admin</div>
+    </div>
+    <div class="topnav-right">
+      <div class="topnav-search">
+        <span style="color:rgba(255,255,255,.4);font-size:14px;">🔍</span>
+        <input type="text" placeholder="Search universities, programs...">
+      </div>
+      <div class="topnav-icon" title="Notifications">
+        🔔
+        <div class="notif-badge">3</div>
+      </div>
+      <div class="topnav-icon" title="Help">❓</div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div class="topnav-avatar" id="topnavAvatar">AS</div>
+        <div class="topnav-user">
+          <div class="topnav-user-name" id="topnavName">Arjun Sharma</div>
+          <div class="topnav-user-role" id="topnavRole">Student · Free Plan</div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Body -->
+  <div class="portal-body">
+
+    <!-- STUDENT SIDEBAR -->
+    <aside class="sidebar" id="sidebarStudent">
+      <div class="sidebar-section-label">Main</div>
+      <div class="sidebar-item active" onclick="showView('dashboard')">
+        <div class="sidebar-icon">🏠</div> Dashboard
+      </div>
+      <div class="sidebar-item" onclick="showView('universities')">
+        <div class="sidebar-icon">🎓</div> University Explorer
+        <div class="sidebar-badge">450+</div>
+      </div>
+      <div class="sidebar-item" onclick="showView('applications')">
+        <div class="sidebar-icon">📋</div> My Applications
+        <div class="sidebar-badge">3</div>
+      </div>
+      <div class="sidebar-item" onclick="showView('scholarships')">
+        <div class="sidebar-icon">🏆</div> Scholarships
+        <div class="sidebar-badge-dot"></div>
+      </div>
+      <div class="sidebar-section-label">Visa & Finance</div>
+      <div class="sidebar-item" onclick="showView('visa')">
+        <div class="sidebar-icon">🛂</div> Visa Tracker
+      </div>
+      <div class="sidebar-item" onclick="showView('documents')">
+        <div class="sidebar-icon">📁</div> Documents
+        <div class="sidebar-badge-dot"></div>
+      </div>
+      <div class="sidebar-item" onclick="showView('loans')">
+        <div class="sidebar-icon">💰</div> Loans & Finance
+      </div>
+      <div class="sidebar-section-label">Support</div>
+      <div class="sidebar-item" onclick="showView('counselor')">
+        <div class="sidebar-icon">👤</div> My Counsellor
+      </div>
+      <div class="sidebar-item" onclick="showView('tasks')">
+        <div class="sidebar-icon">✅</div> My Tasks
+        <div class="sidebar-badge">5</div>
+      </div>
+      <div class="sidebar-section-label">Account</div>
+      <div class="sidebar-item">
+        <div class="sidebar-icon">⚙️</div> Settings
+      </div>
+      <div class="sidebar-item" onclick="showLanding()">
+        <div class="sidebar-icon">🚪</div> Sign Out
+      </div>
+    </aside>
+
+    <!-- CONSULTANT SIDEBAR -->
+    <aside class="sidebar" id="sidebarConsultant" style="display:none;">
+      <div class="sidebar-section-label">CRM</div>
+      <div class="sidebar-item active" onclick="showView('crm')">
+        <div class="sidebar-icon">📊</div> Lead Pipeline
+        <div class="sidebar-badge">12</div>
+      </div>
+      <div class="sidebar-item" onclick="showView('students')">
+        <div class="sidebar-icon">👥</div> Student Profiles
+      </div>
+      <div class="sidebar-item" onclick="showView('tasks')">
+        <div class="sidebar-icon">✅</div> Task Manager
+        <div class="sidebar-badge">8</div>
+      </div>
+      <div class="sidebar-section-label">Operations</div>
+      <div class="sidebar-item">
+        <div class="sidebar-icon">📅</div> Calendar / Bookings
+      </div>
+      <div class="sidebar-item" onclick="showView('applications')">
+        <div class="sidebar-icon">📋</div> Application Tracker
+      </div>
+      <div class="sidebar-item">
+        <div class="sidebar-icon">💬</div> WhatsApp
+        <div class="sidebar-badge">4</div>
+      </div>
+      <div class="sidebar-section-label">Analytics</div>
+      <div class="sidebar-item" onclick="showView('commission')">
+        <div class="sidebar-icon">💰</div> Commission Dashboard
+      </div>
+      <div class="sidebar-item">
+        <div class="sidebar-icon">🤖</div> Elee Insights
+        <div class="sidebar-badge-dot"></div>
+      </div>
+    </aside>
+
+    <!-- ADMIN SIDEBAR -->
+    <aside class="sidebar" id="sidebarAdmin" style="display:none;">
+      <div class="sidebar-section-label">Overview</div>
+      <div class="sidebar-item active" onclick="showView('analytics')">
+        <div class="sidebar-icon">📈</div> Platform Analytics
+      </div>
+      <div class="sidebar-item">
+        <div class="sidebar-icon">👥</div> User Management
+      </div>
+      <div class="sidebar-section-label">Business</div>
+      <div class="sidebar-item">
+        <div class="sidebar-icon">💰</div> Revenue & Billing
+      </div>
+      <div class="sidebar-item">
+        <div class="sidebar-icon">🏛️</div> Compliance & Audit
+      </div>
+      <div class="sidebar-section-label">Platform</div>
+      <div class="sidebar-item">
+        <div class="sidebar-icon">🤖</div> AI Model Management
+      </div>
+      <div class="sidebar-item">
+        <div class="sidebar-icon">🔐</div> Roles & Permissions
+      </div>
+    </aside>
+
+    <!-- CONTENT AREA -->
+    <main class="portal-content" id="portalContent">
+      <!-- Views injected here by JS -->
+    </main>
+
+  </div><!-- /portal-body -->
+</div><!-- /screen-portal -->
+
+<!-- ══════════════════ ELEE WIDGET ══════════════════ -->
+<div id="eleeWidget" style="display:none;">
+  <div id="eleeBtn" onclick="toggleElee()" title="Chat with Elee">
+    <span id="eleeBtnIcon">🤖</span>
+  </div>
+  <div id="eleePanel">
+    <div class="elee-panel-header">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="width:36px;height:36px;border-radius:50%;background:var(--teal);display:flex;align-items:center;justify-content:center;font-size:17px;">🤖</div>
+        <div>
+          <div style="font-weight:700;color:white;font-size:14px;">Elee</div>
+          <div style="font-size:11px;color:var(--teal);"><span class="elee-online-dot"></span>AI Counsellor · Always Active</div>
+        </div>
+      </div>
+      <button onclick="toggleElee()" style="background:rgba(255,255,255,.1);border:none;color:white;width:28px;height:28px;border-radius:6px;cursor:pointer;font-size:16px;">×</button>
+    </div>
+    <div class="elee-panel-body" id="eleePanelBody">
+      <div class="elee-widget-msg ai">👋 Hi Arjun! I'm Elee, your AI study abroad counsellor. I can apply to universities, track your visa, arrange loans, and more. What would you like to do?</div>
+      <div class="elee-quick-actions">
+        <button class="elee-qa-btn" onclick="eleeAction('shortlist')">🎓 Shortlist Universities</button>
+        <button class="elee-qa-btn" onclick="eleeAction('visa')">🛂 Check Visa Status</button>
+        <button class="elee-qa-btn" onclick="eleeAction('loan')">💰 Apply for Loan</button>
+        <button class="elee-qa-btn" onclick="eleeAction('scholarship')">🏆 Find Scholarships</button>
+      </div>
+    </div>
+    <div class="elee-panel-input">
+      <input type="text" id="eleeInput" placeholder="Ask Elee anything..." onkeydown="if(event.key==='Enter')sendElee()">
+      <button onclick="sendElee()">➤</button>
+    </div>
+  </div>
+</div>
+
+<style>
+/* Elee Widget Styles */
+#eleeBtn {
+  position: fixed; bottom: 28px; right: 28px; z-index: 1000;
+  width: 60px; height: 60px; border-radius: 50%;
+  background: var(--teal);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 26px; cursor: pointer;
+  box-shadow: 0 6px 24px rgba(0,166,153,.45);
+  transition: all .25s ease;
+  border: 3px solid white;
+}
+#eleeBtn:hover { transform: scale(1.08); box-shadow: 0 8px 32px rgba(0,166,153,.55); }
+#eleePanel {
+  position: fixed; bottom: 100px; right: 28px; z-index: 999;
+  width: 360px; border-radius: var(--radius-xl); overflow: hidden;
+  box-shadow: var(--shadow-xl);
+  background: var(--color-primary-700);
+  display: none; flex-direction: column;
+  border: 1px solid rgba(255,255,255,.1);
+  animation: slideUp .25s ease;
+}
+#eleePanel.open { display: flex; }
+@keyframes slideUp { from { opacity:0; transform: translateY(16px); } to { opacity:1; transform: translateY(0); } }
+.elee-panel-header {
+  padding: 16px 18px; background: var(--color-primary-800);
+  border-bottom: 1px solid rgba(255,255,255,.08);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.elee-panel-body {
+  padding: 16px; flex: 1; max-height: 360px;
+  overflow-y: auto; display: flex; flex-direction: column; gap: 10px;
+}
+.elee-widget-msg {
+  font-size: 13px; line-height: 1.6; max-width: 90%;
+  padding: 10px 13px; border-radius: 12px;
+}
+.elee-widget-msg.ai {
+  background: rgba(0,166,153,.12); border: 1px solid rgba(0,166,153,.2);
+  border-radius: 12px 12px 12px 3px; color: rgba(255,255,255,.85);
+}
+.elee-widget-msg.user {
+  background: var(--g90); color: white;
+  border-radius: 12px 12px 3px 12px;
+  align-self: flex-end;
+}
+.elee-quick-actions {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 6px;
+}
+.elee-qa-btn {
+  background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.1);
+  color: rgba(255,255,255,.8); font-size: 11px; font-weight: 500;
+  padding: 8px 10px; border-radius: 8px; cursor: pointer;
+  text-align: left; transition: all .18s; font-family: var(--font-body);
+}
+.elee-qa-btn:hover { background: rgba(0,166,153,.15); border-color: rgba(0,166,153,.3); color: white; }
+.elee-panel-input {
+  display: flex; gap: 8px; padding: 14px 16px;
+  border-top: 1px solid rgba(255,255,255,.08);
+  background: var(--color-primary-800);
+}
+.elee-panel-input input {
+  flex: 1; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.12);
+  border-radius: 8px; padding: 9px 12px; color: white; font-size: 13px;
+  outline: none; font-family: var(--font-body);
+}
+.elee-panel-input input::placeholder { color: rgba(255,255,255,.35); }
+.elee-panel-input button {
+  width: 38px; height: 38px; background: var(--teal); border: none;
+  border-radius: 8px; color: white; cursor: pointer; font-size: 14px;
+  transition: background .2s;
+}
+.elee-panel-input button:hover { background: var(--teal-d); }
+</style>
+
+<script>
+// ═══════════════════════════════════════
+// SCREEN & PORTAL MANAGEMENT
+// ═══════════════════════════════════════
+let currentPortal = 'student';
+
+function showPortal(portal) {
+  document.getElementById('screen-landing').classList.remove('active');
+  document.getElementById('screen-portal').classList.add('active');
+  document.getElementById('eleeWidget').style.display = 'block';
+  switchPortal(portal);
+}
+
+function showLanding() {
+  document.getElementById('screen-portal').classList.remove('active');
+  document.getElementById('screen-landing').classList.add('active');
+  document.getElementById('eleeWidget').style.display = 'none';
+}
+
+function switchPortal(portal) {
+  currentPortal = portal;
+
+  // Update switcher tabs
+  document.querySelectorAll('.portal-tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.portal === portal);
+  });
+
+  // Show correct sidebar
+  document.getElementById('sidebarStudent').style.display = portal === 'student' ? '' : 'none';
+  document.getElementById('sidebarConsultant').style.display = portal === 'consultant' ? '' : 'none';
+  document.getElementById('sidebarAdmin').style.display = portal === 'admin' ? '' : 'none';
+
+  // Update avatar & name
+  const names = { student: ['AS', 'Arjun Sharma', 'Student · Free Plan'], consultant: ['RP', 'Ravi Patel', 'Senior Consultant'], admin: ['NA', 'Neha Agarwal', 'Platform Admin'] };
+  const [av, nm, rl] = names[portal];
+  document.getElementById('topnavAvatar').textContent = av;
+  document.getElementById('topnavName').textContent = nm;
+  document.getElementById('topnavRole').textContent = rl;
+
+  // Load default view
+  const defaults = { student: 'dashboard', consultant: 'crm', admin: 'analytics' };
+  showView(defaults[portal]);
+}
+
+function showView(viewName) {
+  // Update sidebar active state
+  document.querySelectorAll('.sidebar-item').forEach(i => {
+    i.classList.remove('active');
+    if (i.getAttribute('onclick') && i.getAttribute('onclick').includes(`'${viewName}'`)) {
+      i.classList.add('active');
+    }
+  });
+  renderView(viewName);
+}
+
+// ═══════════════════════════════════════
+// VIEW RENDERER — Student Dashboard
+// ═══════════════════════════════════════
+function renderView(name) {
+  const el = document.getElementById('portalContent');
+  const views = {
+    dashboard:    viewDashboard,
+    universities: viewUniversities,
+    applications: viewApplications,
+    scholarships: viewScholarships,
+    visa:         viewVisa,
+    documents:    viewDocuments,
+    loans:        viewLoans,
+    counselor:    viewCounselor,
+    tasks:        viewTasks,
+    crm:          viewCRM,
+    students:     viewStudents,
+    commission:   viewCommission,
+    analytics:    viewAnalytics,
+  };
+  const fn = views[name] || viewDashboard;
+  el.innerHTML = fn();
+  // GSAP entrance
+  gsap.fromTo(el, { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: .35, ease: 'power2.out' });
+}
+
+/* ── Shared layout helpers ── */
+function pageHead(crumb, title, sub, actions='') {
+  return `<div class="page-head">
+    <div class="page-head-text">
+      <div class="page-breadcrumb">${crumb}</div>
+      <div class="page-title">${title}</div>
+      ${sub ? `<div class="page-sub">${sub}</div>` : ''}
+    </div>
+    <div style="display:flex;gap:10px;align-items:center;">${actions}</div>
+  </div>`;
+}
+
+function statCard(icon, label, value, trend, trendColor='var(--teal)') {
+  return `<div class="card v-stat-card" style="padding:20px;display:flex;flex-direction:column;gap:12px;">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+      <div style="font-size:11px;font-weight:600;color:var(--n300);text-transform:uppercase;letter-spacing:.07em;">${label}</div>
+      <div style="width:36px;height:36px;border-radius:10px;background:var(--color-primary-0);display:flex;align-items:center;justify-content:center;font-size:18px;">${icon}</div>
+    </div>
+    <div style="font-family:var(--font-head);font-size:30px;font-weight:700;color:var(--color-primary-600);line-height:1;">${value}</div>
+    <div style="font-size:12px;font-weight:600;color:${trendColor};">${trend}</div>
+  </div>`;
+}
+
+/* ──────────────────────────────────────
+   VIEW: STUDENT DASHBOARD
+────────────────────────────────────── */
+function viewDashboard() {
+  return `
+  ${pageHead('Home', 'Welcome back, Arjun 👋', "Here's what's happening with your study abroad journey today.",
+    `<button class="btn btn-primary btn-sm" onclick="showView('universities')">🎓 Explore Universities</button>`
+  )}
+
+  <!-- Upgrade Banner -->
+  <div style="background:var(--g90);border-radius:var(--radius-lg);padding:16px 22px;display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;gap:16px;">
+    <div style="display:flex;align-items:center;gap:14px;">
+      <div style="font-size:22px;">⚡</div>
+      <div>
+        <div style="font-weight:700;color:white;font-size:14px;">Upgrade to Pro — Unlock Unlimited Applications</div>
+        <div style="font-size:12px;color:rgba(255,255,255,.75);margin-top:2px;">You're on the Free plan · 3/3 university slots used · Elee auto-apply locked</div>
+      </div>
+    </div>
+    <button class="btn btn-sm" style="background:white;color:var(--color-primary-600);font-weight:700;white-space:nowrap;flex-shrink:0;">Upgrade ₹999/mo</button>
+  </div>
+
+  <!-- Stat Cards -->
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;">
+    ${statCard('📋', 'Applications', '3', '↑ 1 this week')}
+    ${statCard('📁', 'Documents Ready', '8/11', '⚠ 3 pending', 'var(--yellow)')}
+    ${statCard('🛂', 'Visa Progress', '82%', '↑ 12% since last week')}
+    ${statCard('🏆', 'Scholarships Found', '₹36L', '4 matches available')}
+  </div>
+
+  <!-- Main Grid -->
+  <div style="display:grid;grid-template-columns:1fr 380px;gap:20px;">
+
+    <!-- Left Column -->
+    <div style="display:flex;flex-direction:column;gap:20px;">
+
+      <!-- Application Status -->
+      <div class="card" style="padding:22px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
+          <div style="font-family:var(--font-head);font-size:17px;font-weight:700;color:var(--color-primary-600);">My Applications</div>
+          <button class="btn btn-sm btn-ghost" onclick="showView('applications')">View All →</button>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          ${appRow('🇬🇧','University of Manchester','MSc Computer Science','Offer Received','success','Sep 2026','£21,000/yr')}
+          ${appRow('🇬🇧','University College London','MSc Artificial Intelligence','Under Review','info','Sep 2026','£28,500/yr')}
+          ${appRow('🇬🇧','University of Edinburgh','MSc Data Science','Applying','warning','Sep 2026','£19,800/yr')}
+        </div>
+      </div>
+
+      <!-- Elee Activity Feed -->
+      <div class="card" style="padding:22px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:32px;height:32px;border-radius:50%;background:var(--teal);display:flex;align-items:center;justify-content:center;font-size:15px;">🤖</div>
+            <div>
+              <div style="font-family:var(--font-head);font-size:15px;font-weight:700;color:var(--color-primary-600);">Elee's Activity Today</div>
+              <div style="font-size:11px;color:var(--n300);">3 autonomous actions completed</div>
+            </div>
+          </div>
+          <span class="badge b-success"><span class="dot" style="background:var(--teal)"></span>Active</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          ${eleeActivityItem('✅','Application Submitted','Submitted MSc CS application to Manchester','2 hours ago','success')}
+          ${eleeActivityItem('💳','Loan Pre-approval','Initiated HDFC Credila pre-approval for ₹40L','5 hours ago','info')}
+          ${eleeActivityItem('🛂','Visa Document Check','Identified 3 missing documents for UK Student Visa','Yesterday','warning')}
+          ${eleeActivityItem('🏆','Scholarship Match','Found Chevening Scholarship — deadline Nov 2026','Yesterday','purple')}
+        </div>
+      </div>
+
+      <!-- Progress Tracker -->
+      <div class="card" style="padding:22px;">
+        <div style="font-family:var(--font-head);font-size:17px;font-weight:700;color:var(--color-primary-600);margin-bottom:18px;">Study Abroad Journey — Progress</div>
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          ${journeyStep('1','Profile Setup','Completed','success',100)}
+          ${journeyStep('2','University Shortlist','Completed','success',100)}
+          ${journeyStep('3','Applications Submitted','In Progress','warning',66)}
+          ${journeyStep('4','Offer & Acceptance','Pending','neutral',0)}
+          ${journeyStep('5','Visa Application','In Progress','warning',82)}
+          ${journeyStep('6','Loan & Finance','In Progress','info',45)}
+          ${journeyStep('7','Pre-Departure','Pending','neutral',0)}
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column -->
+    <div style="display:flex;flex-direction:column;gap:20px;">
+
+      <!-- Next Meeting -->
+      <div class="card" style="overflow:visible;">
+        <div style="background:var(--g90);padding:18px 20px;border-radius:var(--radius-lg) var(--radius-lg) 0 0;">
+          <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.75);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;">Next Counsellor Session</div>
+          <div style="font-family:var(--font-head);font-size:22px;font-weight:700;color:white;">Thursday, 19 Jun</div>
+          <div style="font-size:14px;color:rgba(255,255,255,.8);margin-top:2px;">3:00 PM IST · 45 minutes · Video Call</div>
+        </div>
+        <div style="padding:16px 20px;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+            <div style="width:40px;height:40px;border-radius:50%;background:var(--g90);display:flex;align-items:center;justify-content:center;font-weight:700;color:white;font-size:15px;">PK</div>
+            <div>
+              <div style="font-weight:600;color:var(--color-primary-600);font-size:14px;">Priya Kapoor</div>
+              <div style="font-size:12px;color:var(--n300);">Senior Counsellor · UK Specialist</div>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <button class="btn btn-primary btn-sm" style="width:100%;justify-content:center;">Join Call</button>
+            <button class="btn btn-ghost btn-sm" style="width:100%;justify-content:center;">Reschedule</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Document Checklist -->
+      <div class="card" style="padding:20px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+          <div style="font-family:var(--font-head);font-size:15px;font-weight:700;color:var(--color-primary-600);">Documents</div>
+          <span class="badge b-warning"><span class="dot" style="background:var(--yellow)"></span>3 Pending</span>
+        </div>
+        <div style="margin-bottom:12px;">
+          <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--n300);margin-bottom:5px;"><span>8 of 11 complete</span><span>72%</span></div>
+          <div style="height:5px;background:var(--nl-300);border-radius:var(--radius-full);overflow:hidden;">
+            <div style="height:100%;width:72%;background:var(--g90);border-radius:var(--radius-full);"></div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:7px;">
+          ${docItem('✅','Passport Copy','Ready')}
+          ${docItem('✅','IELTS Score Card','Ready')}
+          ${docItem('✅','Degree Certificate','Ready')}
+          ${docItem('✅','Bank Statement','Ready')}
+          ${docItem('✅','SOP — Manchester','Ready')}
+          ${docItem('⚠️','Bank Statement (Updated)','Pending')}
+          ${docItem('⚠️','Health Surcharge Receipt','Pending')}
+          ${docItem('⚠️','Biometrics Appointment','Pending')}
+        </div>
+        <button class="btn btn-navy btn-sm" style="width:100%;justify-content:center;margin-top:14px;" onclick="showView('documents')">Manage Documents →</button>
+      </div>
+
+      <!-- Upcoming Deadlines -->
+      <div class="card" style="padding:20px;">
+        <div style="font-family:var(--font-head);font-size:15px;font-weight:700;color:var(--color-primary-600);margin-bottom:14px;">⏰ Upcoming Deadlines</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          ${deadlineItem('UCL Application','5 days','error')}
+          ${deadlineItem('Chevening Scholarship','43 days','warning')}
+          ${deadlineItem('UK Visa Application','62 days','info')}
+          ${deadlineItem('Edinburgh Offer Deadline','90 days','neutral')}
+        </div>
+      </div>
+
+    </div>
+  </div>`;
+}
+
+/* Dashboard helper components */
+function appRow(flag, uni, course, status, statusType, intake, fee) {
+  const colors = { success:'b-success', info:'b-info', warning:'b-warning', error:'b-error' };
+  return `<div style="display:flex;align-items:center;gap:12px;padding:12px;background:var(--nl-100);border-radius:var(--radius-md);border:1px solid var(--nl-300);">
+    <div style="font-size:22px;">${flag}</div>
+    <div style="flex:1;">
+      <div style="font-weight:600;color:var(--color-primary-600);font-size:13px;">${uni}</div>
+      <div style="font-size:12px;color:var(--n300);">${course} · ${intake} · ${fee}</div>
+    </div>
+    <span class="badge ${colors[statusType]}">${status}</span>
+  </div>`;
+}
+
+function eleeActivityItem(icon, title, desc, time, type) {
+  const colors = { success:'var(--teal-l)', info:'var(--blue-l)', warning:'var(--yellow-l)', purple:'var(--purple-l)' };
+  return `<div style="display:flex;gap:12px;padding:10px 12px;background:var(--nl-100);border-radius:var(--radius-md);border:1px solid var(--nl-300);">
+    <div style="width:32px;height:32px;border-radius:8px;background:${colors[type]};display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;">${icon}</div>
+    <div style="flex:1;">
+      <div style="font-weight:600;font-size:13px;color:var(--color-primary-600);">${title}</div>
+      <div style="font-size:12px;color:var(--n300);margin-top:1px;">${desc}</div>
+    </div>
+    <div style="font-size:11px;color:var(--n200);white-space:nowrap;margin-top:2px;">${time}</div>
+  </div>`;
+}
+
+function journeyStep(num, label, status, type, pct) {
+  const colors = { success:'var(--teal)', warning:'var(--yellow)', info:'var(--blue)', neutral:'var(--nl-600)' };
+  const bgColors = { success:'var(--teal-l)', warning:'var(--yellow-l)', info:'var(--blue-l)', neutral:'var(--nl-300)' };
+  return `<div style="display:flex;align-items:center;gap:12px;">
+    <div style="width:28px;height:28px;border-radius:50%;background:${bgColors[type]};display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:${colors[type]};flex-shrink:0;">${num}</div>
+    <div style="flex:1;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+        <div style="font-size:13px;font-weight:600;color:var(--color-primary-600);">${label}</div>
+        <span class="badge ${type==='success'?'b-success':type==='warning'?'b-warning':type==='info'?'b-info':'b-neutral'}">${status}</span>
+      </div>
+      ${pct>0?`<div style="height:4px;background:var(--nl-300);border-radius:var(--radius-full);overflow:hidden;"><div style="height:100%;width:${pct}%;background:${colors[type]};border-radius:var(--radius-full);"></div></div>`:''}
+    </div>
+  </div>`;
+}
+
+function docItem(icon, label, status) {
+  return `<div style="display:flex;align-items:center;gap:8px;font-size:12px;">
+    <span style="font-size:14px;">${icon}</span>
+    <span style="flex:1;color:${status==='Ready'?'var(--n700)':'var(--yellow-d)'};">${label}</span>
+    <span style="font-weight:600;color:${status==='Ready'?'var(--teal)':'var(--yellow)'};">${status}</span>
+  </div>`;
+}
+
+function deadlineItem(label, days, type) {
+  const colors = { error:'var(--red)', warning:'var(--yellow)', info:'var(--blue)', neutral:'var(--n300)' };
+  const bg = { error:'var(--red-l)', warning:'var(--yellow-l)', info:'var(--blue-l)', neutral:'var(--nl-300)' };
+  return `<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 12px;background:var(--nl-100);border-radius:var(--radius-md);border-left:3px solid ${colors[type]};">
+    <div style="font-size:13px;font-weight:500;color:var(--color-primary-600);">${label}</div>
+    <div style="font-size:12px;font-weight:700;color:${colors[type]};background:${bg[type]};padding:2px 8px;border-radius:var(--radius-full);">in ${days}</div>
+  </div>`;
+}
+
+/* ──────────────────────────────────────
+   VIEW: UNIVERSITY EXPLORER
+────────────────────────────────────── */
+function viewUniversities() {
+  const unis = [
+    { flag:'🇬🇧', name:'University of Manchester', course:'MSc Computer Science', rank:'#28 QS World', fees:'£21,000/yr', ielts:'6.5', intake:'Sep · Jan', tag:'Popular', tagType:'b-green', match:'94%' },
+    { flag:'🇬🇧', name:'University College London', course:'MSc Artificial Intelligence', rank:'#9 QS World', fees:'£28,500/yr', ielts:'7.0', intake:'Sep', tag:'Top 10', tagType:'b-info', match:'88%' },
+    { flag:'🇬🇧', name:'University of Edinburgh', course:'MSc Data Science', rank:'#22 QS World', fees:'£19,800/yr', ielts:'6.5', intake:'Sep', tag:'Scholarship', tagType:'b-warning', match:'91%' },
+    { flag:'🇨🇦', name:'University of Toronto', course:'MCS Computer Science', rank:'#18 QS World', fees:'CA$28,000/yr', ielts:'7.0', intake:'Sep', tag:'PR Pathway', tagType:'b-purple', match:'85%' },
+    { flag:'🇺🇸', name:'Carnegie Mellon University', course:'MSCS', rank:'#52 QS World', fees:'US$58,000/yr', ielts:'7.5', intake:'Aug', tag:'Elite', tagType:'b-error', match:'72%' },
+    { flag:'🇦🇺', name:'University of Melbourne', course:'Master of CS', rank:'#33 QS World', fees:'AU$42,000/yr', ielts:'6.5', intake:'Feb · Jul', tag:'Work Rights', tagType:'b-success', match:'89%' },
+    { flag:'🇬🇧', name:'University of Warwick', course:'MSc Data Analytics', rank:'#67 QS World', fees:'£22,750/yr', ielts:'6.5', intake:'Sep', tag:'New', tagType:'b-neutral', match:'90%' },
+    { flag:'🇨🇦', name:'University of British Columbia', course:'MEng Software Engineering', rank:'#34 QS World', fees:'CA$24,000/yr', ielts:'6.5', intake:'Sep', tag:'Co-op', tagType:'b-green', match:'86%' },
+    { flag:'🇦🇺', name:'Australian National University', course:'Master of Computing', rank:'#30 QS World', fees:'AU$38,000/yr', ielts:'6.5', intake:'Feb · Jul', tag:'Work Rights', tagType:'b-success', match:'83%' },
+  ];
+
+  const cards = unis.map(u => `
+    <div class="card uni-card" style="padding:0;overflow:hidden;transition:all .22s;">
+      <div style="height:7px;background:var(--g90);"></div>
+      <div style="padding:18px 18px 0;">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="font-size:32px;">${u.flag}</div>
+            <div>
+              <div style="font-weight:700;color:var(--color-primary-600);font-size:13px;line-height:1.3;">${u.name}</div>
+              <div style="font-size:12px;color:var(--n300);margin-top:2px;">${u.rank}</div>
+            </div>
+          </div>
+          <span class="badge ${u.tagType}">${u.tag}</span>
+        </div>
+        <div style="font-size:13px;font-weight:600;color:var(--color-primary-600);margin-bottom:12px;">${u.course}</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">
+          ${uniStat('💰','Fees',u.fees)}
+          ${uniStat('📝','IELTS',u.ielts+'+')}
+          ${uniStat('📅','Intake',u.intake)}
+          ${uniStat('🎯','Profile Match',u.match)}
+        </div>
+      </div>
+      <div style="padding:12px 18px;border-top:1px solid var(--nl-300);display:flex;gap:8px;">
+        <button class="btn btn-primary btn-sm" style="flex:1;justify-content:center;">Apply Now</button>
+        <button class="btn btn-ghost btn-sm" style="flex:1;justify-content:center;">Shortlist ♡</button>
+      </div>
+    </div>`).join('');
+
+  return `
+  ${pageHead('Home › Universities', 'University Explorer', '450+ universities across UK, USA, Canada & Australia',
+    `<button class="btn btn-primary btn-sm">🤖 Let Elee Shortlist</button>`)}
+
+  <!-- Filters -->
+  <div class="card" style="padding:18px;margin-bottom:20px;">
+    <div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;">
+      <div style="flex:1;min-width:200px;">
+        <div style="font-size:11px;font-weight:600;color:var(--n300);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px;">Search</div>
+        <input style="width:100%;padding:9px 12px;border:1.5px solid var(--nl-400);border-radius:8px;font-size:13px;font-family:var(--font-body);color:var(--n700);outline:none;" placeholder="🔍  University or program name...">
+      </div>
+      <div>
+        <div style="font-size:11px;font-weight:600;color:var(--n300);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px;">Country</div>
+        <select style="padding:9px 12px;border:1.5px solid var(--nl-400);border-radius:8px;font-size:13px;font-family:var(--font-body);color:var(--n700);outline:none;">
+          <option>All Countries</option><option>🇬🇧 United Kingdom</option><option>🇺🇸 United States</option><option>🇨🇦 Canada</option><option>🇦🇺 Australia</option>
+        </select>
+      </div>
+      <div>
+        <div style="font-size:11px;font-weight:600;color:var(--n300);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px;">Program</div>
+        <select style="padding:9px 12px;border:1.5px solid var(--nl-400);border-radius:8px;font-size:13px;font-family:var(--font-body);color:var(--n700);outline:none;">
+          <option>All Programs</option><option>Computer Science</option><option>Data Science</option><option>AI / ML</option><option>MBA</option><option>Engineering</option>
+        </select>
+      </div>
+      <div>
+        <div style="font-size:11px;font-weight:600;color:var(--n300);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px;">Max Fees/yr</div>
+        <select style="padding:9px 12px;border:1.5px solid var(--nl-400);border-radius:8px;font-size:13px;font-family:var(--font-body);color:var(--n700);outline:none;">
+          <option>Any</option><option>£15,000</option><option>£20,000</option><option>£25,000</option><option>£30,000+</option>
+        </select>
+      </div>
+      <div>
+        <div style="font-size:11px;font-weight:600;color:var(--n300);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px;">IELTS Score</div>
+        <select style="padding:9px 12px;border:1.5px solid var(--nl-400);border-radius:8px;font-size:13px;font-family:var(--font-body);color:var(--n700);outline:none;">
+          <option>Any</option><option>6.0+</option><option>6.5+</option><option>7.0+</option><option>7.5+</option>
+        </select>
+      </div>
+      <button class="btn btn-navy btn-sm">Apply Filters</button>
+    </div>
+  </div>
+
+  <!-- Results count -->
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+    <div style="font-size:14px;color:var(--n300);">Showing <strong style="color:var(--color-primary-600);">9</strong> of 450+ universities · Sorted by Profile Match</div>
+    <div style="display:flex;gap:8px;">
+      <span class="badge b-green"><span class="dot" style="background:var(--green)"></span>3 Applied</span>
+      <span class="badge b-warning"><span class="dot" style="background:var(--yellow)"></span>2 Shortlisted</span>
+    </div>
+  </div>
+
+  <!-- Grid -->
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:18px;">${cards}</div>
+
+  <style>.uni-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg);}</style>`;
+}
+
+function uniStat(icon, label, val) {
+  return `<div style="background:var(--nl-100);border-radius:7px;padding:7px 10px;">
+    <div style="font-size:10px;color:var(--n300);font-weight:600;text-transform:uppercase;letter-spacing:.05em;">${icon} ${label}</div>
+    <div style="font-size:12px;font-weight:700;color:var(--color-primary-600);margin-top:2px;">${val}</div>
+  </div>`;
+}
+
+/* ──────────────────────────────────────
+   VIEW: MY APPLICATIONS (Kanban)
+────────────────────────────────────── */
+function viewApplications() {
+  const stages = [
+    { id:'shortlisted', label:'Shortlisted', color:'var(--color-primary-400)', apps:[
+      { flag:'🇬🇧', uni:'University of Bristol', course:'MSc AI', date:'Added Jun 10' },
+    ]},
+    { id:'applying', label:'Applying', color:'var(--yellow)', apps:[
+      { flag:'🇬🇧', uni:'University of Edinburgh', course:'MSc Data Science', date:'Due Jul 1' },
+    ]},
+    { id:'submitted', label:'Submitted', color:'var(--blue)', apps:[
+      { flag:'🇬🇧', uni:'University College London', course:'MSc AI', date:'Submitted Jun 5' },
+      { flag:'🇨🇦', uni:'Univ. of Toronto', course:'MCS', date:'Submitted Jun 1' },
+    ]},
+    { id:'offer', label:'Offer Received', color:'var(--teal)', apps:[
+      { flag:'🇬🇧', uni:'University of Manchester', course:'MSc CS', date:'Offer: Jun 12' },
+    ]},
+    { id:'visa', label:'Visa / Pre-Dep', color:'var(--purple)', apps:[]},
+  ];
+
+  const columns = stages.map(s => {
+    const cards = s.apps.map(a => `
+      <div style="background:white;border-radius:10px;padding:13px;box-shadow:var(--shadow-sm);border:1px solid var(--nl-300);margin-bottom:10px;cursor:default;transition:box-shadow .18s;" onmouseover="this.style.boxShadow='var(--shadow-md)'" onmouseout="this.style.boxShadow='var(--shadow-sm)'">
+        <div style="display:flex;align-items:center;gap:9px;margin-bottom:8px;">
+          <span style="font-size:22px;">${a.flag}</span>
+          <div>
+            <div style="font-size:12px;font-weight:700;color:var(--color-primary-600);line-height:1.3;">${a.uni}</div>
+            <div style="font-size:11px;color:var(--n300);">${a.course}</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div style="font-size:10px;color:var(--n200);">${a.date}</div>
+          <button style="background:var(--color-primary-0);border:none;border-radius:5px;padding:3px 8px;font-size:10px;font-weight:600;color:var(--color-primary-600);cursor:pointer;">Details →</button>
+        </div>
+      </div>`).join('');
+    return `
+      <div style="background:var(--nl-200);border-radius:var(--radius-lg);padding:14px;min-width:220px;flex:1;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+          <div style="display:flex;align-items:center;gap:7px;">
+            <div style="width:8px;height:8px;border-radius:50%;background:${s.color};"></div>
+            <div style="font-size:12px;font-weight:700;color:var(--color-primary-600);">${s.label}</div>
+          </div>
+          <div style="background:var(--nl-400);border-radius:var(--radius-full);padding:1px 8px;font-size:11px;font-weight:700;color:var(--n500);">${s.apps.length}</div>
+        </div>
+        ${cards}
+        <button style="width:100%;padding:8px;background:none;border:1.5px dashed var(--nl-400);border-radius:8px;font-size:12px;color:var(--n300);cursor:pointer;font-family:var(--font-body);">+ Add</button>
+      </div>`;
+  }).join('');
+
+  return `
+  ${pageHead('Home › Applications', 'My Applications', '5 applications across 3 countries',
+    `<div style="display:flex;gap:8px;">
+      <button class="btn btn-ghost btn-sm">📊 Analytics</button>
+      <button class="btn btn-primary btn-sm" onclick="showView('universities')">+ Add Application</button>
+    </div>`)}
+
+  <!-- Summary Stats -->
+  <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:22px;">
+    ${['Shortlisted·1·b-neutral','Applying·1·b-warning','Submitted·2·b-info','Offer·1·b-success','Visa·0·b-purple'].map(s=>{
+      const [l,n,b]=s.split('·');
+      return `<div class="card" style="padding:14px;text-align:center;">
+        <div style="font-family:var(--font-head);font-size:26px;font-weight:700;color:var(--color-primary-600);">${n}</div>
+        <div><span class="badge ${b}" style="font-size:10px;">${l}</span></div>
+      </div>`;
+    }).join('')}
+  </div>
+
+  <!-- Kanban Board -->
+  <div style="display:flex;gap:14px;overflow-x:auto;padding-bottom:12px;">${columns}</div>
+
+  <!-- Application Timeline -->
+  <div class="card" style="padding:22px;margin-top:22px;">
+    <div style="font-family:var(--font-head);font-size:17px;font-weight:700;color:var(--color-primary-600);margin-bottom:18px;">Application Timeline</div>
+    <div style="display:flex;flex-direction:column;gap:0;">
+      ${timelineItem('Jun 12','Offer Received','University of Manchester confirmed your MSc CS application','success')}
+      ${timelineItem('Jun 10','Application Shortlisted','Added University of Bristol to shortlist','neutral')}
+      ${timelineItem('Jun 5','Application Submitted','Submitted to University College London','info')}
+      ${timelineItem('Jun 1','Application Submitted','Submitted to University of Toronto','info')}
+      ${timelineItem('May 28','Profile Completed','IELTS score and transcripts uploaded','success')}
+    </div>
+  </div>`;
+}
+
+function timelineItem(date, title, desc, type) {
+  const c = { success:'var(--teal)', info:'var(--blue)', neutral:'var(--nl-600)', warning:'var(--yellow)' };
+  return `<div style="display:flex;gap:16px;padding-bottom:20px;position:relative;">
+    <div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;">
+      <div style="width:12px;height:12px;border-radius:50%;background:${c[type]};margin-top:2px;flex-shrink:0;z-index:1;"></div>
+      <div style="width:2px;flex:1;background:var(--nl-300);margin-top:4px;"></div>
+    </div>
+    <div style="flex:1;padding-bottom:4px;">
+      <div style="font-size:11px;color:var(--n300);margin-bottom:2px;">${date}</div>
+      <div style="font-size:13px;font-weight:600;color:var(--color-primary-600);">${title}</div>
+      <div style="font-size:12px;color:var(--n300);margin-top:2px;">${desc}</div>
+    </div>
+  </div>`;
+}
+
+/* ──────────────────────────────────────
+   VIEW: SCHOLARSHIPS
+────────────────────────────────────── */
+function viewScholarships() {
+  const scholarships = [
+    { name:'Chevening Scholarship', country:'🇬🇧 UK', amount:'£18,000', type:'Full Funding', deadline:'Nov 2026', match:'92%', tag:'b-success', tagLabel:'High Match' },
+    { name:'Manchester Excellence Award', country:'🇬🇧 UK', amount:'£5,000', type:'Partial', deadline:'Aug 2026', match:'95%', tag:'b-green', tagLabel:'Applied' },
+    { name:'GREAT Scholarship', country:'🇬🇧 UK', amount:'£10,000', type:'Partial', deadline:'Apr 2027', match:'88%', tag:'b-info', tagLabel:'Eligible' },
+    { name:'Charles Wallace India Trust', country:'🇬🇧 UK', amount:'£3,000', type:'Research Grant', deadline:'Jan 2027', match:'78%', tag:'b-neutral', tagLabel:'Review' },
+    { name:'Vanier Canada Graduate', country:'🇨🇦 Canada', amount:'CA$50,000', type:'Full Funding', deadline:'Oct 2026', match:'65%', tag:'b-warning', tagLabel:'Competitive' },
+    { name:'Endeavour Leadership', country:'🇦🇺 Australia', amount:'AU$272,500', type:'Full Funding', deadline:'Mar 2027', match:'70%', tag:'b-purple', tagLabel:'Premium' },
+  ];
+  return `
+  ${pageHead('Home › Scholarships', 'Scholarship Finder', `Elee found ${scholarships.length} scholarships matching your profile · Total potential: ₹36L+`,
+    `<button class="btn btn-primary btn-sm">🤖 Auto-Apply with Elee</button>`)}
+  <div style="background:var(--teal-l);border:1px solid var(--teal);border-radius:var(--radius-lg);padding:14px 18px;display:flex;align-items:center;gap:14px;margin-bottom:22px;">
+    <span style="font-size:22px;">🤖</span>
+    <div style="flex:1;"><div style="font-weight:700;color:#004D60;font-size:13px;">Elee identified ₹36L in scholarships for your profile</div><div style="font-size:12px;color:var(--teal-d);">Based on: IELTS 7.5, B.Tech CS, GPA 8.2/10, Target: UK MSc CS</div></div>
+    <button class="btn btn-teal btn-sm">View All Matches</button>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:18px;">
+    ${scholarships.map(s=>`
+    <div class="card" style="padding:20px;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;">
+        <div style="font-size:22px;">${s.country.split(' ')[0]}</div>
+        <span class="badge ${s.tag}">${s.tagLabel}</span>
+      </div>
+      <div style="font-weight:700;font-size:14px;color:var(--color-primary-600);margin-bottom:4px;">${s.name}</div>
+      <div style="font-size:12px;color:var(--n300);margin-bottom:14px;">${s.country} · ${s.type}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">
+        ${uniStat('💰','Amount',s.amount)}
+        ${uniStat('📅','Deadline',s.deadline)}
+        ${uniStat('🎯','Match',s.match)}
+        ${uniStat('📋','Type',s.type)}
+      </div>
+      <button class="btn btn-primary btn-sm" style="width:100%;justify-content:center;">Apply Now</button>
+    </div>`).join('')}
+  </div>`;
+}
+
+/* ──────────────────────────────────────
+   VIEW: VISA TRACKER
+────────────────────────────────────── */
+function viewVisa() {
+  const steps = [
+    { n:1, label:'CAS Letter', desc:'Confirmation of Acceptance for Studies from university', status:'done', date:'Received Jun 10' },
+    { n:2, label:'Financial Evidence', desc:'Bank statements showing £1,334/month for 28 days', status:'done', date:'Verified Jun 12' },
+    { n:3, label:'ATAS Certificate', desc:'Academic Technology Approval Scheme (if required)', status:'done', date:'Approved Jun 8' },
+    { n:4, label:'IHS Surcharge', desc:'Immigration Health Surcharge — £776/year', status:'progress', date:'Payment pending' },
+    { n:5, label:'Visa Application (Online)', desc:'Complete UK Student Visa application on UKVI portal', status:'progress', date:'70% complete' },
+    { n:6, label:'Biometrics Appointment', desc:'In-person appointment at Visa Application Centre', status:'locked', date:'Not scheduled' },
+    { n:7, label:'Document Upload', desc:'Upload all supporting documents to UKVI portal', status:'locked', date:'Waiting for step 5' },
+    { n:8, label:'Visa Decision', desc:'Expected processing time: 3 weeks', status:'locked', date:'Est. Aug 2026' },
+  ];
+  const icons = { done:'✅', progress:'🔄', locked:'🔒' };
+  const colors = { done:'var(--teal)', progress:'var(--yellow)', locked:'var(--nl-600)' };
+  const bgColors = { done:'var(--teal-l)', progress:'var(--yellow-l)', locked:'var(--nl-300)' };
+
+  return `
+  ${pageHead('Home › Visa', 'UK Student Visa Tracker', 'University of Manchester · MSc CS · September 2026 intake',
+    `<button class="btn btn-primary btn-sm">🤖 Elee: Complete Visa</button>`)}
+
+  <!-- Progress Overview -->
+  <div class="card" style="padding:24px;margin-bottom:24px;background:linear-gradient(135deg,var(--color-primary-600),var(--color-primary-800));">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+      <div>
+        <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;">UK Student Visa — Progress</div>
+        <div style="font-family:var(--font-head);font-size:32px;font-weight:700;color:white;">82% Complete</div>
+        <div style="font-size:13px;color:rgba(255,255,255,.65);margin-top:4px;">5 of 8 steps done · Est. completion: 2 weeks</div>
+      </div>
+      <div style="width:90px;height:90px;border-radius:50%;background:conic-gradient(var(--teal) 0% 82%,rgba(255,255,255,.1) 82% 100%);display:flex;align-items:center;justify-content:center;">
+        <div style="width:70px;height:70px;border-radius:50%;background:var(--color-primary-700);display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-size:20px;font-weight:700;color:white;">82%</div>
+      </div>
+    </div>
+    <div style="height:6px;background:rgba(255,255,255,.1);border-radius:var(--radius-full);overflow:hidden;">
+      <div style="height:100%;width:82%;background:var(--g90);border-radius:var(--radius-full);"></div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 340px;gap:20px;">
+    <!-- Steps -->
+    <div class="card" style="padding:24px;">
+      <div style="font-family:var(--font-head);font-size:17px;font-weight:700;color:var(--color-primary-600);margin-bottom:20px;">Visa Checklist</div>
+      <div style="display:flex;flex-direction:column;gap:0;">
+        ${steps.map((s,i)=>`
+        <div style="display:flex;gap:16px;padding-bottom:${i<steps.length-1?'20px':'0'};">
+          <div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;">
+            <div style="width:36px;height:36px;border-radius:50%;background:${bgColors[s.status]};display:flex;align-items:center;justify-content:center;font-size:16px;z-index:1;">${icons[s.status]}</div>
+            ${i<steps.length-1?`<div style="width:2px;flex:1;background:${s.status==='done'?'var(--teal)':'var(--nl-300)'};margin-top:4px;min-height:20px;"></div>`:''}
+          </div>
+          <div style="flex:1;padding-top:6px;">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:3px;">
+              <div style="font-size:14px;font-weight:700;color:${s.status==='locked'?'var(--n200)':'var(--color-primary-600)'};">Step ${s.n}: ${s.label}</div>
+              ${s.status==='progress'?`<span class="badge b-warning" style="font-size:10px;">In Progress</span>`:''}
+            </div>
+            <div style="font-size:12px;color:var(--n300);margin-bottom:4px;">${s.desc}</div>
+            <div style="font-size:11px;font-weight:600;color:${colors[s.status]};">${s.date}</div>
+            ${s.status==='progress'?`<button class="btn btn-primary btn-sm" style="margin-top:8px;">Continue →</button>`:''}
+          </div>
+        </div>`).join('')}
+      </div>
+    </div>
+
+    <!-- Right panel -->
+    <div style="display:flex;flex-direction:column;gap:16px;">
+      <div class="card" style="padding:20px;">
+        <div style="font-family:var(--font-head);font-size:15px;font-weight:700;color:var(--color-primary-600);margin-bottom:14px;">🛂 Visa Summary</div>
+        ${[['Visa Type','UK Student (Tier 4)'],['University','University of Manchester'],['Course','MSc Computer Science'],['Start Date','September 2026'],['Duration','12 months'],['CAS Number','E74282940371'],['UKVI Reference','GWF0567234']].map(([k,v])=>`
+        <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--nl-300);font-size:12px;">
+          <span style="color:var(--n300);">${k}</span>
+          <span style="font-weight:600;color:var(--color-primary-600);">${v}</span>
+        </div>`).join('')}
+      </div>
+      <div class="card" style="padding:20px;background:var(--teal-l);border:1px solid var(--teal);">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+          <span style="font-size:22px;">🤖</span>
+          <div style="font-weight:700;color:#004D60;font-size:14px;">Elee says:</div>
+        </div>
+        <div style="font-size:13px;color:var(--teal-d);line-height:1.7;">Your IHS payment is the only blocker. Want me to process the £776 payment and then auto-book your Biometrics appointment?</div>
+        <button class="btn btn-teal btn-sm" style="margin-top:12px;width:100%;justify-content:center;">✅ Yes, Pay & Book</button>
+      </div>
+      <div class="card" style="padding:20px;">
+        <div style="font-family:var(--font-head);font-size:15px;font-weight:700;color:var(--color-primary-600);margin-bottom:12px;">📅 Key Dates</div>
+        ${deadlineItem('IHS Payment Due','3 days','error')}
+        <div style="height:8px;"></div>
+        ${deadlineItem('Visa Apply Before','45 days','warning')}
+        <div style="height:8px;"></div>
+        ${deadlineItem('Course Start Date','90 days','info')}
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ──────────────────────────────────────
+   VIEW: DOCUMENTS
+────────────────────────────────────── */
+function viewDocuments() {
+  const docs = [
+    { name:'Passport Copy', type:'Identity', status:'verified', date:'Jun 2, 2026', size:'1.2 MB' },
+    { name:'IELTS Score Card', type:'Language', status:'verified', date:'May 28, 2026', size:'450 KB' },
+    { name:'Degree Certificate', type:'Academic', status:'verified', date:'May 30, 2026', size:'2.1 MB' },
+    { name:'Academic Transcripts', type:'Academic', status:'verified', date:'May 30, 2026', size:'3.4 MB' },
+    { name:'Statement of Purpose', type:'Personal', status:'verified', date:'Jun 5, 2026', size:'156 KB' },
+    { name:'Letters of Recommendation', type:'Personal', status:'verified', date:'Jun 7, 2026', size:'890 KB' },
+    { name:'Bank Statement', type:'Financial', status:'verified', date:'Jun 10, 2026', size:'2.8 MB' },
+    { name:'CV / Resume', type:'Personal', status:'verified', date:'Jun 3, 2026', size:'220 KB' },
+    { name:'Bank Statement (Updated)', type:'Financial', status:'pending', date:'Required', size:'—' },
+    { name:'Health Surcharge Receipt', type:'Visa', status:'pending', date:'Required', size:'—' },
+    { name:'Biometrics Confirmation', type:'Visa', status:'pending', date:'Required', size:'—' },
+  ];
+  const statusIcon = { verified:'✅', pending:'⚠️', rejected:'❌' };
+  const statusColor = { verified:'var(--teal)', pending:'var(--yellow)', rejected:'var(--red)' };
+  return `
+  ${pageHead('Home › Documents', 'Document Manager', '8 of 11 documents verified · 3 pending upload',
+    `<button class="btn btn-primary btn-sm">📤 Upload Document</button>`)}
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px;">
+    ${statCard('✅','Verified','8','All complete')}
+    ${statCard('⚠️','Pending','3','Action required','var(--yellow)')}
+    ${statCard('📁','Total Size','11.2 MB','Across all docs')}
+    ${statCard('🎯','Completion','72%','↑ Upload 3 more')}
+  </div>
+  <div class="card" style="overflow:hidden;">
+    <div style="padding:18px 22px;border-bottom:1px solid var(--nl-300);display:flex;align-items:center;justify-content:space-between;">
+      <div style="font-family:var(--font-head);font-size:16px;font-weight:700;color:var(--color-primary-600);">All Documents</div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-ghost btn-sm">Filter</button>
+        <button class="btn btn-navy btn-sm">📥 Download All</button>
+      </div>
+    </div>
+    <table style="width:100%;border-collapse:collapse;">
+      <thead>
+        <tr style="background:var(--color-primary-0);">
+          <th style="padding:11px 22px;text-align:left;font-size:11px;font-weight:700;color:var(--color-primary-600);letter-spacing:.06em;text-transform:uppercase;">Document</th>
+          <th style="padding:11px 16px;text-align:left;font-size:11px;font-weight:700;color:var(--color-primary-600);letter-spacing:.06em;text-transform:uppercase;">Type</th>
+          <th style="padding:11px 16px;text-align:left;font-size:11px;font-weight:700;color:var(--color-primary-600);letter-spacing:.06em;text-transform:uppercase;">Status</th>
+          <th style="padding:11px 16px;text-align:left;font-size:11px;font-weight:700;color:var(--color-primary-600);letter-spacing:.06em;text-transform:uppercase;">Date</th>
+          <th style="padding:11px 16px;text-align:left;font-size:11px;font-weight:700;color:var(--color-primary-600);letter-spacing:.06em;text-transform:uppercase;">Size</th>
+          <th style="padding:11px 16px;text-align:left;font-size:11px;font-weight:700;color:var(--color-primary-600);letter-spacing:.06em;text-transform:uppercase;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${docs.map((d,i)=>`
+        <tr style="border-bottom:1px solid var(--nl-300);${i%2===1?'background:var(--nl-100);':''}transition:background .15s;" onmouseover="this.style.background='var(--color-primary-0)'" onmouseout="this.style.background='${i%2===1?'var(--nl-100)':'white'}'">
+          <td style="padding:13px 22px;font-size:13px;font-weight:600;color:var(--color-primary-600);">${d.name}</td>
+          <td style="padding:13px 16px;"><span class="badge b-neutral" style="font-size:10px;">${d.type}</span></td>
+          <td style="padding:13px 16px;"><span style="font-size:13px;">${statusIcon[d.status]}</span> <span style="font-size:12px;font-weight:600;color:${statusColor[d.status]};">${d.status.charAt(0).toUpperCase()+d.status.slice(1)}</span></td>
+          <td style="padding:13px 16px;font-size:12px;color:var(--n300);">${d.date}</td>
+          <td style="padding:13px 16px;font-size:12px;color:var(--n300);">${d.size}</td>
+          <td style="padding:13px 16px;">
+            ${d.status==='pending'
+              ? `<button class="btn btn-primary btn-sm">📤 Upload</button>`
+              : `<div style="display:flex;gap:6px;"><button class="btn btn-ghost btn-sm" style="padding:4px 10px;">👁 View</button><button class="btn btn-ghost btn-sm" style="padding:4px 10px;">📥</button></div>`}
+          </td>
+        </tr>`).join('')}
+      </tbody>
+    </table>
+  </div>`;
+}
+
+/* ──────────────────────────────────────
+   VIEW: LOANS & FINANCE
+────────────────────────────────────── */
+function viewLoans() {
+  return `
+  ${pageHead('Home › Finance', 'Loans & Finance', 'Elee-powered education loan matching and pre-approval',
+    `<button class="btn btn-primary btn-sm">🤖 Elee: Find Best Loan</button>`)}
+  <div style="background:var(--g90);border-radius:var(--radius-xl);padding:28px 32px;margin-bottom:24px;color:white;">
+    <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;opacity:.75;margin-bottom:8px;">Elee's Recommendation</div>
+    <div style="font-family:var(--font-head);font-size:28px;font-weight:700;margin-bottom:6px;">You qualify for up to ₹45,00,000</div>
+    <div style="font-size:14px;opacity:.85;">Based on University of Manchester offer letter · No collateral required for UK</div>
+    <div style="display:flex;gap:12px;margin-top:18px;">
+      <button class="btn btn-sm" style="background:white;color:var(--color-primary-600);font-weight:700;">Apply with HDFC Credila</button>
+      <button class="btn btn-sm" style="background:rgba(255,255,255,.15);color:white;border:1.5px solid rgba(255,255,255,.3);">Compare All Lenders</button>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:18px;">
+    ${loanCard('HDFC Credila','₹45L','10.5% p.a.','No Collateral','Pre-Approved','b-success')}
+    ${loanCard('Avanse Financial','₹40L','11.25% p.a.','Property Required','Eligible','b-info')}
+    ${loanCard('Prodigy Finance','₹35L','12.0% p.a.','No Collateral','Eligible','b-info')}
+  </div>`;
+}
+function loanCard(bank, amount, rate, collateral, status, statusType) {
+  return `<div class="card" style="padding:22px;">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;">
+      <div style="font-family:var(--font-head);font-size:16px;font-weight:700;color:var(--color-primary-600);">${bank}</div>
+      <span class="badge ${statusType}">${status}</span>
+    </div>
+    ${[['Loan Amount',amount],['Interest Rate',rate],['Collateral',collateral]].map(([k,v])=>`
+    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--nl-300);font-size:12px;">
+      <span style="color:var(--n300);">${k}</span><span style="font-weight:700;color:var(--color-primary-600);">${v}</span>
+    </div>`).join('')}
+    <button class="btn btn-primary btn-sm" style="width:100%;justify-content:center;margin-top:14px;">Apply Now →</button>
+  </div>`;
+}
+
+/* ──────────────────────────────────────
+   VIEW: COUNSELOR
+────────────────────────────────────── */
+function viewCounselor() {
+  return `
+  ${pageHead('Home › Counsellor', 'My Counsellor', 'Your dedicated study abroad expert')}
+  <div style="display:grid;grid-template-columns:340px 1fr;gap:20px;">
+    <div style="display:flex;flex-direction:column;gap:16px;">
+      <div class="card" style="padding:24px;text-align:center;">
+        <div style="width:80px;height:80px;border-radius:50%;background:var(--g90);display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;color:white;margin:0 auto 14px;">PK</div>
+        <div style="font-family:var(--font-head);font-size:20px;font-weight:700;color:var(--color-primary-600);">Priya Kapoor</div>
+        <div style="font-size:13px;color:var(--n300);margin-top:4px;">Senior Counsellor · UK & Europe Specialist</div>
+        <div style="margin:14px 0;"><span class="badge b-success">⭐ 4.9/5 · 340 students placed</span></div>
+        <div style="height:2px;background:var(--g90);border-radius:2px;margin-bottom:14px;"></div>
+        ${[['Experience','8 years'],['Speciality','UK, Ireland, Europe'],['Languages','English, Hindi'],['Response Time','< 2 hours']].map(([k,v])=>`
+        <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--nl-300);font-size:12px;"><span style="color:var(--n300);">${k}</span><span style="font-weight:600;color:var(--color-primary-600);">${v}</span></div>`).join('')}
+        <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:16px;">📅 Book Session</button>
+        <button class="btn btn-ghost" style="width:100%;justify-content:center;margin-top:8px;">💬 Send Message</button>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:16px;">
+      <div class="card" style="padding:22px;">
+        <div style="font-family:var(--font-head);font-size:17px;font-weight:700;color:var(--color-primary-600);margin-bottom:16px;">Upcoming Sessions</div>
+        ${[['Thursday, Jun 19, 3:00 PM','45 min','Visa Strategy & IHS Payment','Scheduled'],['Thursday, Jun 26, 3:00 PM','30 min','Edinburgh Application Review','Upcoming']].map(([date,dur,topic,status])=>`
+        <div style="display:flex;align-items:center;gap:14px;padding:14px;background:var(--nl-100);border-radius:var(--radius-md);border:1px solid var(--nl-300);margin-bottom:10px;">
+          <div style="width:44px;height:44px;border-radius:10px;background:var(--color-primary-0);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">📅</div>
+          <div style="flex:1;"><div style="font-weight:600;font-size:13px;color:var(--color-primary-600);">${date}</div><div style="font-size:12px;color:var(--n300);">${topic} · ${dur}</div></div>
+          <span class="badge ${status==='Scheduled'?'b-success':'b-info'}">${status}</span>
+        </div>`).join('')}
+      </div>
+      <div class="card" style="padding:22px;">
+        <div style="font-family:var(--font-head);font-size:17px;font-weight:700;color:var(--color-primary-600);margin-bottom:16px;">Session History</div>
+        ${[['Jun 12','Manchester Offer Strategy','Completed'],['Jun 5','UCL Application Review','Completed'],['May 28','Profile Assessment','Completed']].map(([date,topic,status])=>`
+        <div style="display:flex;align-items:center;gap:12px;padding:10px 12px;border-bottom:1px solid var(--nl-300);">
+          <span style="font-size:11px;color:var(--n300);width:50px;">${date}</span>
+          <span style="flex:1;font-size:13px;color:var(--color-primary-600);">${topic}</span>
+          <span class="badge b-success" style="font-size:10px;">${status}</span>
+        </div>`).join('')}
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ──────────────────────────────────────
+   VIEW: MY TASKS
+────────────────────────────────────── */
+function viewTasks() {
+  const tasks = [
+    { title:'Pay UK Immigration Health Surcharge (£776)', priority:'High', due:'Jun 21', done:false },
+    { title:'Upload updated bank statement to UKVI portal', priority:'High', due:'Jun 22', done:false },
+    { title:'Complete Edinburgh MSc Data Science application', priority:'Medium', due:'Jul 1', done:false },
+    { title:'Review Chevening Scholarship essay draft', priority:'Medium', due:'Jul 5', done:false },
+    { title:'Submit HDFC Credila loan documents', priority:'Low', due:'Jul 10', done:false },
+    { title:'Book biometrics appointment at VFS Global', priority:'High', due:'Jun 25', done:false },
+    { title:'Accept University of Manchester offer', priority:'High', due:'Jun 20', done:true },
+    { title:'Upload passport scan', priority:'Low', due:'Jun 10', done:true },
+  ];
+  const priorityColors = { High:'b-error', Medium:'b-warning', Low:'b-neutral' };
+  return `
+  ${pageHead('Home › Tasks', 'My Tasks', `${tasks.filter(t=>!t.done).length} pending · ${tasks.filter(t=>t.done).length} completed`,
+    `<button class="btn btn-primary btn-sm">+ Add Task</button>`)}
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+    <div>
+      <div style="font-size:12px;font-weight:700;color:var(--n300);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px;">Pending (${tasks.filter(t=>!t.done).length})</div>
+      ${tasks.filter(t=>!t.done).map(t=>`
+      <div style="background:white;border-radius:var(--radius-md);padding:14px 16px;margin-bottom:10px;border:1px solid var(--nl-300);box-shadow:var(--shadow-sm);display:flex;align-items:flex-start;gap:12px;">
+        <div style="width:18px;height:18px;border-radius:4px;border:2px solid var(--nl-400);flex-shrink:0;margin-top:1px;cursor:pointer;"></div>
+        <div style="flex:1;">
+          <div style="font-size:13px;font-weight:600;color:var(--color-primary-600);margin-bottom:5px;">${t.title}</div>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <span class="badge ${priorityColors[t.priority]}" style="font-size:10px;">${t.priority}</span>
+            <span style="font-size:11px;color:var(--n300);">Due ${t.due}</span>
+          </div>
+        </div>
+      </div>`).join('')}
+    </div>
+    <div>
+      <div style="font-size:12px;font-weight:700;color:var(--n300);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px;">Completed (${tasks.filter(t=>t.done).length})</div>
+      ${tasks.filter(t=>t.done).map(t=>`
+      <div style="background:var(--nl-100);border-radius:var(--radius-md);padding:14px 16px;margin-bottom:10px;border:1px solid var(--nl-300);display:flex;align-items:flex-start;gap:12px;opacity:.65;">
+        <div style="width:18px;height:18px;border-radius:4px;background:var(--teal);flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;font-size:11px;color:white;">✓</div>
+        <div style="flex:1;">
+          <div style="font-size:13px;font-weight:600;color:var(--n300);text-decoration:line-through;">${t.title}</div>
+          <div style="font-size:11px;color:var(--n200);margin-top:4px;">Completed · ${t.due}</div>
+        </div>
+      </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+/* ──────────────────────────────────────
+   VIEW: CONSULTANT — CRM PIPELINE
+────────────────────────────────────── */
+function viewCRM() {
+  const leads = [
+    { name:'Rahul Gupta', course:'MSc Finance, UK', score:'92', stage:'Offer', flag:'🇬🇧', source:'WhatsApp', tags:['Hot','Scholarship'] },
+    { name:'Anjali Patel', course:'MBA, Canada', score:'85', stage:'Applied', flag:'🇨🇦', source:'Referral', tags:['High Value'] },
+    { name:'Kiran Mehta', course:'BSc Nursing, Australia', score:'78', stage:'Profiling', flag:'🇦🇺', source:'Instagram', tags:['New'] },
+    { name:'Suresh Nair', course:'MSc CS, USA', score:'70', stage:'Lead', flag:'🇺🇸', source:'Website', tags:['Follow Up'] },
+    { name:'Divya Sharma', course:'MSc AI, UK', score:'88', stage:'Applied', flag:'🇬🇧', source:'Google', tags:['Hot'] },
+    { name:'Amit Joshi', course:'MIM, Germany', score:'65', stage:'Lead', flag:'🇩🇪', source:'Facebook', tags:['Cold'] },
+  ];
+  const stageColor = { Lead:'b-neutral', Profiling:'b-info', Applied:'b-warning', Offer:'b-success', Enrolled:'b-purple' };
+  return `
+  ${pageHead('Consultant › CRM', 'Lead Pipeline', `${leads.length} active leads · ₹2.4L commission this month`,
+    `<div style="display:flex;gap:8px;"><button class="btn btn-ghost btn-sm">📊 Reports</button><button class="btn btn-primary btn-sm">+ Add Lead</button></div>`)}
+
+  <!-- KPIs -->
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;">
+    ${statCard('👥','Active Leads','24','↑ 6 this week')}
+    ${statCard('🎓','Students Enrolled','8','This month','var(--teal)')}
+    ${statCard('💰','Commission Earned','₹2.4L','↑ ₹40K vs last month')}
+    ${statCard('⭐','Avg. Score','82','Profile quality','var(--blue)')}
+  </div>
+
+  <!-- Pipeline Stages -->
+  <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:22px;">
+    ${[['Lead','6','neutral'],['Profiling','4','info'],['Applied','8','warning'],['Offer','4','success'],['Enrolled','2','purple']].map(([s,n,t])=>`
+    <div class="card" style="padding:14px;text-align:center;border-top:3px solid ${t==='success'?'var(--teal)':t==='warning'?'var(--yellow)':t==='info'?'var(--blue)':t==='purple'?'var(--purple)':'var(--nl-600)'};">
+      <div style="font-family:var(--font-head);font-size:26px;font-weight:700;color:var(--color-primary-600);">${n}</div>
+      <span class="badge b-${t}" style="font-size:10px;">${s}</span>
+    </div>`).join('')}
+  </div>
+
+  <!-- Lead Table -->
+  <div class="card" style="overflow:hidden;">
+    <div style="padding:16px 22px;border-bottom:1px solid var(--nl-300);display:flex;align-items:center;justify-content:space-between;">
+      <div style="font-family:var(--font-head);font-size:16px;font-weight:700;color:var(--color-primary-600);">All Leads</div>
+      <input style="padding:7px 12px;border:1.5px solid var(--nl-400);border-radius:8px;font-size:12px;font-family:var(--font-body);outline:none;width:200px;" placeholder="🔍 Search leads...">
+    </div>
+    <table style="width:100%;border-collapse:collapse;">
+      <thead><tr style="background:var(--color-primary-0);">
+        ${['Student','Target','Score','Stage','Source','Tags','Actions'].map(h=>`<th style="padding:10px 16px;text-align:left;font-size:11px;font-weight:700;color:var(--color-primary-600);letter-spacing:.06em;text-transform:uppercase;">${h}</th>`).join('')}
+      </tr></thead>
+      <tbody>
+        ${leads.map((l,i)=>`
+        <tr style="border-bottom:1px solid var(--nl-300);${i%2===1?'background:var(--nl-100);':''}" onmouseover="this.style.background='var(--color-primary-0)'" onmouseout="this.style.background='${i%2===1?'var(--nl-100)':'white'}'">
+          <td style="padding:13px 16px;">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div style="width:34px;height:34px;border-radius:50%;background:var(--g90);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:white;flex-shrink:0;">${l.name.split(' ').map(w=>w[0]).join('')}</div>
+              <div><div style="font-size:13px;font-weight:600;color:var(--color-primary-600);">${l.name}</div></div>
+            </div>
+          </td>
+          <td style="padding:13px 16px;font-size:12px;color:var(--n500);">${l.flag} ${l.course}</td>
+          <td style="padding:13px 16px;">
+            <div style="display:flex;align-items:center;gap:6px;">
+              <div style="height:4px;width:40px;background:var(--nl-300);border-radius:2px;overflow:hidden;"><div style="height:100%;width:${l.score}%;background:var(--g90);border-radius:2px;"></div></div>
+              <span style="font-size:12px;font-weight:700;color:var(--color-primary-600);">${l.score}</span>
+            </div>
+          </td>
+          <td style="padding:13px 16px;"><span class="badge ${stageColor[l.stage]}">${l.stage}</span></td>
+          <td style="padding:13px 16px;font-size:12px;color:var(--n300);">${l.source}</td>
+          <td style="padding:13px 16px;">${l.tags.map(t=>`<span class="badge b-neutral" style="font-size:10px;margin-right:3px;">${t}</span>`).join('')}</td>
+          <td style="padding:13px 16px;">
+            <div style="display:flex;gap:5px;">
+              <button class="btn btn-ghost btn-sm" style="padding:4px 10px;">View</button>
+              <button class="btn btn-primary btn-sm" style="padding:4px 10px;">💬</button>
+            </div>
+          </td>
+        </tr>`).join('')}
+      </tbody>
+    </table>
+  </div>`;
+}
+
+/* ──────────────────────────────────────
+   VIEW: CONSULTANT — STUDENTS
+────────────────────────────────────── */
+function viewStudents() {
+  return `${pageHead('Consultant › Students','Student Profiles','8 active students under your management')}
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;">
+    ${[['Rahul Gupta','MSc Finance · UK','🇬🇧','Offer','92%'],['Anjali Patel','MBA · Canada','🇨🇦','Visa Stage','85%'],['Kiran Mehta','BSc Nursing · Australia','🇦🇺','Applying','78%'],['Divya Sharma','MSc AI · UK','🇬🇧','Applied','88%'],['Priya Singh','MSc Marketing · UK','🇬🇧','Profiling','74%'],['Rohit Verma','MEng · USA','🇺🇸','Lead','65%']].map(([name,course,flag,stage,prog])=>`
+    <div class="card" style="padding:20px;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+        <div style="width:44px;height:44px;border-radius:50%;background:var(--g90);display:flex;align-items:center;justify-content:center;font-weight:700;color:white;font-size:16px;">${name.split(' ').map(w=>w[0]).join('')}</div>
+        <div><div style="font-weight:700;color:var(--color-primary-600);font-size:14px;">${name}</div><div style="font-size:11px;color:var(--n300);">${flag} ${course}</div></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <span class="badge ${stage==='Offer'?'b-success':stage==='Visa Stage'?'b-purple':stage==='Applied'||stage==='Applying'?'b-warning':'b-neutral'}">${stage}</span>
+        <span style="font-size:12px;font-weight:700;color:var(--color-primary-600);">${prog}</span>
+      </div>
+      <div style="height:4px;background:var(--nl-300);border-radius:2px;overflow:hidden;margin-bottom:14px;">
+        <div style="height:100%;width:${prog};background:var(--g90);border-radius:2px;"></div>
+      </div>
+      <button class="btn btn-navy btn-sm" style="width:100%;justify-content:center;">View Profile →</button>
+    </div>`).join('')}
+  </div>`;
+}
+
+/* ──────────────────────────────────────
+   VIEW: CONSULTANT — COMMISSION
+────────────────────────────────────── */
+function viewCommission() {
+  return `
+  ${pageHead('Consultant › Commission','Commission Dashboard','Your earnings and payout summary for June 2026')}
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;">
+    ${statCard('💰','This Month','₹2.4L','↑ ₹40K vs May')}
+    ${statCard('📈','This Quarter','₹6.8L','On track for target')}
+    ${statCard('🎓','Enrolled Students','8','3 pending payout','var(--yellow)')}
+    ${statCard('⏳','Pending Payout','₹1.2L','Processing 7-14 days')}
+  </div>
+  <div class="card" style="padding:22px;margin-bottom:20px;">
+    <div style="font-family:var(--font-head);font-size:17px;font-weight:700;color:var(--color-primary-600);margin-bottom:18px;">Monthly Earnings — 2026</div>
+    <div style="display:flex;align-items:flex-end;gap:10px;height:140px;">
+      ${[['Jan','1.2L',50],['Feb','1.4L',58],['Mar','1.8L',75],['Apr','2.0L',83],['May','2.0L',83],['Jun','2.4L',100]].map(([m,v,pct])=>`
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;">
+        <div style="font-size:11px;font-weight:700;color:var(--color-primary-600);">₹${v}</div>
+        <div style="width:100%;height:${pct}px;background:${m==='Jun'?'var(--g90)':'var(--color-primary-100)'};border-radius:6px 6px 0 0;transition:height .3s;"></div>
+        <div style="font-size:11px;color:var(--n300);">${m}</div>
+      </div>`).join('')}
+    </div>
+  </div>
+  <div class="card" style="overflow:hidden;">
+    <div style="padding:16px 22px;border-bottom:1px solid var(--nl-300);font-family:var(--font-head);font-size:16px;font-weight:700;color:var(--color-primary-600);">Commission Transactions</div>
+    <table style="width:100%;border-collapse:collapse;">
+      <thead><tr style="background:var(--color-primary-0);">
+        ${['Student','University','Commission','Status','Date'].map(h=>`<th style="padding:10px 18px;text-align:left;font-size:11px;font-weight:700;color:var(--color-primary-600);letter-spacing:.06em;text-transform:uppercase;">${h}</th>`).join('')}
+      </tr></thead>
+      <tbody>
+        ${[['Rahul Gupta','Manchester','₹45,000','Paid','Jun 12'],['Anjali Patel','Toronto','₹38,000','Pending','Jun 5'],['Divya Sharma','UCL','₹52,000','Processing','Jun 8']].map(([s,u,c,st,d])=>`
+        <tr style="border-bottom:1px solid var(--nl-300);">
+          <td style="padding:12px 18px;font-size:13px;font-weight:600;color:var(--color-primary-600);">${s}</td>
+          <td style="padding:12px 18px;font-size:12px;color:var(--n500);">${u}</td>
+          <td style="padding:12px 18px;font-size:13px;font-weight:700;color:var(--teal);">${c}</td>
+          <td style="padding:12px 18px;"><span class="badge ${st==='Paid'?'b-success':st==='Pending'?'b-warning':'b-info'}">${st}</span></td>
+          <td style="padding:12px 18px;font-size:12px;color:var(--n300);">${d}</td>
+        </tr>`).join('')}
+      </tbody>
+    </table>
+  </div>`;
+}
+
+/* ──────────────────────────────────────
+   VIEW: ADMIN — ANALYTICS
+────────────────────────────────────── */
+function viewAnalytics() {
+  return `
+  ${pageHead('Admin › Analytics','Platform Analytics','Real-time overview of Eleevate Overseas — June 2026',
+    `<div style="display:flex;gap:8px;"><button class="btn btn-ghost btn-sm">📥 Export</button><button class="btn btn-teal btn-sm">🔴 Live</button></div>`)}
+
+  <!-- Platform KPIs -->
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;">
+    ${statCard('👥','Total Students','12,847','↑ 842 this month')}
+    ${statCard('💼','Active Consultants','384','↑ 28 this month')}
+    ${statCard('💰','Monthly Revenue','₹38.4L','↑ 22% vs May')}
+    ${statCard('🎓','Enrollments','1,204','↑ 94 this month')}
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 320px;gap:20px;margin-bottom:20px;">
+    <!-- Revenue Chart -->
+    <div class="card" style="padding:22px;">
+      <div style="font-family:var(--font-head);font-size:17px;font-weight:700;color:var(--color-primary-600);margin-bottom:4px;">Revenue — 2026</div>
+      <div style="font-size:13px;color:var(--n300);margin-bottom:18px;">Monthly revenue across all streams</div>
+      <div style="display:flex;align-items:flex-end;gap:8px;height:160px;">
+        ${[['Jan','22.1L',55],['Feb','24.8L',62],['Mar','28.3L',71],['Apr','30.5L',76],['May','31.4L',78],['Jun','38.4L',96]].map(([m,v,pct])=>`
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;">
+          <div style="font-size:10px;font-weight:700;color:var(--color-primary-600);">₹${v}</div>
+          <div style="width:100%;height:${pct*1.5}px;background:${m==='Jun'?'var(--g90)':'var(--color-primary-100)'};border-radius:5px 5px 0 0;"></div>
+          <div style="font-size:10px;color:var(--n300);">${m}</div>
+        </div>`).join('')}
+      </div>
+    </div>
+
+    <!-- Revenue Split -->
+    <div class="card" style="padding:22px;">
+      <div style="font-family:var(--font-head);font-size:15px;font-weight:700;color:var(--color-primary-600);margin-bottom:16px;">Revenue by Stream</div>
+      ${[['Subscriptions','₹12.4L',32,'var(--teal)'],['Loan Commission','₹10.8L',28,'var(--blue)'],['Insurance','₹7.6L',20,'var(--purple)'],['Consultant SaaS','₹5.8L',15,'var(--yellow)'],['Other','₹1.8L',5,'var(--n300)']].map(([label,val,pct,color])=>`
+      <div style="margin-bottom:12px;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px;font-size:12px;">
+          <span style="color:var(--n500);">${label}</span>
+          <span style="font-weight:700;color:var(--color-primary-600);">${val} <span style="font-weight:400;color:var(--n300);">${pct}%</span></span>
+        </div>
+        <div style="height:5px;background:var(--nl-300);border-radius:3px;overflow:hidden;">
+          <div style="height:100%;width:${pct}%;background:${color};border-radius:3px;"></div>
+        </div>
+      </div>`).join('')}
+    </div>
+  </div>
+
+  <!-- Country & Conversion -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+    <div class="card" style="padding:22px;">
+      <div style="font-family:var(--font-head);font-size:16px;font-weight:700;color:var(--color-primary-600);margin-bottom:16px;">Students by Country</div>
+      ${[['🇬🇧 United Kingdom','5,240','41%'],['🇨🇦 Canada','3,180','25%'],['🇦🇺 Australia','2,320','18%'],['🇺🇸 United States','2,107','16%']].map(([c,n,pct])=>`
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:13px;">
+        <div style="font-size:20px;width:30px;">${c.split(' ')[0]}</div>
+        <div style="flex:1;">
+          <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;"><span style="color:var(--n700);font-weight:500;">${c.split(' ').slice(1).join(' ')}</span><span style="font-weight:700;color:var(--color-primary-600);">${n} · ${pct}</span></div>
+          <div style="height:5px;background:var(--nl-300);border-radius:3px;overflow:hidden;"><div style="height:100%;width:${pct};background:var(--g90);border-radius:3px;"></div></div>
+        </div>
+      </div>`).join('')}
+    </div>
+    <div class="card" style="padding:22px;">
+      <div style="font-family:var(--font-head);font-size:16px;font-weight:700;color:var(--color-primary-600);margin-bottom:16px;">Platform Health</div>
+      ${[['Elee Sessions Today','1,284','↑ 12%','success'],['Avg. Response Time','1.2s','↓ 0.3s','success'],['API Uptime','99.98%','All systems green','success'],['Support Tickets','23','↑ 3 today','warning'],['Failed Payments','2','₹4,800 at risk','error'],['New Signups Today','84','↑ 18% vs avg','success']].map(([k,v,sub,type])=>`
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--nl-300);">
+        <div style="font-size:12px;color:var(--n500);">${k}</div>
+        <div style="text-align:right;"><div style="font-size:13px;font-weight:700;color:var(--color-primary-600);">${v}</div><div style="font-size:10px;color:${type==='success'?'var(--teal)':type==='warning'?'var(--yellow)':'var(--red)'};">${sub}</div></div>
+      </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+// ═══════════════════════════════════════
+// LANDING PAGE — GSAP SCROLL ANIMATIONS
+// ═══════════════════════════════════════
+window.addEventListener('scroll', () => {
+  const nav = document.getElementById('landingNav');
+  if (nav) nav.classList.toggle('scrolled', window.scrollY > 40);
+});
+
+function initLandingAnimations() {
+  // Hero entrance handled by pure CSS keyframes — no GSAP needed here
+}
+
+
+// ═══════════════════════════════════════
+// MAGNETIC BUTTON EFFECT (landing CTAs)
+// ═══════════════════════════════════════
+function initMagneticButtons() {
+  document.querySelectorAll('.btn-primary, .btn-outline').forEach(btn => {
+    btn.addEventListener('mousemove', e => {
+      const rect = btn.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      const dx = (e.clientX - cx) * 0.25;
+      const dy = (e.clientY - cy) * 0.25;
+      btn.style.transform = `translate(${dx}px, ${dy}px) translateY(-1px)`;
+    });
+    btn.addEventListener('mouseleave', () => {
+      btn.style.transform = '';
+    });
+  });
+}
+
+// ═══════════════════════════════════════
+// ELEE WIDGET
+// ═══════════════════════════════════════
+function toggleElee() {
+  const panel = document.getElementById('eleePanel');
+  panel.classList.toggle('open');
+}
+
+const eleeReplies = {
+  shortlist: "🎓 Based on your profile (IELTS 7.5, B.Tech, 8.2 GPA), I've shortlisted 5 top MSc CS programs in the UK. Want me to apply to all of them?",
+  visa: "🛂 Your UK Student Visa is 82% complete. Remaining: Bank Statement, Health Surcharge payment, and Biometrics appointment. Want me to schedule the appointment now?",
+  loan: "💰 Great news! Based on your admitted university (Manchester), you qualify for up to ₹45L through HDFC Credila at 10.5% p.a. Should I initiate the pre-approval?",
+  scholarship: "🏆 I found 4 scholarships matching your profile: Chevening (£18,000), Manchester Excellence (£5,000), GREAT (£10,000), Charles Wallace (£3,000). Total potential: £36,000!",
+};
+
+function eleeAction(type) {
+  const body = document.getElementById('eleePanelBody');
+  const reply = eleeReplies[type] || "I'm working on that for you!";
+  const msgEl = document.createElement('div');
+  msgEl.className = 'elee-widget-msg ai';
+  msgEl.textContent = reply;
+  body.appendChild(msgEl);
+  body.scrollTop = body.scrollHeight;
+}
+
+function sendElee() {
+  const input = document.getElementById('eleeInput');
+  const val = input.value.trim();
+  if (!val) return;
+  const body = document.getElementById('eleePanelBody');
+
+  const userMsg = document.createElement('div');
+  userMsg.className = 'elee-widget-msg user';
+  userMsg.textContent = val;
+  body.appendChild(userMsg);
+  input.value = '';
+
+  setTimeout(() => {
+    const aiMsg = document.createElement('div');
+    aiMsg.className = 'elee-widget-msg ai';
+    aiMsg.textContent = "⚡ I'm processing your request right now. Give me a moment...";
+    body.appendChild(aiMsg);
+    body.scrollTop = body.scrollHeight;
+  }, 600);
+}
+
+// ═══════════════════════════════════════
+// PRELOADER
+// ═══════════════════════════════════════
+window.addEventListener('load', () => {
+  const logo = document.querySelector('.preloader-logo');
+  if (logo && typeof gsap !== 'undefined') {
+    gsap.to(logo, { opacity: 1, y: 0, duration: .6, ease: 'power2.out', delay: .2 });
+  }
+  setTimeout(() => {
+    const pre = document.getElementById('preloader');
+    if (pre) pre.classList.add('hidden');
+    initLandingAnimations();
+    initMagneticButtons();
+  }, 1800);
+});
+</script>
+
+</body>
+</html>
