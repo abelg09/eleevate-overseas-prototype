@@ -1189,13 +1189,13 @@ input:focus, select:focus {
     <div class="topnav-right">
       <div class="topnav-search">
         <span style="color:rgba(255,255,255,.4);font-size:14px;">🔍</span>
-        <input type="text" placeholder="Search universities, programs...">
+        <input type="text" placeholder="Search universities, programs..." onkeydown="if(event.key==='Enter'){globalSearch(this.value); this.blur();}">
       </div>
-      <div class="topnav-icon" title="Notifications">
+      <div class="topnav-icon" title="Notifications" style="cursor:pointer;" onclick="obToast('🔔 You have 3 new notifications')">
         🔔
         <div class="notif-badge">3</div>
       </div>
-      <div class="topnav-icon" title="Help">❓</div>
+      <div class="topnav-icon" title="Take a tour" onclick="startTour()" style="cursor:pointer;">❓</div>
       <div style="display:flex;align-items:center;gap:10px;">
         <div class="topnav-avatar" id="topnavAvatar">AS</div>
         <div class="topnav-user">
@@ -1215,13 +1215,13 @@ input:focus, select:focus {
       <div class="sidebar-item active" onclick="showView('dashboard')">
         <div class="sidebar-icon">🏠</div> Dashboard
       </div>
-      <div class="sidebar-item" onclick="showView('universities')">
+      <div class="sidebar-item" data-tour="nav-universities" onclick="showView('universities')">
         <div class="sidebar-icon">🎓</div> University Explorer
         <div class="sidebar-badge">450+</div>
       </div>
       <div class="sidebar-item" onclick="showView('applications')">
         <div class="sidebar-icon">📋</div> My Applications
-        <div class="sidebar-badge">3</div>
+        <div class="sidebar-badge" id="appsBadge">3</div>
       </div>
       <div class="sidebar-item" onclick="showView('scholarships')">
         <div class="sidebar-icon">🏆</div> Scholarships
@@ -1244,7 +1244,7 @@ input:focus, select:focus {
       </div>
       <div class="sidebar-item" onclick="showView('tasks')">
         <div class="sidebar-icon">✅</div> My Tasks
-        <div class="sidebar-badge">5</div>
+        <div class="sidebar-badge" id="tasksBadge">6</div>
       </div>
       <div class="sidebar-section-label">Account</div>
       <div class="sidebar-item">
@@ -1428,7 +1428,91 @@ input:focus, select:focus {
   transition: background .2s;
 }
 .elee-panel-input button:hover { background: var(--teal-d); }
+
+/* ══════════ ONBOARDING — WELCOME + GUIDED TOUR ══════════ */
+.ob-overlay{position:fixed;inset:0;z-index:6000;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(14,19,47,.55);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);}
+.ob-overlay.show{display:flex;}
+.ob-card{width:min(456px,100%);background:var(--nl-0);border-radius:var(--radius-xl);box-shadow:var(--shadow-xl);overflow:hidden;}
+.ob-card-top{position:relative;background:var(--g135);padding:30px 28px 24px;text-align:center;color:#fff;}
+.ob-card-top h2{font-family:var(--font-head);font-size:23px;font-weight:800;margin-top:6px;letter-spacing:-.01em;}
+.ob-card-top p{font-size:13.5px;opacity:.94;margin-top:6px;}
+.ob-emoji{display:inline-block;font-size:44px;line-height:1;transform-origin:70% 70%;animation:ob-wave 2.6s ease-in-out infinite;}
+@keyframes ob-wave{0%,62%,100%{transform:rotate(0)}10%,30%{transform:rotate(16deg)}20%{transform:rotate(-10deg)}40%{transform:rotate(8deg)}}
+.ob-body{padding:22px 26px 26px;}
+.ob-feats{display:flex;flex-direction:column;gap:14px;margin-bottom:22px;}
+.ob-feat{display:flex;gap:13px;align-items:center;}
+.ob-feat-ic{width:42px;height:42px;flex:none;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;}
+.ob-feat-tx b{display:block;font-size:14px;font-weight:600;color:var(--n900);}
+.ob-feat-tx span{display:block;font-size:12.5px;color:var(--n500);margin-top:1px;}
+.ob-actions{display:flex;gap:10px;}
+.ob-actions .btn{flex:1;justify-content:center;padding:12px 18px;font-size:14px;}
+
+#tourLayer{position:fixed;inset:0;z-index:5000;display:none;}
+#tourLayer.show{display:block;}
+.tour-block{position:fixed;inset:0;z-index:1;pointer-events:auto;}
+.tour-spot{position:fixed;z-index:2;border-radius:12px;box-shadow:0 0 0 9999px rgba(14,19,47,.64);border:2px solid rgba(255,255,255,.9);pointer-events:none;opacity:0;transition:left .35s cubic-bezier(.4,0,.2,1),top .35s cubic-bezier(.4,0,.2,1),width .35s cubic-bezier(.4,0,.2,1),height .35s cubic-bezier(.4,0,.2,1),opacity .2s;}
+.tour-tip{position:fixed;z-index:3;width:304px;max-width:calc(100vw - 28px);background:var(--nl-0);border-radius:var(--radius-lg);box-shadow:var(--shadow-xl);padding:18px 18px 16px;pointer-events:auto;transition:left .35s cubic-bezier(.4,0,.2,1),top .35s cubic-bezier(.4,0,.2,1);}
+.tour-tip h4{font-family:var(--font-head);font-size:16px;font-weight:700;color:var(--n900);padding-right:46px;}
+.tour-tip p{font-size:13px;line-height:1.55;color:var(--n500);margin-top:7px;}
+.tour-skip{position:absolute;top:14px;right:14px;background:none;border:none;color:var(--n300);font-size:12px;font-weight:500;cursor:pointer;}
+.tour-skip:hover{color:var(--n500);}
+.tour-foot{display:flex;align-items:center;justify-content:space-between;margin-top:16px;gap:10px;}
+.tour-dots{display:flex;gap:6px;}
+.tour-dot{width:7px;height:7px;border-radius:50%;background:var(--nl-400);transition:all .25s;}
+.tour-dot.on{width:18px;border-radius:4px;background:var(--green);}
+.tour-btns{display:flex;gap:8px;}
+.tour-btn{padding:8px 15px;border-radius:var(--radius-full);font-family:var(--font-body);font-weight:600;font-size:13px;cursor:pointer;border:none;transition:all .2s;}
+.tour-btn.back{background:var(--nl-200);color:var(--n700);}
+.tour-btn.back:hover{background:var(--nl-300);}
+.tour-btn.next{background:var(--g90);color:#fff;box-shadow:var(--shadow-brand);}
+.tour-btn.next:hover{filter:brightness(1.06);transform:translateY(-1px);}
+
+.ob-toast-wrap{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);z-index:7000;display:flex;flex-direction:column;gap:10px;align-items:center;pointer-events:none;}
+.ob-toast{background:var(--color-primary-600);color:#fff;padding:11px 18px;border-radius:var(--radius-full);font-size:13px;font-weight:500;box-shadow:var(--shadow-lg);}
 </style>
+
+<!-- ══════════ ONBOARDING: WELCOME MODAL ══════════ -->
+<div class="ob-overlay" id="welcomeOverlay" role="dialog" aria-modal="true" aria-labelledby="obTitle">
+  <div class="ob-card" id="welcomeCard">
+    <div class="ob-card-top">
+      <div class="ob-emoji">👋</div>
+      <h2 id="obTitle">Welcome to Eleevate, Arjun!</h2>
+      <p>Your AI-powered study abroad journey starts here.</p>
+    </div>
+    <div class="ob-body">
+      <div class="ob-feats">
+        <div class="ob-feat"><div class="ob-feat-ic" style="background:var(--green-l);">🎓</div><div class="ob-feat-tx"><b>450+ universities</b><span>Explore &amp; shortlist programs with AI matching.</span></div></div>
+        <div class="ob-feat"><div class="ob-feat-ic" style="background:var(--blue-l);">🤖</div><div class="ob-feat-tx"><b>Meet Elee</b><span>Your 24/7 AI counsellor for every step.</span></div></div>
+        <div class="ob-feat"><div class="ob-feat-ic" style="background:var(--yellow-l);">🛂</div><div class="ob-feat-tx"><b>Visa, documents &amp; loans</b><span>Track your whole journey in one place.</span></div></div>
+      </div>
+      <div class="ob-actions">
+        <button class="btn btn-primary" onclick="closeWelcome(true)">✨ Take a quick tour</button>
+        <button class="btn btn-ghost" onclick="closeWelcome(false)">Explore on my own</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ ONBOARDING: GUIDED TOUR ══════════ -->
+<div id="tourLayer">
+  <div class="tour-block"></div>
+  <div class="tour-spot" id="tourSpot"></div>
+  <div class="tour-tip" id="tourTip">
+    <button class="tour-skip" onclick="endTour()">Skip ✕</button>
+    <h4 id="tourTitle"></h4>
+    <p id="tourText"></p>
+    <div class="tour-foot">
+      <div class="tour-dots" id="tourDots"></div>
+      <div class="tour-btns">
+        <button class="tour-btn back" id="tourBack" onclick="tourPrev()">Back</button>
+        <button class="tour-btn next" id="tourNext" onclick="tourNext()">Next</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ ONBOARDING: TOASTS ══════════ -->
+<div class="ob-toast-wrap" id="obToastWrap"></div>
 
 <script>
 // ═══════════════════════════════════════
@@ -1441,6 +1525,7 @@ function showPortal(portal) {
   document.getElementById('screen-portal').classList.add('active');
   document.getElementById('eleeWidget').style.display = 'block';
   switchPortal(portal);
+  if (portal === 'student') setTimeout(maybeShowWelcome, 550);
 }
 
 function showLanding() {
@@ -1513,7 +1598,7 @@ function renderView(name) {
 
 /* ── Shared layout helpers ── */
 function pageHead(crumb, title, sub, actions='') {
-  return `<div class="page-head">
+  return `<div class="page-head" data-tour="pagehead">
     <div class="page-head-text">
       <div class="page-breadcrumb">${crumb}</div>
       <div class="page-title">${title}</div>
@@ -1552,7 +1637,7 @@ function viewDashboard() {
         <div style="font-size:12px;color:rgba(255,255,255,.75);margin-top:2px;">You're on the Free plan · 3/3 university slots used · Elee auto-apply locked</div>
       </div>
     </div>
-    <button class="btn btn-sm" style="background:white;color:var(--color-primary-600);font-weight:700;white-space:nowrap;flex-shrink:0;">Upgrade ₹999/mo</button>
+    <button class="btn btn-sm" style="background:white;color:var(--color-primary-600);font-weight:700;white-space:nowrap;flex-shrink:0;" onclick="obToast('⚡ Pro upgrade — secure checkout coming soon')">Upgrade ₹999/mo</button>
   </div>
 
   <!-- Stat Cards -->
@@ -1636,8 +1721,8 @@ function viewDashboard() {
             </div>
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-            <button class="btn btn-primary btn-sm" style="width:100%;justify-content:center;">Join Call</button>
-            <button class="btn btn-ghost btn-sm" style="width:100%;justify-content:center;">Reschedule</button>
+            <button class="btn btn-primary btn-sm" style="width:100%;justify-content:center;" onclick="obToast('📹 Joining your video call with Priya…')">Join Call</button>
+            <button class="btn btn-ghost btn-sm" style="width:100%;justify-content:center;" onclick="showView('counselor')">Reschedule</button>
           </div>
         </div>
       </div>
@@ -1742,20 +1827,89 @@ function deadlineItem(label, days, type) {
 /* ──────────────────────────────────────
    VIEW: UNIVERSITY EXPLORER
 ────────────────────────────────────── */
-function viewUniversities() {
-  const unis = [
-    { flag:'🇬🇧', name:'University of Manchester', course:'MSc Computer Science', rank:'#28 QS World', fees:'£21,000/yr', ielts:'6.5', intake:'Sep · Jan', tag:'Popular', tagType:'b-green', match:'94%' },
-    { flag:'🇬🇧', name:'University College London', course:'MSc Artificial Intelligence', rank:'#9 QS World', fees:'£28,500/yr', ielts:'7.0', intake:'Sep', tag:'Top 10', tagType:'b-info', match:'88%' },
-    { flag:'🇬🇧', name:'University of Edinburgh', course:'MSc Data Science', rank:'#22 QS World', fees:'£19,800/yr', ielts:'6.5', intake:'Sep', tag:'Scholarship', tagType:'b-warning', match:'91%' },
-    { flag:'🇨🇦', name:'University of Toronto', course:'MCS Computer Science', rank:'#18 QS World', fees:'CA$28,000/yr', ielts:'7.0', intake:'Sep', tag:'PR Pathway', tagType:'b-purple', match:'85%' },
-    { flag:'🇺🇸', name:'Carnegie Mellon University', course:'MSCS', rank:'#52 QS World', fees:'US$58,000/yr', ielts:'7.5', intake:'Aug', tag:'Elite', tagType:'b-error', match:'72%' },
-    { flag:'🇦🇺', name:'University of Melbourne', course:'Master of CS', rank:'#33 QS World', fees:'AU$42,000/yr', ielts:'6.5', intake:'Feb · Jul', tag:'Work Rights', tagType:'b-success', match:'89%' },
-    { flag:'🇬🇧', name:'University of Warwick', course:'MSc Data Analytics', rank:'#67 QS World', fees:'£22,750/yr', ielts:'6.5', intake:'Sep', tag:'New', tagType:'b-neutral', match:'90%' },
-    { flag:'🇨🇦', name:'University of British Columbia', course:'MEng Software Engineering', rank:'#34 QS World', fees:'CA$24,000/yr', ielts:'6.5', intake:'Sep', tag:'Co-op', tagType:'b-green', match:'86%' },
-    { flag:'🇦🇺', name:'Australian National University', course:'Master of Computing', rank:'#30 QS World', fees:'AU$38,000/yr', ielts:'6.5', intake:'Feb · Jul', tag:'Work Rights', tagType:'b-success', match:'83%' },
-  ];
+/* ──────────────────────────────────────
+   VIEW: UNIVERSITY EXPLORER (interactive)
+────────────────────────────────────── */
+const UNIS = [
+  { id:0, flag:'🇬🇧', name:'University of Manchester',       course:'MSc Computer Science',        country:'UK',        rank:'#28 QS World', fees:'£21,000/yr',   feeGBP:21000, ielts:'6.5', intake:'Sep · Jan', tag:'Popular',     tagType:'b-green',   match:94 },
+  { id:1, flag:'🇬🇧', name:'University College London',      course:'MSc Artificial Intelligence', country:'UK',        rank:'#9 QS World',  fees:'£28,500/yr',   feeGBP:28500, ielts:'7.0', intake:'Sep',       tag:'Top 10',      tagType:'b-info',    match:88 },
+  { id:2, flag:'🇬🇧', name:'University of Edinburgh',        course:'MSc Data Science',            country:'UK',        rank:'#22 QS World', fees:'£19,800/yr',   feeGBP:19800, ielts:'6.5', intake:'Sep',       tag:'Scholarship', tagType:'b-warning', match:91 },
+  { id:3, flag:'🇨🇦', name:'University of Toronto',          course:'MCS Computer Science',        country:'Canada',    rank:'#18 QS World', fees:'CA$28,000/yr', feeGBP:16000, ielts:'7.0', intake:'Sep',       tag:'PR Pathway',  tagType:'b-purple',  match:85 },
+  { id:4, flag:'🇺🇸', name:'Carnegie Mellon University',     course:'MSCS',                        country:'USA',       rank:'#52 QS World', fees:'US$58,000/yr', feeGBP:46000, ielts:'7.5', intake:'Aug',       tag:'Elite',       tagType:'b-error',   match:72 },
+  { id:5, flag:'🇦🇺', name:'University of Melbourne',        course:'Master of CS',                country:'Australia', rank:'#33 QS World', fees:'AU$42,000/yr', feeGBP:22000, ielts:'6.5', intake:'Feb · Jul', tag:'Work Rights', tagType:'b-success', match:89 },
+  { id:6, flag:'🇬🇧', name:'University of Warwick',          course:'MSc Data Analytics',          country:'UK',        rank:'#67 QS World', fees:'£22,750/yr',   feeGBP:22750, ielts:'6.5', intake:'Sep',       tag:'New',         tagType:'b-neutral', match:90 },
+  { id:7, flag:'🇨🇦', name:'University of British Columbia', course:'MEng Software Engineering',   country:'Canada',    rank:'#34 QS World', fees:'CA$24,000/yr', feeGBP:14000, ielts:'6.5', intake:'Sep',       tag:'Co-op',       tagType:'b-green',   match:86 },
+  { id:8, flag:'🇦🇺', name:'Australian National University', course:'Master of Computing',         country:'Australia', rank:'#30 QS World', fees:'AU$38,000/yr', feeGBP:20000, ielts:'6.5', intake:'Feb · Jul', tag:'Work Rights', tagType:'b-success', match:83 },
+];
+let uniState = { search:'', country:'', program:'', maxFee:'', ielts:'' };
+const uniShortlisted = new Set([2, 5]);
+const uniApplied = new Set([0, 1, 3]);
+// Applications pipeline — single source of truth shared with the My Applications view
+const appStageById = { 0:'offer', 1:'submitted', 3:'submitted' }; // applied-uni id → pipeline stage
+const appStageLabel = { shortlisted:'Shortlisted', applying:'Applying', submitted:'Submitted', offer:'Offer Received', visa:'Visa / Pre-Dep' };
+const appFlow = ['applying', 'submitted', 'offer', 'visa'];
+function updateAppsBadge() {
+  const b = document.getElementById('appsBadge');
+  if (b) b.textContent = uniApplied.size;
+}
+function advanceApp(id) {
+  if (uniShortlisted.has(id) && !uniApplied.has(id)) {
+    uniShortlisted.delete(id); uniApplied.add(id); appStageById[id] = 'applying';
+  } else if (uniApplied.has(id)) {
+    const cur = appStageById[id] || 'applying';
+    const i = appFlow.indexOf(cur);
+    if (i >= 0 && i < appFlow.length - 1) appStageById[id] = appFlow[i + 1];
+  }
+  updateAppsBadge();
+  renderView('applications');
+  const u = UNIS.find(x => x.id === id);
+  obToast('Moved ' + (u ? u.name : 'application') + ' → ' + (appStageLabel[appStageById[id]] || 'next stage'));
+}
+const uniProgramKeywords = {
+  'Computer Science': ['computer science','computing','mscs','mcs computer','master of cs','master of computing'],
+  'Data Science':     ['data science','data analytics'],
+  'AI / ML':          ['artificial intelligence','machine learning',' ai'],
+  'MBA':              ['mba'],
+  'Engineering':      ['engineering'],
+};
 
-  const cards = unis.map(u => `
+function uniFilter() {
+  const s = uniState.search.trim().toLowerCase();
+  const feeCap = uniState.maxFee ? (parseInt(uniState.maxFee.replace(/[^0-9]/g, ''), 10) || 0) : 0;
+  const noFeeCap = uniState.maxFee.indexOf('+') !== -1; // "£30,000+" = no upper limit
+  const ieltsCap = uniState.ielts ? parseFloat(uniState.ielts) : 0;
+  return UNIS.filter(u => {
+    if (s && !(u.name.toLowerCase().includes(s) || u.course.toLowerCase().includes(s))) return false;
+    if (uniState.country && u.country !== uniState.country) return false;
+    if (uniState.program) {
+      const kws = uniProgramKeywords[uniState.program] || [];
+      const c = u.course.toLowerCase();
+      if (!kws.some(k => c.includes(k))) return false;
+    }
+    if (feeCap && !noFeeCap && u.feeGBP > feeCap) return false;
+    if (ieltsCap && parseFloat(u.ielts) > ieltsCap) return false;
+    return true;
+  });
+}
+
+function uniCardHTML(list) {
+  if (!list.length) {
+    return `<div class="card" style="grid-column:1/-1;padding:48px;text-align:center;">
+      <div style="font-size:40px;margin-bottom:10px;">🔍</div>
+      <div style="font-size:15px;font-weight:600;color:var(--n500);">No universities match your filters</div>
+      <div style="font-size:13px;margin-top:4px;color:var(--n300);">Try clearing a filter or broadening your search.</div>
+    </div>`;
+  }
+  return list.map(u => {
+    const applied = uniApplied.has(u.id);
+    const shorted = uniShortlisted.has(u.id);
+    const applyBtn = applied
+      ? `<button class="btn btn-sm" style="flex:1;justify-content:center;background:var(--teal-l);color:var(--teal-d);cursor:default;">✓ Applied</button>`
+      : `<button class="btn btn-primary btn-sm" style="flex:1;justify-content:center;" onclick="applyUni(${u.id})">Apply Now</button>`;
+    const shortBtn = shorted
+      ? `<button class="btn btn-sm" style="flex:1;justify-content:center;background:var(--yellow-l);color:var(--yellow-d);" onclick="toggleShortlist(${u.id})">♥ Shortlisted</button>`
+      : `<button class="btn btn-ghost btn-sm" style="flex:1;justify-content:center;" onclick="toggleShortlist(${u.id})">Shortlist ♡</button>`;
+    return `
     <div class="card uni-card" style="padding:0;overflow:hidden;transition:all .22s;">
       <div style="height:7px;background:var(--g90);"></div>
       <div style="padding:18px 18px 0;">
@@ -1774,65 +1928,126 @@ function viewUniversities() {
           ${uniStat('💰','Fees',u.fees)}
           ${uniStat('📝','IELTS',u.ielts+'+')}
           ${uniStat('📅','Intake',u.intake)}
-          ${uniStat('🎯','Profile Match',u.match)}
+          ${uniStat('🎯','Profile Match',u.match+'%')}
         </div>
       </div>
       <div style="padding:12px 18px;border-top:1px solid var(--nl-300);display:flex;gap:8px;">
-        <button class="btn btn-primary btn-sm" style="flex:1;justify-content:center;">Apply Now</button>
-        <button class="btn btn-ghost btn-sm" style="flex:1;justify-content:center;">Shortlist ♡</button>
+        ${applyBtn}
+        ${shortBtn}
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
+}
 
+function uniRefreshCounts(n) {
+  const showing = document.getElementById('uniShowing');
+  if (showing) showing.textContent = n;
+  const ac = document.getElementById('uniAppliedCount');
+  if (ac) ac.textContent = uniApplied.size + ' Applied';
+  const sc = document.getElementById('uniShortlistedCount');
+  if (sc) sc.textContent = uniShortlisted.size + ' Shortlisted';
+}
+
+function renderUniCards() {
+  const list = uniFilter();
+  const grid = document.getElementById('uniCards');
+  if (grid) grid.innerHTML = uniCardHTML(list);
+  uniRefreshCounts(list.length);
+}
+
+function uniApplyFilters() {
+  const g = id => { const el = document.getElementById(id); return el ? el.value : ''; };
+  uniState.search = g('uniSearch');
+  const c = g('uniCountry');
+  uniState.country = c.includes('United Kingdom') ? 'UK' : c.includes('United States') ? 'USA' : c.includes('Canada') ? 'Canada' : c.includes('Australia') ? 'Australia' : '';
+  const p = g('uniProgram');
+  uniState.program = (p && p !== 'All Programs') ? p : '';
+  const f = g('uniMaxFee');
+  uniState.maxFee = (f && f !== 'Any') ? f : '';
+  const i = g('uniIelts');
+  uniState.ielts = (i && i !== 'Any') ? i : '';
+  renderUniCards();
+}
+
+function applyUni(id) {
+  uniApplied.add(id);
+  uniShortlisted.delete(id);
+  if (!appStageById[id]) appStageById[id] = 'applying';
+  renderUniCards();
+  updateAppsBadge();
+  const u = UNIS.find(x => x.id === id);
+  obToast('✓ ' + (u ? u.name : 'University') + ' added to My Applications');
+}
+
+function toggleShortlist(id) {
+  const u = UNIS.find(x => x.id === id);
+  if (uniShortlisted.has(id)) { uniShortlisted.delete(id); obToast('Removed ' + (u ? u.name : '') + ' from shortlist'); }
+  else { uniShortlisted.add(id); obToast('♥ Shortlisted ' + (u ? u.name : 'university')); }
+  renderUniCards();
+}
+
+function eleeShortlist() {
+  const top = UNIS.filter(u => u.match >= 90 && !uniApplied.has(u.id) && !uniShortlisted.has(u.id));
+  top.forEach(u => uniShortlisted.add(u.id));
+  renderUniCards();
+  obToast(top.length ? '🤖 Elee shortlisted ' + top.length + ' high-match universities for you' : '🤖 Your shortlist already has the top matches!');
+}
+
+function viewUniversities() {
+  uniState = { search:'', country:'', program:'', maxFee:'', ielts:'' };
+  const list = uniFilter();
+  const inputCSS = 'padding:9px 12px;border:1.5px solid var(--nl-400);border-radius:8px;font-size:13px;font-family:var(--font-body);color:var(--n700);outline:none;';
+  const lblCSS = 'font-size:11px;font-weight:600;color:var(--n300);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px;';
   return `
   ${pageHead('Home › Universities', 'University Explorer', '450+ universities across UK, USA, Canada & Australia',
-    `<button class="btn btn-primary btn-sm">🤖 Let Elee Shortlist</button>`)}
+    `<button class="btn btn-primary btn-sm" onclick="eleeShortlist()">🤖 Let Elee Shortlist</button>`)}
 
   <!-- Filters -->
   <div class="card" style="padding:18px;margin-bottom:20px;">
     <div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;">
       <div style="flex:1;min-width:200px;">
-        <div style="font-size:11px;font-weight:600;color:var(--n300);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px;">Search</div>
-        <input style="width:100%;padding:9px 12px;border:1.5px solid var(--nl-400);border-radius:8px;font-size:13px;font-family:var(--font-body);color:var(--n700);outline:none;" placeholder="🔍  University or program name...">
+        <div style="${lblCSS}">Search</div>
+        <input id="uniSearch" oninput="uniApplyFilters()" style="width:100%;${inputCSS}" placeholder="🔍  University or program name...">
       </div>
       <div>
-        <div style="font-size:11px;font-weight:600;color:var(--n300);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px;">Country</div>
-        <select style="padding:9px 12px;border:1.5px solid var(--nl-400);border-radius:8px;font-size:13px;font-family:var(--font-body);color:var(--n700);outline:none;">
+        <div style="${lblCSS}">Country</div>
+        <select id="uniCountry" onchange="uniApplyFilters()" style="${inputCSS}">
           <option>All Countries</option><option>🇬🇧 United Kingdom</option><option>🇺🇸 United States</option><option>🇨🇦 Canada</option><option>🇦🇺 Australia</option>
         </select>
       </div>
       <div>
-        <div style="font-size:11px;font-weight:600;color:var(--n300);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px;">Program</div>
-        <select style="padding:9px 12px;border:1.5px solid var(--nl-400);border-radius:8px;font-size:13px;font-family:var(--font-body);color:var(--n700);outline:none;">
+        <div style="${lblCSS}">Program</div>
+        <select id="uniProgram" onchange="uniApplyFilters()" style="${inputCSS}">
           <option>All Programs</option><option>Computer Science</option><option>Data Science</option><option>AI / ML</option><option>MBA</option><option>Engineering</option>
         </select>
       </div>
       <div>
-        <div style="font-size:11px;font-weight:600;color:var(--n300);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px;">Max Fees/yr</div>
-        <select style="padding:9px 12px;border:1.5px solid var(--nl-400);border-radius:8px;font-size:13px;font-family:var(--font-body);color:var(--n700);outline:none;">
+        <div style="${lblCSS}">Max Fees/yr</div>
+        <select id="uniMaxFee" onchange="uniApplyFilters()" style="${inputCSS}">
           <option>Any</option><option>£15,000</option><option>£20,000</option><option>£25,000</option><option>£30,000+</option>
         </select>
       </div>
       <div>
-        <div style="font-size:11px;font-weight:600;color:var(--n300);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px;">IELTS Score</div>
-        <select style="padding:9px 12px;border:1.5px solid var(--nl-400);border-radius:8px;font-size:13px;font-family:var(--font-body);color:var(--n700);outline:none;">
+        <div style="${lblCSS}">IELTS Score</div>
+        <select id="uniIelts" onchange="uniApplyFilters()" style="${inputCSS}">
           <option>Any</option><option>6.0+</option><option>6.5+</option><option>7.0+</option><option>7.5+</option>
         </select>
       </div>
-      <button class="btn btn-navy btn-sm">Apply Filters</button>
+      <button class="btn btn-navy btn-sm" onclick="uniApplyFilters()">Apply Filters</button>
     </div>
   </div>
 
   <!-- Results count -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-    <div style="font-size:14px;color:var(--n300);">Showing <strong style="color:var(--color-primary-600);">9</strong> of 450+ universities · Sorted by Profile Match</div>
+    <div style="font-size:14px;color:var(--n300);">Showing <strong id="uniShowing" style="color:var(--color-primary-600);">${list.length}</strong> of 450+ universities · Sorted by Profile Match</div>
     <div style="display:flex;gap:8px;">
-      <span class="badge b-green"><span class="dot" style="background:var(--green)"></span>3 Applied</span>
-      <span class="badge b-warning"><span class="dot" style="background:var(--yellow)"></span>2 Shortlisted</span>
+      <span class="badge b-green"><span class="dot" style="background:var(--green)"></span><span id="uniAppliedCount">${uniApplied.size} Applied</span></span>
+      <span class="badge b-warning"><span class="dot" style="background:var(--yellow)"></span><span id="uniShortlistedCount">${uniShortlisted.size} Shortlisted</span></span>
     </div>
   </div>
 
   <!-- Grid -->
-  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:18px;">${cards}</div>
+  <div id="uniCards" style="display:grid;grid-template-columns:repeat(3,1fr);gap:18px;">${uniCardHTML(list)}</div>
 
   <style>.uni-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg);}</style>`;
 }
@@ -1848,22 +2063,19 @@ function uniStat(icon, label, val) {
    VIEW: MY APPLICATIONS (Kanban)
 ────────────────────────────────────── */
 function viewApplications() {
-  const stages = [
-    { id:'shortlisted', label:'Shortlisted', color:'var(--color-primary-400)', apps:[
-      { flag:'🇬🇧', uni:'University of Bristol', course:'MSc AI', date:'Added Jun 10' },
-    ]},
-    { id:'applying', label:'Applying', color:'var(--yellow)', apps:[
-      { flag:'🇬🇧', uni:'University of Edinburgh', course:'MSc Data Science', date:'Due Jul 1' },
-    ]},
-    { id:'submitted', label:'Submitted', color:'var(--blue)', apps:[
-      { flag:'🇬🇧', uni:'University College London', course:'MSc AI', date:'Submitted Jun 5' },
-      { flag:'🇨🇦', uni:'Univ. of Toronto', course:'MCS', date:'Submitted Jun 1' },
-    ]},
-    { id:'offer', label:'Offer Received', color:'var(--teal)', apps:[
-      { flag:'🇬🇧', uni:'University of Manchester', course:'MSc CS', date:'Offer: Jun 12' },
-    ]},
-    { id:'visa', label:'Visa / Pre-Dep', color:'var(--purple)', apps:[]},
+  const appOrder = [
+    { key:'shortlisted', label:'Shortlisted',   color:'var(--color-primary-400)' },
+    { key:'applying',    label:'Applying',       color:'var(--yellow)' },
+    { key:'submitted',   label:'Submitted',      color:'var(--blue)' },
+    { key:'offer',       label:'Offer Received', color:'var(--teal)' },
+    { key:'visa',        label:'Visa / Pre-Dep', color:'var(--purple)' },
   ];
+  const appDate = { shortlisted:'Shortlisted', applying:'In progress', submitted:'Submitted', offer:'Offer received 🎉', visa:'Visa stage' };
+  const stageOf = u => uniApplied.has(u.id) ? (appStageById[u.id] || 'applying') : (uniShortlisted.has(u.id) ? 'shortlisted' : null);
+  const stages = appOrder.map(o => ({
+    id:o.key, label:o.label, color:o.color,
+    apps: UNIS.filter(u => stageOf(u) === o.key).map(u => ({ flag:u.flag, uni:u.name, course:u.course, date:appDate[o.key], _id:u.id }))
+  }));
 
   const columns = stages.map(s => {
     const cards = s.apps.map(a => `
@@ -1877,7 +2089,7 @@ function viewApplications() {
         </div>
         <div style="display:flex;align-items:center;justify-content:space-between;">
           <div style="font-size:10px;color:var(--n200);">${a.date}</div>
-          <button style="background:var(--color-primary-0);border:none;border-radius:5px;padding:3px 8px;font-size:10px;font-weight:600;color:var(--color-primary-600);cursor:pointer;">Details →</button>
+          ${s.id !== 'visa' ? `<button onclick="advanceApp(${a._id})" title="Move to next stage" style="background:var(--color-primary-600);border:none;border-radius:5px;padding:3px 8px;font-size:10px;font-weight:600;color:white;cursor:pointer;">Advance →</button>` : `<span style="font-size:10px;color:var(--teal);font-weight:700;">Ready ✈</span>`}
         </div>
       </div>`).join('');
     return `
@@ -1890,12 +2102,12 @@ function viewApplications() {
           <div style="background:var(--nl-400);border-radius:var(--radius-full);padding:1px 8px;font-size:11px;font-weight:700;color:var(--n500);">${s.apps.length}</div>
         </div>
         ${cards}
-        <button style="width:100%;padding:8px;background:none;border:1.5px dashed var(--nl-400);border-radius:8px;font-size:12px;color:var(--n300);cursor:pointer;font-family:var(--font-body);">+ Add</button>
+        <button onclick="showView('universities')" style="width:100%;padding:8px;background:none;border:1.5px dashed var(--nl-400);border-radius:8px;font-size:12px;color:var(--n300);cursor:pointer;font-family:var(--font-body);">+ Add</button>
       </div>`;
   }).join('');
 
   return `
-  ${pageHead('Home › Applications', 'My Applications', '5 applications across 3 countries',
+  ${pageHead('Home › Applications', 'My Applications', uniApplied.size + ' applications · ' + stages[0].apps.length + ' shortlisted',
     `<div style="display:flex;gap:8px;">
       <button class="btn btn-ghost btn-sm">📊 Analytics</button>
       <button class="btn btn-primary btn-sm" onclick="showView('universities')">+ Add Application</button>
@@ -1903,8 +2115,8 @@ function viewApplications() {
 
   <!-- Summary Stats -->
   <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:22px;">
-    ${['Shortlisted·1·b-neutral','Applying·1·b-warning','Submitted·2·b-info','Offer·1·b-success','Visa·0·b-purple'].map(s=>{
-      const [l,n,b]=s.split('·');
+    ${[['Shortlisted',stages[0].apps.length,'b-neutral'],['Applying',stages[1].apps.length,'b-warning'],['Submitted',stages[2].apps.length,'b-info'],['Offer',stages[3].apps.length,'b-success'],['Visa',stages[4].apps.length,'b-purple']].map(s=>{
+      const [l,n,b]=s;
       return `<div class="card" style="padding:14px;text-align:center;">
         <div style="font-family:var(--font-head);font-size:26px;font-weight:700;color:var(--color-primary-600);">${n}</div>
         <div><span class="badge ${b}" style="font-size:10px;">${l}</span></div>
@@ -1946,79 +2158,142 @@ function timelineItem(date, title, desc, type) {
 /* ──────────────────────────────────────
    VIEW: SCHOLARSHIPS
 ────────────────────────────────────── */
+// ── Scholarships (interactive) ──
+const SCHOLARSHIPS = [
+  { id:0, name:'Chevening Scholarship',       country:'🇬🇧 UK',        amount:'£18,000',    type:'Full Funding',   funding:'Full Funding', deadline:'Nov 2026', match:92 },
+  { id:1, name:'Manchester Excellence Award', country:'🇬🇧 UK',        amount:'£5,000',     type:'Partial',        funding:'Partial',      deadline:'Aug 2026', match:95 },
+  { id:2, name:'GREAT Scholarship',           country:'🇬🇧 UK',        amount:'£10,000',    type:'Partial',        funding:'Partial',      deadline:'Apr 2027', match:88 },
+  { id:3, name:'Charles Wallace India Trust', country:'🇬🇧 UK',        amount:'£3,000',     type:'Research Grant', funding:'Partial',      deadline:'Jan 2027', match:78 },
+  { id:4, name:'Vanier Canada Graduate',      country:'🇨🇦 Canada',    amount:'CA$50,000',  type:'Full Funding',   funding:'Full Funding', deadline:'Oct 2026', match:65 },
+  { id:5, name:'Endeavour Leadership',        country:'🇦🇺 Australia', amount:'AU$272,500', type:'Full Funding',   funding:'Full Funding', deadline:'Mar 2027', match:70 },
+];
+const scholApplied = new Set([1]);
+const scholSaved = new Set();
+let scholFilter = 'all';
+function setScholFilter(f) { scholFilter = f; renderView('scholarships'); }
+function applyScholarship(id) {
+  scholApplied.add(id);
+  renderView('scholarships');
+  const s = SCHOLARSHIPS.find(x => x.id === id);
+  obToast('🏆 Applied to ' + (s ? s.name : 'scholarship'));
+}
+function toggleSaveSchol(id) {
+  if (scholSaved.has(id)) scholSaved.delete(id); else scholSaved.add(id);
+  renderView('scholarships');
+}
+function eleeAutoApplySchol() {
+  const picks = SCHOLARSHIPS.filter(s => s.match >= 85 && !scholApplied.has(s.id));
+  picks.forEach(s => scholApplied.add(s.id));
+  renderView('scholarships');
+  obToast(picks.length ? '🤖 Elee auto-applied to ' + picks.length + ' high-match scholarships' : '🤖 You have already applied to the top matches!');
+}
+
 function viewScholarships() {
-  const scholarships = [
-    { name:'Chevening Scholarship', country:'🇬🇧 UK', amount:'£18,000', type:'Full Funding', deadline:'Nov 2026', match:'92%', tag:'b-success', tagLabel:'High Match' },
-    { name:'Manchester Excellence Award', country:'🇬🇧 UK', amount:'£5,000', type:'Partial', deadline:'Aug 2026', match:'95%', tag:'b-green', tagLabel:'Applied' },
-    { name:'GREAT Scholarship', country:'🇬🇧 UK', amount:'£10,000', type:'Partial', deadline:'Apr 2027', match:'88%', tag:'b-info', tagLabel:'Eligible' },
-    { name:'Charles Wallace India Trust', country:'🇬🇧 UK', amount:'£3,000', type:'Research Grant', deadline:'Jan 2027', match:'78%', tag:'b-neutral', tagLabel:'Review' },
-    { name:'Vanier Canada Graduate', country:'🇨🇦 Canada', amount:'CA$50,000', type:'Full Funding', deadline:'Oct 2026', match:'65%', tag:'b-warning', tagLabel:'Competitive' },
-    { name:'Endeavour Leadership', country:'🇦🇺 Australia', amount:'AU$272,500', type:'Full Funding', deadline:'Mar 2027', match:'70%', tag:'b-purple', tagLabel:'Premium' },
-  ];
+  const filtered = scholFilter === 'all' ? SCHOLARSHIPS
+    : scholFilter === 'high' ? SCHOLARSHIPS.filter(s => s.match >= 85)
+    : SCHOLARSHIPS.filter(s => s.funding === 'Full Funding');
+  const chip = (key, label) => `<button onclick="setScholFilter('${key}')" class="btn btn-sm ${scholFilter === key ? 'btn-navy' : 'btn-ghost'}" style="font-size:12px;">${label}</button>`;
   return `
-  ${pageHead('Home › Scholarships', 'Scholarship Finder', `Elee found ${scholarships.length} scholarships matching your profile · Total potential: ₹36L+`,
-    `<button class="btn btn-primary btn-sm">🤖 Auto-Apply with Elee</button>`)}
-  <div style="background:var(--teal-l);border:1px solid var(--teal);border-radius:var(--radius-lg);padding:14px 18px;display:flex;align-items:center;gap:14px;margin-bottom:22px;">
+  ${pageHead('Home › Scholarships', 'Scholarship Finder', `Elee found ${SCHOLARSHIPS.length} scholarships · ${scholApplied.size} applied · Total potential: ₹36L+`,
+    `<button class="btn btn-primary btn-sm" onclick="eleeAutoApplySchol()">🤖 Auto-Apply with Elee</button>`)}
+  <div style="background:var(--teal-l);border:1px solid var(--teal);border-radius:var(--radius-lg);padding:14px 18px;display:flex;align-items:center;gap:14px;margin-bottom:18px;">
     <span style="font-size:22px;">🤖</span>
     <div style="flex:1;"><div style="font-weight:700;color:#004D60;font-size:13px;">Elee identified ₹36L in scholarships for your profile</div><div style="font-size:12px;color:var(--teal-d);">Based on: IELTS 7.5, B.Tech CS, GPA 8.2/10, Target: UK MSc CS</div></div>
-    <button class="btn btn-teal btn-sm">View All Matches</button>
+    <button class="btn btn-teal btn-sm" onclick="setScholFilter('high')">View Top Matches</button>
   </div>
+  <div style="display:flex;gap:8px;margin-bottom:18px;">${chip('all', 'All')} ${chip('high', 'High Match')} ${chip('full', 'Full Funding')}</div>
   <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:18px;">
-    ${scholarships.map(s=>`
+    ${filtered.map(s => {
+      const applied = scholApplied.has(s.id);
+      const saved = scholSaved.has(s.id);
+      return `
     <div class="card" style="padding:20px;">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;">
         <div style="font-size:22px;">${s.country.split(' ')[0]}</div>
-        <span class="badge ${s.tag}">${s.tagLabel}</span>
+        <span class="badge ${applied ? 'b-green' : 'b-info'}">${applied ? 'Applied' : s.match + '% Match'}</span>
       </div>
       <div style="font-weight:700;font-size:14px;color:var(--color-primary-600);margin-bottom:4px;">${s.name}</div>
       <div style="font-size:12px;color:var(--n300);margin-bottom:14px;">${s.country} · ${s.type}</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">
         ${uniStat('💰','Amount',s.amount)}
         ${uniStat('📅','Deadline',s.deadline)}
-        ${uniStat('🎯','Match',s.match)}
+        ${uniStat('🎯','Match',s.match+'%')}
         ${uniStat('📋','Type',s.type)}
       </div>
-      <button class="btn btn-primary btn-sm" style="width:100%;justify-content:center;">Apply Now</button>
-    </div>`).join('')}
-  </div>`;
+      <div style="display:flex;gap:8px;">
+        ${applied
+          ? `<button class="btn btn-sm" style="flex:1;justify-content:center;background:var(--teal-l);color:var(--teal-d);cursor:default;">✓ Applied</button>`
+          : `<button class="btn btn-primary btn-sm" style="flex:1;justify-content:center;" onclick="applyScholarship(${s.id})">Apply Now</button>`}
+        <button class="btn ${saved ? 'btn-navy' : 'btn-ghost'} btn-sm" style="justify-content:center;" title="Save" onclick="toggleSaveSchol(${s.id})">${saved ? '♥' : '♡'}</button>
+      </div>
+    </div>`; }).join('')}
+  </div>
+  ${filtered.length === 0 ? `<div class="card" style="padding:40px;text-align:center;color:var(--n300);">No scholarships match this filter.</div>` : ''}`;
 }
 
 /* ──────────────────────────────────────
    VIEW: VISA TRACKER
 ────────────────────────────────────── */
+// ── Visa tracker (interactive) ──
+const VISA_STEPS = [
+  { n:1, label:'CAS Letter', desc:'Confirmation of Acceptance for Studies from university', status:'done', date:'Received Jun 10' },
+  { n:2, label:'Financial Evidence', desc:'Bank statements showing £1,334/month for 28 days', status:'done', date:'Verified Jun 12' },
+  { n:3, label:'ATAS Certificate', desc:'Academic Technology Approval Scheme (if required)', status:'done', date:'Approved Jun 8' },
+  { n:4, label:'IHS Surcharge', desc:'Immigration Health Surcharge — £776/year', status:'progress', date:'Payment pending' },
+  { n:5, label:'Visa Application (Online)', desc:'Complete UK Student Visa application on UKVI portal', status:'progress', date:'70% complete' },
+  { n:6, label:'Biometrics Appointment', desc:'In-person appointment at Visa Application Centre', status:'locked', date:'Not scheduled' },
+  { n:7, label:'Document Upload', desc:'Upload all supporting documents to UKVI portal', status:'locked', date:'Waiting for step 5' },
+  { n:8, label:'Visa Decision', desc:'Expected processing time: 3 weeks', status:'locked', date:'Est. Aug 2026' },
+];
+function completeVisaStep(n) {
+  const idx = VISA_STEPS.findIndex(s => s.n === n);
+  if (idx < 0) return;
+  VISA_STEPS[idx].status = 'done';
+  VISA_STEPS[idx].date = 'Completed just now';
+  const next = VISA_STEPS[idx + 1];
+  if (next && next.status === 'locked') { next.status = 'progress'; next.date = 'Ready to start'; }
+  renderView('visa');
+  obToast('✅ Step ' + n + ' complete — ' + VISA_STEPS[idx].label);
+}
+function eleeCompleteVisa() {
+  let done = 0;
+  VISA_STEPS.forEach((s, i) => {
+    if (s.status === 'progress') {
+      s.status = 'done'; s.date = 'Completed by Elee'; done++;
+      const next = VISA_STEPS[i + 1];
+      if (next && next.status === 'locked') { next.status = 'progress'; next.date = 'Ready to start'; }
+    }
+  });
+  renderView('visa');
+  obToast(done ? '🤖 Elee completed ' + done + ' visa steps for you' : '🤖 No pending steps — you are on track!');
+}
+
 function viewVisa() {
-  const steps = [
-    { n:1, label:'CAS Letter', desc:'Confirmation of Acceptance for Studies from university', status:'done', date:'Received Jun 10' },
-    { n:2, label:'Financial Evidence', desc:'Bank statements showing £1,334/month for 28 days', status:'done', date:'Verified Jun 12' },
-    { n:3, label:'ATAS Certificate', desc:'Academic Technology Approval Scheme (if required)', status:'done', date:'Approved Jun 8' },
-    { n:4, label:'IHS Surcharge', desc:'Immigration Health Surcharge — £776/year', status:'progress', date:'Payment pending' },
-    { n:5, label:'Visa Application (Online)', desc:'Complete UK Student Visa application on UKVI portal', status:'progress', date:'70% complete' },
-    { n:6, label:'Biometrics Appointment', desc:'In-person appointment at Visa Application Centre', status:'locked', date:'Not scheduled' },
-    { n:7, label:'Document Upload', desc:'Upload all supporting documents to UKVI portal', status:'locked', date:'Waiting for step 5' },
-    { n:8, label:'Visa Decision', desc:'Expected processing time: 3 weeks', status:'locked', date:'Est. Aug 2026' },
-  ];
+  const steps = VISA_STEPS;
+  const doneCount = steps.filter(s => s.status === 'done').length;
+  const pct = Math.round(doneCount / steps.length * 100);
   const icons = { done:'✅', progress:'🔄', locked:'🔒' };
   const colors = { done:'var(--teal)', progress:'var(--yellow)', locked:'var(--nl-600)' };
   const bgColors = { done:'var(--teal-l)', progress:'var(--yellow-l)', locked:'var(--nl-300)' };
 
   return `
   ${pageHead('Home › Visa', 'UK Student Visa Tracker', 'University of Manchester · MSc CS · September 2026 intake',
-    `<button class="btn btn-primary btn-sm">🤖 Elee: Complete Visa</button>`)}
+    `<button class="btn btn-primary btn-sm" onclick="eleeCompleteVisa()">🤖 Elee: Complete Visa</button>`)}
 
   <!-- Progress Overview -->
   <div class="card" style="padding:24px;margin-bottom:24px;background:linear-gradient(135deg,var(--color-primary-600),var(--color-primary-800));">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
       <div>
         <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;">UK Student Visa — Progress</div>
-        <div style="font-family:var(--font-head);font-size:32px;font-weight:700;color:white;">82% Complete</div>
-        <div style="font-size:13px;color:rgba(255,255,255,.65);margin-top:4px;">5 of 8 steps done · Est. completion: 2 weeks</div>
+        <div style="font-family:var(--font-head);font-size:32px;font-weight:700;color:white;">${pct}% Complete</div>
+        <div style="font-size:13px;color:rgba(255,255,255,.65);margin-top:4px;">${doneCount} of ${steps.length} steps done · Est. completion: 2 weeks</div>
       </div>
-      <div style="width:90px;height:90px;border-radius:50%;background:conic-gradient(var(--teal) 0% 82%,rgba(255,255,255,.1) 82% 100%);display:flex;align-items:center;justify-content:center;">
-        <div style="width:70px;height:70px;border-radius:50%;background:var(--color-primary-700);display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-size:20px;font-weight:700;color:white;">82%</div>
+      <div style="width:90px;height:90px;border-radius:50%;background:conic-gradient(var(--teal) 0% ${pct}%,rgba(255,255,255,.1) ${pct}% 100%);display:flex;align-items:center;justify-content:center;transition:background .4s;">
+        <div style="width:70px;height:70px;border-radius:50%;background:var(--color-primary-700);display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-size:20px;font-weight:700;color:white;">${pct}%</div>
       </div>
     </div>
     <div style="height:6px;background:rgba(255,255,255,.1);border-radius:var(--radius-full);overflow:hidden;">
-      <div style="height:100%;width:82%;background:var(--g90);border-radius:var(--radius-full);"></div>
+      <div style="height:100%;width:${pct}%;background:var(--g90);border-radius:var(--radius-full);transition:width .4s;"></div>
     </div>
   </div>
 
@@ -2040,7 +2315,7 @@ function viewVisa() {
             </div>
             <div style="font-size:12px;color:var(--n300);margin-bottom:4px;">${s.desc}</div>
             <div style="font-size:11px;font-weight:600;color:${colors[s.status]};">${s.date}</div>
-            ${s.status==='progress'?`<button class="btn btn-primary btn-sm" style="margin-top:8px;">Continue →</button>`:''}
+            ${s.status==='progress'?`<button class="btn btn-primary btn-sm" style="margin-top:8px;" onclick="completeVisaStep(${s.n})">Mark Complete ✓</button>`:''}
           </div>
         </div>`).join('')}
       </div>
@@ -2062,7 +2337,7 @@ function viewVisa() {
           <div style="font-weight:700;color:#004D60;font-size:14px;">Elee says:</div>
         </div>
         <div style="font-size:13px;color:var(--teal-d);line-height:1.7;">Your IHS payment is the only blocker. Want me to process the £776 payment and then auto-book your Biometrics appointment?</div>
-        <button class="btn btn-teal btn-sm" style="margin-top:12px;width:100%;justify-content:center;">✅ Yes, Pay & Book</button>
+        <button class="btn btn-teal btn-sm" style="margin-top:12px;width:100%;justify-content:center;" onclick="eleeCompleteVisa()">✅ Yes, Pay & Book</button>
       </div>
       <div class="card" style="padding:20px;">
         <div style="font-family:var(--font-head);font-size:15px;font-weight:700;color:var(--color-primary-600);margin-bottom:12px;">📅 Key Dates</div>
@@ -2079,37 +2354,56 @@ function viewVisa() {
 /* ──────────────────────────────────────
    VIEW: DOCUMENTS
 ────────────────────────────────────── */
+// ── Documents (interactive) ──
+const DOCS = [
+  { name:'Passport Copy', type:'Identity', status:'verified', date:'Jun 2, 2026', size:'1.2 MB' },
+  { name:'IELTS Score Card', type:'Language', status:'verified', date:'May 28, 2026', size:'450 KB' },
+  { name:'Degree Certificate', type:'Academic', status:'verified', date:'May 30, 2026', size:'2.1 MB' },
+  { name:'Academic Transcripts', type:'Academic', status:'verified', date:'May 30, 2026', size:'3.4 MB' },
+  { name:'Statement of Purpose', type:'Personal', status:'verified', date:'Jun 5, 2026', size:'156 KB' },
+  { name:'Letters of Recommendation', type:'Personal', status:'verified', date:'Jun 7, 2026', size:'890 KB' },
+  { name:'Bank Statement', type:'Financial', status:'verified', date:'Jun 10, 2026', size:'2.8 MB' },
+  { name:'CV / Resume', type:'Personal', status:'verified', date:'Jun 3, 2026', size:'220 KB' },
+  { name:'Bank Statement (Updated)', type:'Financial', status:'pending', date:'Required', size:'—' },
+  { name:'Health Surcharge Receipt', type:'Visa', status:'pending', date:'Required', size:'—' },
+  { name:'Biometrics Confirmation', type:'Visa', status:'pending', date:'Required', size:'—' },
+];
+function uploadDoc(i) {
+  if (!DOCS[i] || DOCS[i].status === 'verified') return;
+  DOCS[i].status = 'verified';
+  DOCS[i].date = 'Just now';
+  DOCS[i].size = (Math.random() * 2 + 0.5).toFixed(1) + ' MB';
+  renderView('documents');
+  obToast('📤 ' + DOCS[i].name + ' uploaded & verified');
+}
+function uploadNextDoc() {
+  const i = DOCS.findIndex(d => d.status === 'pending');
+  if (i < 0) { obToast('✅ All documents are already verified!'); return; }
+  uploadDoc(i);
+}
+
 function viewDocuments() {
-  const docs = [
-    { name:'Passport Copy', type:'Identity', status:'verified', date:'Jun 2, 2026', size:'1.2 MB' },
-    { name:'IELTS Score Card', type:'Language', status:'verified', date:'May 28, 2026', size:'450 KB' },
-    { name:'Degree Certificate', type:'Academic', status:'verified', date:'May 30, 2026', size:'2.1 MB' },
-    { name:'Academic Transcripts', type:'Academic', status:'verified', date:'May 30, 2026', size:'3.4 MB' },
-    { name:'Statement of Purpose', type:'Personal', status:'verified', date:'Jun 5, 2026', size:'156 KB' },
-    { name:'Letters of Recommendation', type:'Personal', status:'verified', date:'Jun 7, 2026', size:'890 KB' },
-    { name:'Bank Statement', type:'Financial', status:'verified', date:'Jun 10, 2026', size:'2.8 MB' },
-    { name:'CV / Resume', type:'Personal', status:'verified', date:'Jun 3, 2026', size:'220 KB' },
-    { name:'Bank Statement (Updated)', type:'Financial', status:'pending', date:'Required', size:'—' },
-    { name:'Health Surcharge Receipt', type:'Visa', status:'pending', date:'Required', size:'—' },
-    { name:'Biometrics Confirmation', type:'Visa', status:'pending', date:'Required', size:'—' },
-  ];
+  const docs = DOCS;
+  const verified = docs.filter(d => d.status === 'verified').length;
+  const pending = docs.filter(d => d.status === 'pending').length;
+  const completion = Math.round(verified / docs.length * 100);
   const statusIcon = { verified:'✅', pending:'⚠️', rejected:'❌' };
   const statusColor = { verified:'var(--teal)', pending:'var(--yellow)', rejected:'var(--red)' };
   return `
-  ${pageHead('Home › Documents', 'Document Manager', '8 of 11 documents verified · 3 pending upload',
-    `<button class="btn btn-primary btn-sm">📤 Upload Document</button>`)}
+  ${pageHead('Home › Documents', 'Document Manager', verified + ' of ' + docs.length + ' documents verified · ' + pending + ' pending upload',
+    `<button class="btn btn-primary btn-sm" onclick="uploadNextDoc()">📤 Upload Document</button>`)}
   <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px;">
-    ${statCard('✅','Verified','8','All complete')}
-    ${statCard('⚠️','Pending','3','Action required','var(--yellow)')}
+    ${statCard('✅','Verified',String(verified),'Across your profile')}
+    ${statCard('⚠️','Pending',String(pending), pending ? 'Action required' : 'All clear','var(--yellow)')}
     ${statCard('📁','Total Size','11.2 MB','Across all docs')}
-    ${statCard('🎯','Completion','72%','↑ Upload 3 more')}
+    ${statCard('🎯','Completion',completion+'%', pending ? '↑ Upload '+pending+' more' : '✓ All uploaded')}
   </div>
   <div class="card" style="overflow:hidden;">
     <div style="padding:18px 22px;border-bottom:1px solid var(--nl-300);display:flex;align-items:center;justify-content:space-between;">
       <div style="font-family:var(--font-head);font-size:16px;font-weight:700;color:var(--color-primary-600);">All Documents</div>
       <div style="display:flex;gap:8px;">
-        <button class="btn btn-ghost btn-sm">Filter</button>
-        <button class="btn btn-navy btn-sm">📥 Download All</button>
+        <button class="btn btn-ghost btn-sm" onclick="uploadNextDoc()">📤 Upload Next</button>
+        <button class="btn btn-navy btn-sm" onclick="obToast('📥 Preparing a ZIP of all your documents…')">📥 Download All</button>
       </div>
     </div>
     <table style="width:100%;border-collapse:collapse;">
@@ -2133,8 +2427,8 @@ function viewDocuments() {
           <td style="padding:13px 16px;font-size:12px;color:var(--n300);">${d.size}</td>
           <td style="padding:13px 16px;">
             ${d.status==='pending'
-              ? `<button class="btn btn-primary btn-sm">📤 Upload</button>`
-              : `<div style="display:flex;gap:6px;"><button class="btn btn-ghost btn-sm" style="padding:4px 10px;">👁 View</button><button class="btn btn-ghost btn-sm" style="padding:4px 10px;">📥</button></div>`}
+              ? `<button class="btn btn-primary btn-sm" onclick="uploadDoc(${i})">📤 Upload</button>`
+              : `<div style="display:flex;gap:6px;"><button class="btn btn-ghost btn-sm" style="padding:4px 10px;" onclick="obToast('👁 Opening ${d.name}…')">👁 View</button><button class="btn btn-ghost btn-sm" style="padding:4px 10px;" onclick="obToast('📥 Downloading ${d.name}…')">📥</button></div>`}
           </td>
         </tr>`).join('')}
       </tbody>
@@ -2145,36 +2439,51 @@ function viewDocuments() {
 /* ──────────────────────────────────────
    VIEW: LOANS & FINANCE
 ────────────────────────────────────── */
+// ── Loans (interactive) ──
+const LOANS = [
+  { id:0, bank:'HDFC Credila',     amount:'₹45L', rate:'10.5% p.a.',  collateral:'No Collateral',     status:'Pre-Approved', statusType:'b-success' },
+  { id:1, bank:'Avanse Financial', amount:'₹40L', rate:'11.25% p.a.', collateral:'Property Required', status:'Eligible',     statusType:'b-info' },
+  { id:2, bank:'Prodigy Finance',  amount:'₹35L', rate:'12.0% p.a.',  collateral:'No Collateral',     status:'Eligible',     statusType:'b-info' },
+];
+function applyLoan(id) {
+  const l = LOANS.find(x => x.id === id);
+  if (!l) return;
+  l.status = 'Applied'; l.statusType = 'b-purple';
+  renderView('loans');
+  obToast('💰 Loan application started with ' + l.bank);
+}
+
 function viewLoans() {
   return `
   ${pageHead('Home › Finance', 'Loans & Finance', 'Elee-powered education loan matching and pre-approval',
-    `<button class="btn btn-primary btn-sm">🤖 Elee: Find Best Loan</button>`)}
+    `<button class="btn btn-primary btn-sm" onclick="obToast('🤖 Elee is comparing 12 lenders for your best rate…')">🤖 Elee: Find Best Loan</button>`)}
   <div style="background:var(--g90);border-radius:var(--radius-xl);padding:28px 32px;margin-bottom:24px;color:white;">
     <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;opacity:.75;margin-bottom:8px;">Elee's Recommendation</div>
     <div style="font-family:var(--font-head);font-size:28px;font-weight:700;margin-bottom:6px;">You qualify for up to ₹45,00,000</div>
     <div style="font-size:14px;opacity:.85;">Based on University of Manchester offer letter · No collateral required for UK</div>
     <div style="display:flex;gap:12px;margin-top:18px;">
-      <button class="btn btn-sm" style="background:white;color:var(--color-primary-600);font-weight:700;">Apply with HDFC Credila</button>
-      <button class="btn btn-sm" style="background:rgba(255,255,255,.15);color:white;border:1.5px solid rgba(255,255,255,.3);">Compare All Lenders</button>
+      <button class="btn btn-sm" style="background:white;color:var(--color-primary-600);font-weight:700;" onclick="applyLoan(0)">Apply with HDFC Credila</button>
+      <button class="btn btn-sm" style="background:rgba(255,255,255,.15);color:white;border:1.5px solid rgba(255,255,255,.3);" onclick="obToast('📊 Opening side-by-side lender comparison…')">Compare All Lenders</button>
     </div>
   </div>
   <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:18px;">
-    ${loanCard('HDFC Credila','₹45L','10.5% p.a.','No Collateral','Pre-Approved','b-success')}
-    ${loanCard('Avanse Financial','₹40L','11.25% p.a.','Property Required','Eligible','b-info')}
-    ${loanCard('Prodigy Finance','₹35L','12.0% p.a.','No Collateral','Eligible','b-info')}
+    ${LOANS.map(l => loanCard(l)).join('')}
   </div>`;
 }
-function loanCard(bank, amount, rate, collateral, status, statusType) {
+function loanCard(l) {
+  const applied = l.status === 'Applied';
   return `<div class="card" style="padding:22px;">
     <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;">
-      <div style="font-family:var(--font-head);font-size:16px;font-weight:700;color:var(--color-primary-600);">${bank}</div>
-      <span class="badge ${statusType}">${status}</span>
+      <div style="font-family:var(--font-head);font-size:16px;font-weight:700;color:var(--color-primary-600);">${l.bank}</div>
+      <span class="badge ${l.statusType}">${l.status}</span>
     </div>
-    ${[['Loan Amount',amount],['Interest Rate',rate],['Collateral',collateral]].map(([k,v])=>`
+    ${[['Loan Amount',l.amount],['Interest Rate',l.rate],['Collateral',l.collateral]].map(([k,v])=>`
     <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--nl-300);font-size:12px;">
       <span style="color:var(--n300);">${k}</span><span style="font-weight:700;color:var(--color-primary-600);">${v}</span>
     </div>`).join('')}
-    <button class="btn btn-primary btn-sm" style="width:100%;justify-content:center;margin-top:14px;">Apply Now →</button>
+    ${applied
+      ? `<button class="btn btn-sm" style="width:100%;justify-content:center;margin-top:14px;background:var(--purple-l);color:var(--purple);cursor:default;">✓ Application Started</button>`
+      : `<button class="btn btn-primary btn-sm" style="width:100%;justify-content:center;margin-top:14px;" onclick="applyLoan(${l.id})">Apply Now →</button>`}
   </div>`;
 }
 
@@ -2194,8 +2503,8 @@ function viewCounselor() {
         <div style="height:2px;background:var(--g90);border-radius:2px;margin-bottom:14px;"></div>
         ${[['Experience','8 years'],['Speciality','UK, Ireland, Europe'],['Languages','English, Hindi'],['Response Time','< 2 hours']].map(([k,v])=>`
         <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--nl-300);font-size:12px;"><span style="color:var(--n300);">${k}</span><span style="font-weight:600;color:var(--color-primary-600);">${v}</span></div>`).join('')}
-        <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:16px;">📅 Book Session</button>
-        <button class="btn btn-ghost" style="width:100%;justify-content:center;margin-top:8px;">💬 Send Message</button>
+        <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:16px;" onclick="obToast('📅 Opening Priya’s calendar to book a session…')">📅 Book Session</button>
+        <button class="btn btn-ghost" style="width:100%;justify-content:center;margin-top:8px;" onclick="obToast('💬 Message sent to Priya — she replies within 2 hours')">💬 Send Message</button>
       </div>
     </div>
     <div style="display:flex;flex-direction:column;gap:16px;">
@@ -2224,27 +2533,52 @@ function viewCounselor() {
 /* ──────────────────────────────────────
    VIEW: MY TASKS
 ────────────────────────────────────── */
+// ── My Tasks (interactive) ──
+const TASKS = [
+  { title:'Pay UK Immigration Health Surcharge (£776)', priority:'High', due:'Jun 21', done:false },
+  { title:'Upload updated bank statement to UKVI portal', priority:'High', due:'Jun 22', done:false },
+  { title:'Complete Edinburgh MSc Data Science application', priority:'Medium', due:'Jul 1', done:false },
+  { title:'Review Chevening Scholarship essay draft', priority:'Medium', due:'Jul 5', done:false },
+  { title:'Submit HDFC Credila loan documents', priority:'Low', due:'Jul 10', done:false },
+  { title:'Book biometrics appointment at VFS Global', priority:'High', due:'Jun 25', done:false },
+  { title:'Accept University of Manchester offer', priority:'High', due:'Jun 20', done:true },
+  { title:'Upload passport scan', priority:'Low', due:'Jun 10', done:true },
+];
+function updateTasksBadge() {
+  const b = document.getElementById('tasksBadge');
+  if (b) b.textContent = TASKS.filter(t => !t.done).length;
+}
+function toggleTask(i) {
+  if (!TASKS[i]) return;
+  TASKS[i].done = !TASKS[i].done;
+  renderView('tasks');
+  updateTasksBadge();
+  obToast(TASKS[i].done ? '✓ Completed — ' + TASKS[i].title : '↩ Task reopened');
+}
+function addTask() {
+  const title = (typeof prompt === 'function') ? prompt('New task:') : '';
+  if (title && title.trim()) {
+    TASKS.unshift({ title: title.trim(), priority:'Medium', due:'Soon', done:false });
+    renderView('tasks');
+    updateTasksBadge();
+    obToast('✓ Task added');
+  }
+}
+
 function viewTasks() {
-  const tasks = [
-    { title:'Pay UK Immigration Health Surcharge (£776)', priority:'High', due:'Jun 21', done:false },
-    { title:'Upload updated bank statement to UKVI portal', priority:'High', due:'Jun 22', done:false },
-    { title:'Complete Edinburgh MSc Data Science application', priority:'Medium', due:'Jul 1', done:false },
-    { title:'Review Chevening Scholarship essay draft', priority:'Medium', due:'Jul 5', done:false },
-    { title:'Submit HDFC Credila loan documents', priority:'Low', due:'Jul 10', done:false },
-    { title:'Book biometrics appointment at VFS Global', priority:'High', due:'Jun 25', done:false },
-    { title:'Accept University of Manchester offer', priority:'High', due:'Jun 20', done:true },
-    { title:'Upload passport scan', priority:'Low', due:'Jun 10', done:true },
-  ];
+  const tasks = TASKS;
   const priorityColors = { High:'b-error', Medium:'b-warning', Low:'b-neutral' };
+  const pending = tasks.map((t, i) => ({ t, i })).filter(x => !x.t.done);
+  const completed = tasks.map((t, i) => ({ t, i })).filter(x => x.t.done);
   return `
-  ${pageHead('Home › Tasks', 'My Tasks', `${tasks.filter(t=>!t.done).length} pending · ${tasks.filter(t=>t.done).length} completed`,
-    `<button class="btn btn-primary btn-sm">+ Add Task</button>`)}
+  ${pageHead('Home › Tasks', 'My Tasks', `${pending.length} pending · ${completed.length} completed`,
+    `<button class="btn btn-primary btn-sm" onclick="addTask()">+ Add Task</button>`)}
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
     <div>
-      <div style="font-size:12px;font-weight:700;color:var(--n300);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px;">Pending (${tasks.filter(t=>!t.done).length})</div>
-      ${tasks.filter(t=>!t.done).map(t=>`
+      <div style="font-size:12px;font-weight:700;color:var(--n300);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px;">Pending (${pending.length})</div>
+      ${pending.map(({t, i}) => `
       <div style="background:white;border-radius:var(--radius-md);padding:14px 16px;margin-bottom:10px;border:1px solid var(--nl-300);box-shadow:var(--shadow-sm);display:flex;align-items:flex-start;gap:12px;">
-        <div style="width:18px;height:18px;border-radius:4px;border:2px solid var(--nl-400);flex-shrink:0;margin-top:1px;cursor:pointer;"></div>
+        <div onclick="toggleTask(${i})" title="Mark complete" style="width:18px;height:18px;border-radius:4px;border:2px solid var(--nl-400);flex-shrink:0;margin-top:1px;cursor:pointer;transition:all .15s;" onmouseover="this.style.borderColor='var(--teal)'" onmouseout="this.style.borderColor='var(--nl-400)'"></div>
         <div style="flex:1;">
           <div style="font-size:13px;font-weight:600;color:var(--color-primary-600);margin-bottom:5px;">${t.title}</div>
           <div style="display:flex;gap:8px;align-items:center;">
@@ -2252,13 +2586,13 @@ function viewTasks() {
             <span style="font-size:11px;color:var(--n300);">Due ${t.due}</span>
           </div>
         </div>
-      </div>`).join('')}
+      </div>`).join('') || `<div style="font-size:12px;color:var(--n200);padding:10px;">🎉 No pending tasks — nicely done!</div>`}
     </div>
     <div>
-      <div style="font-size:12px;font-weight:700;color:var(--n300);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px;">Completed (${tasks.filter(t=>t.done).length})</div>
-      ${tasks.filter(t=>t.done).map(t=>`
-      <div style="background:var(--nl-100);border-radius:var(--radius-md);padding:14px 16px;margin-bottom:10px;border:1px solid var(--nl-300);display:flex;align-items:flex-start;gap:12px;opacity:.65;">
-        <div style="width:18px;height:18px;border-radius:4px;background:var(--teal);flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;font-size:11px;color:white;">✓</div>
+      <div style="font-size:12px;font-weight:700;color:var(--n300);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px;">Completed (${completed.length})</div>
+      ${completed.map(({t, i}) => `
+      <div style="background:var(--nl-100);border-radius:var(--radius-md);padding:14px 16px;margin-bottom:10px;border:1px solid var(--nl-300);display:flex;align-items:flex-start;gap:12px;opacity:.7;">
+        <div onclick="toggleTask(${i})" title="Reopen task" style="width:18px;height:18px;border-radius:4px;background:var(--teal);flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;font-size:11px;color:white;cursor:pointer;">✓</div>
         <div style="flex:1;">
           <div style="font-size:13px;font-weight:600;color:var(--n300);text-decoration:line-through;">${t.title}</div>
           <div style="font-size:11px;color:var(--n200);margin-top:4px;">Completed · ${t.due}</div>
@@ -2574,6 +2908,146 @@ window.addEventListener('load', () => {
     initMagneticButtons();
   }, 1800);
 });
+
+// ═══════════════════════════════════════
+// ONBOARDING — WELCOME POPUP + GUIDED TOUR
+// ═══════════════════════════════════════
+function maybeShowWelcome() {
+  const ov = document.getElementById('welcomeOverlay');
+  if (!ov) return;
+  ov.classList.add('show');
+  if (typeof gsap !== 'undefined') {
+    gsap.fromTo('#welcomeCard', { opacity: 0, scale: .9, y: 24 }, { opacity: 1, scale: 1, y: 0, duration: .5, ease: 'back.out(1.5)' });
+  }
+}
+function closeWelcome(startTourAfter) {
+  const ov = document.getElementById('welcomeOverlay');
+  const finish = () => { ov.classList.remove('show'); if (startTourAfter) startTour(); };
+  if (typeof gsap !== 'undefined') {
+    gsap.to('#welcomeCard', { opacity: 0, scale: .93, y: 12, duration: .22, ease: 'power2.in', onComplete: finish });
+  } else { finish(); }
+}
+
+const tourSteps = [
+  { sel: '#sidebarStudent',                title: '🧭 Your navigation',             text: 'Jump between your dashboard, universities, applications, visa, documents and more — all from this sidebar.', place: 'right' },
+  { sel: '[data-tour="nav-universities"]', title: '🎓 Find your university',         text: 'Browse 450+ universities and let Elee shortlist the best matches for your profile.',                       place: 'right' },
+  { sel: '[data-tour="pagehead"]',         title: '📊 Your dashboard',              text: 'See your journey progress, upcoming deadlines and recommended next steps at a glance.',                     place: 'bottom' },
+  { sel: '#eleeBtn',                        title: '🤖 Meet Elee',                   text: 'Your 24/7 AI counsellor. Tap here anytime to ask about universities, visas, scholarships or loans.',         place: 'left' },
+  { sel: '#portalSwitcher',                title: '🔁 One platform, three portals', text: 'Bonus: switch between the Student, Consultant and Admin views to explore the full platform.',               place: 'bottom' },
+];
+let tourIdx = 0, tourEleeOpened = false;
+
+function startTour() {
+  if (typeof currentPortal !== 'undefined' && currentPortal !== 'student') { switchPortal('student'); }
+  else { showView('dashboard'); }
+  document.getElementById('welcomeOverlay').classList.remove('show');
+  document.getElementById('tourLayer').classList.add('show');
+  document.getElementById('tourDots').innerHTML = tourSteps.map((_, i) => `<span class="tour-dot${i === 0 ? ' on' : ''}"></span>`).join('');
+  showTourStep(0);
+  window.addEventListener('resize', positionTour);
+}
+function showTourStep(i) {
+  tourIdx = i;
+  const step = tourSteps[i];
+  document.getElementById('tourTitle').textContent = step.title;
+  document.getElementById('tourText').textContent = step.text;
+  document.getElementById('tourBack').style.visibility = i === 0 ? 'hidden' : 'visible';
+  document.getElementById('tourNext').textContent = (i === tourSteps.length - 1) ? 'Finish ✓' : 'Next';
+  document.querySelectorAll('#tourDots .tour-dot').forEach((d, di) => d.classList.toggle('on', di === i));
+  if (step.onShow) step.onShow();
+  setTimeout(positionTour, 80);
+  setTimeout(positionTour, 430);
+}
+function positionTour() {
+  const layer = document.getElementById('tourLayer');
+  if (!layer.classList.contains('show')) return;
+  const step = tourSteps[tourIdx];
+  const target = document.querySelector(step.sel);
+  const spot = document.getElementById('tourSpot');
+  const tip = document.getElementById('tourTip');
+  const r = target ? target.getBoundingClientRect() : null;
+  if (!r || (r.width === 0 && r.height === 0)) {
+    // target missing or hidden (e.g. collapsed sidebar) — center the tip, hide the spotlight
+    spot.style.opacity = '0';
+    tip.style.left = Math.round(window.innerWidth / 2 - tip.offsetWidth / 2) + 'px';
+    tip.style.top = Math.round(window.innerHeight / 2 - tip.offsetHeight / 2) + 'px';
+    return;
+  }
+  spot.style.opacity = '1';
+  const pad = 8;
+  spot.style.left = Math.max(6, r.left - pad) + 'px';
+  spot.style.top = Math.max(6, r.top - pad) + 'px';
+  spot.style.width = Math.min(window.innerWidth - 12, r.width + pad * 2) + 'px';
+  spot.style.height = (r.height + pad * 2) + 'px';
+  const tipW = tip.offsetWidth, tipH = tip.offsetHeight, gap = 14;
+  let tx, ty;
+  if (step.place === 'right') { tx = r.right + gap; ty = r.top; }
+  else if (step.place === 'left') { tx = r.left - tipW - gap; ty = r.top; }
+  else if (step.place === 'top') { tx = r.left; ty = r.top - tipH - gap; }
+  else { tx = r.left; ty = r.bottom + gap; }
+  tx = Math.min(Math.max(12, tx), window.innerWidth - tipW - 12);
+  ty = Math.min(Math.max(12, ty), window.innerHeight - tipH - 12);
+  tip.style.left = tx + 'px';
+  tip.style.top = ty + 'px';
+}
+function tourNext() { (tourIdx >= tourSteps.length - 1) ? endTour() : showTourStep(tourIdx + 1); }
+function tourPrev() { if (tourIdx > 0) showTourStep(tourIdx - 1); }
+function endTour() {
+  document.getElementById('tourLayer').classList.remove('show');
+  window.removeEventListener('resize', positionTour);
+  if (tourEleeOpened) {
+    const p = document.getElementById('eleePanel');
+    if (p) p.classList.remove('open');
+    tourEleeOpened = false;
+  }
+  obToast('🎉 You’re all set! Explore your dashboard.');
+}
+function openEleeForTour() {
+  const p = document.getElementById('eleePanel');
+  if (p && !p.classList.contains('open')) { p.classList.add('open'); tourEleeOpened = true; }
+}
+
+// ── Toasts + friendly "coming soon" for not-yet-built sections ──
+function obToast(msg) {
+  const wrap = document.getElementById('obToastWrap');
+  if (!wrap) return;
+  const t = document.createElement('div');
+  t.className = 'ob-toast';
+  t.textContent = msg;
+  wrap.appendChild(t);
+  if (typeof gsap !== 'undefined') gsap.fromTo(t, { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: .3, ease: 'power2.out' });
+  setTimeout(() => {
+    if (typeof gsap !== 'undefined') gsap.to(t, { opacity: 0, y: 10, duration: .3, ease: 'power2.in', onComplete: () => t.remove() });
+    else t.remove();
+  }, 2600);
+}
+function comingSoon(label) { obToast('🚧 ' + label + ' — coming soon'); }
+function wireDeadNav() {
+  document.querySelectorAll('#screen-portal .sidebar-item').forEach(item => {
+    if (!item.getAttribute('onclick')) {
+      const label = (item.textContent || '').trim().replace(/\s+/g, ' ');
+      item.style.cursor = 'pointer';
+      item.addEventListener('click', () => comingSoon(label || 'This section'));
+    }
+  });
+}
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  const ov = document.getElementById('welcomeOverlay');
+  if (ov && ov.classList.contains('show')) closeWelcome(false);
+  else if (document.getElementById('tourLayer').classList.contains('show')) endTour();
+});
+function globalSearch(q) {
+  q = (q || '').trim();
+  showView('universities');
+  if (q) {
+    const el = document.getElementById('uniSearch');
+    if (el) { el.value = q; uniApplyFilters(); }
+    obToast('🔎 Searching “' + q + '” in University Explorer');
+  }
+}
+wireDeadNav();
+updateTasksBadge();
 </script>
 
 </body>
