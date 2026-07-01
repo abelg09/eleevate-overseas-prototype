@@ -1248,6 +1248,9 @@ input:focus, select:focus {
         <div class="sidebar-badge" id="tasksBadge">6</div>
       </div>
       <div class="sidebar-section-label">Account</div>
+      <div class="sidebar-item" data-tour="nav-profile" onclick="showView('profile')">
+        <div class="sidebar-icon">🪪</div> My Profile
+      </div>
       <div class="sidebar-item">
         <div class="sidebar-icon">⚙️</div> Settings
       </div>
@@ -1613,6 +1616,7 @@ function renderView(name) {
     loans:        viewLoans,
     counselor:    viewCounselor,
     tasks:        viewTasks,
+    profile:      viewProfile,
     crm:          viewCRM,
     students:     viewStudents,
     commission:   viewCommission,
@@ -2544,6 +2548,154 @@ function loanCard(l) {
 /* ──────────────────────────────────────
    VIEW: COUNSELOR
 ────────────────────────────────────── */
+/* ──────────────────────────────────────
+   VIEW: MY PROFILE (student file builder)
+────────────────────────────────────── */
+const PROFILE_TABS = [
+  ['education','🎓 Education'],
+  ['language','🗣 Language Exam'],
+  ['aptitude','📊 Aptitude Exam'],
+  ['work','💼 Work Experience'],
+  ['remarks','📝 Remarks'],
+  ['emergency','🆘 Emergency Details'],
+];
+let profileTab = 'education';
+const profileData = {
+  education: [{ degree:'B.Tech', stream:'Computer Science', score:'8.2 CGPA', year:'2024', board:'VTU, Bengaluru', doc:'degree.pdf' }],
+  language:  [{ test:'IELTS', date:'Mar 2026', expiry:'Mar 2028', reading:'7.5', writing:'7.0', speaking:'7.5', listening:'8.0', overall:'7.5' }],
+  aptitude:  [],
+  work:      [],
+  remarks:   '',
+  emergency: { name:'', relation:'', phone:'', email:'' },
+};
+function fval(id) { const el = document.getElementById(id); return el ? el.value.trim() : ''; }
+function profileCompleteness() {
+  let done = 0;
+  if (profileData.education.length) done++;
+  if (profileData.language.length) done++;
+  if (profileData.aptitude.length) done++;
+  if (profileData.work.length) done++;
+  if (profileData.remarks.trim()) done++;
+  if (profileData.emergency.name && profileData.emergency.phone) done++;
+  return Math.round(done / 6 * 100);
+}
+function setProfileTab(t) { profileTab = t; renderView('profile'); }
+function addEducation() {
+  const degree = fval('pfEduDegree');
+  if (!degree) { obToast('Enter a degree first'); return; }
+  profileData.education.push({ degree, stream: fval('pfEduStream'), score: fval('pfEduScore'), year: fval('pfEduYear'), board: fval('pfEduBoard'), doc: '📎 uploaded' });
+  renderView('profile'); obToast('✓ Education entry added');
+}
+function addLanguage() {
+  const test = fval('pfLangTest');
+  if (!test) { obToast('Pick a test first'); return; }
+  profileData.language.push({ test, date: fval('pfLangDate'), expiry: fval('pfLangExpiry'), reading: fval('pfLangR'), writing: fval('pfLangW'), speaking: fval('pfLangS'), listening: fval('pfLangL'), overall: fval('pfLangO') });
+  renderView('profile'); obToast('✓ Language exam added');
+}
+function addAptitude() {
+  const test = fval('pfAptTest');
+  if (!test) { obToast('Pick a test first'); return; }
+  profileData.aptitude.push({ test, date: fval('pfAptDate'), overall: fval('pfAptO'), verbal: fval('pfAptV'), quant: fval('pfAptQ'), writing: fval('pfAptW') });
+  renderView('profile'); obToast('✓ Aptitude exam added');
+}
+function addWork() {
+  const company = fval('pfWorkCompany');
+  if (!company) { obToast('Enter a company first'); return; }
+  profileData.work.push({ company, designation: fval('pfWorkRole'), type: fval('pfWorkType'), from: fval('pfWorkFrom'), to: fval('pfWorkTo'), address: fval('pfWorkAddr') });
+  renderView('profile'); obToast('✓ Work experience added');
+}
+function removeProfileRow(kind, i) { profileData[kind].splice(i, 1); renderView('profile'); obToast('Removed'); }
+function saveProfile() { obToast('✓ Student file saved · ' + profileCompleteness() + '% complete'); }
+function clearProfile() {
+  if (typeof confirm === 'function' && !confirm('Clear all profile data?')) return;
+  profileData.education = []; profileData.language = []; profileData.aptitude = []; profileData.work = [];
+  profileData.remarks = ''; profileData.emergency = { name:'', relation:'', phone:'', email:'' };
+  renderView('profile'); obToast('Profile cleared');
+}
+
+function viewProfile() {
+  const c = profileCompleteness();
+  const inp = 'width:100%;padding:9px 12px;border:1.5px solid var(--nl-400);border-radius:8px;font-size:13px;font-family:var(--font-body);color:var(--n700);outline:none;';
+  const lbl = 'font-size:12px;font-weight:600;color:var(--n500);margin-bottom:6px;display:block;';
+  const field = (label, id, ph, type = 'text') => `<div><label style="${lbl}">${label}</label><input id="${id}" type="${type}" placeholder="${ph}" style="${inp}"></div>`;
+  const select = (label, id, opts) => `<div><label style="${lbl}">${label}</label><select id="${id}" style="${inp}"><option value="">Select…</option>${opts.map(o => `<option>${o}</option>`).join('')}</select></div>`;
+  const grid = (cols, inner) => `<div style="display:grid;grid-template-columns:repeat(${cols},1fr);gap:14px;margin-bottom:16px;">${inner}</div>`;
+  const stitle = t => `<div style="font-family:var(--font-head);font-size:16px;font-weight:700;color:var(--color-primary-600);margin-bottom:16px;">${t}</div>`;
+  const table = (headers, rows, kind) => `
+    <div style="margin-top:18px;overflow-x:auto;">
+      <div style="font-size:12px;font-weight:700;color:var(--n300);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Saved entries</div>
+      <table style="width:100%;border-collapse:collapse;">
+        <thead><tr style="background:var(--color-primary-0);">
+          <th style="padding:10px 14px;text-align:left;font-size:11px;font-weight:700;color:var(--color-primary-600);text-transform:uppercase;letter-spacing:.05em;">No</th>
+          ${headers.map(h => `<th style="padding:10px 14px;text-align:left;font-size:11px;font-weight:700;color:var(--color-primary-600);text-transform:uppercase;letter-spacing:.05em;">${h}</th>`).join('')}
+          <th style="padding:10px 14px;"></th>
+        </tr></thead>
+        <tbody>
+          ${rows.length ? rows.map((r, i) => `<tr style="border-top:1px solid var(--nl-300);">
+            <td style="padding:11px 14px;font-size:12px;font-weight:700;color:var(--color-primary-600);">${i + 1}</td>
+            ${r.map(cell => `<td style="padding:11px 14px;font-size:12px;color:var(--n700);">${cell || '—'}</td>`).join('')}
+            <td style="padding:11px 14px;text-align:right;"><button onclick="removeProfileRow('${kind}',${i})" style="background:var(--red-l);color:var(--red);border:none;border-radius:6px;padding:4px 9px;font-size:11px;font-weight:600;cursor:pointer;">Remove</button></td>
+          </tr>`).join('') : `<tr><td colspan="${headers.length + 2}" style="padding:22px;text-align:center;color:var(--n300);font-size:12px;">No data available — add an entry above.</td></tr>`}
+        </tbody>
+      </table>
+    </div>`;
+
+  let body = '';
+  if (profileTab === 'education') {
+    body = stitle('Education details') +
+      grid(2, field('Degree', 'pfEduDegree', 'e.g. BCom, BE, BBA') + field('Stream', 'pfEduStream', 'e.g. Finance, Computer Science')) +
+      grid(2, field('GPA / percentage', 'pfEduScore', 'e.g. 3.4 or 82%') + field('Passing year', 'pfEduYear', 'e.g. 2025')) +
+      grid(1, field('Board / university', 'pfEduBoard', 'Institution name')) +
+      `<button class="btn btn-primary btn-sm" onclick="addEducation()">+ Add education</button>` +
+      table(['Degree', 'Stream', 'Score', 'Passing Year', 'Board / University', 'Document'], profileData.education.map(e => [e.degree, e.stream, e.score, e.year, e.board, e.doc]), 'education');
+  } else if (profileTab === 'language') {
+    body = stitle('Language entrance exam') +
+      grid(3, select('Test name', 'pfLangTest', ['IELTS', 'TOEFL', 'PTE', 'Duolingo']) + field('Test date', 'pfLangDate', '', 'month') + field('Expiry date', 'pfLangExpiry', '', 'month')) +
+      grid(4, field('Reading', 'pfLangR', 'Reading') + field('Writing', 'pfLangW', 'Writing') + field('Speaking', 'pfLangS', 'Speaking') + field('Listening', 'pfLangL', 'Listening')) +
+      grid(1, field('Overall band / score', 'pfLangO', 'e.g. 7.0 or 100')) +
+      `<button class="btn btn-primary btn-sm" onclick="addLanguage()">+ Add exam</button>` +
+      table(['Test', 'Overall', 'R', 'W', 'S', 'L', 'Expiry'], profileData.language.map(e => [e.test, e.overall, e.reading, e.writing, e.speaking, e.listening, e.expiry]), 'language');
+  } else if (profileTab === 'aptitude') {
+    body = stitle('Aptitude exam') +
+      grid(3, select('Test name', 'pfAptTest', ['GRE', 'GMAT', 'SAT', 'ACT']) + field('Test date', 'pfAptDate', '', 'month') + field('Overall score', 'pfAptO', 'e.g. 320 or 700')) +
+      grid(3, field('Verbal reasoning', 'pfAptV', '') + field('Quantitative reasoning', 'pfAptQ', '') + field('Analytical writing', 'pfAptW', '')) +
+      `<button class="btn btn-primary btn-sm" onclick="addAptitude()">+ Add exam</button>` +
+      table(['Test', 'Overall', 'Verbal', 'Quant', 'Writing', 'Date'], profileData.aptitude.map(e => [e.test, e.overall, e.verbal, e.quant, e.writing, e.date]), 'aptitude');
+  } else if (profileTab === 'work') {
+    body = stitle('Work experience') +
+      grid(2, field('Company', 'pfWorkCompany', 'Company name') + field('Designation', 'pfWorkRole', 'Your role')) +
+      grid(3, field('Job type', 'pfWorkType', 'Full-time, internship, part-time') + field('From', 'pfWorkFrom', '', 'month') + field('To', 'pfWorkTo', '', 'month')) +
+      grid(1, field('Company address', 'pfWorkAddr', 'City, country')) +
+      `<button class="btn btn-primary btn-sm" onclick="addWork()">+ Add experience</button>` +
+      table(['Company', 'Designation', 'Job Type', 'From', 'To'], profileData.work.map(e => [e.company, e.designation, e.type, e.from, e.to]), 'work');
+  } else if (profileTab === 'remarks') {
+    body = stitle('Personal details &amp; remarks') +
+      `<textarea oninput="profileData.remarks=this.value" placeholder="Anything counsellors should know: gaps, refusals, family constraints, preferred intake reason, scholarships needed." style="${inp}min-height:170px;resize:vertical;line-height:1.6;">${profileData.remarks}</textarea>`;
+  } else if (profileTab === 'emergency') {
+    const e = profileData.emergency;
+    body = stitle('Emergency details') +
+      grid(2, `<div><label style="${lbl}">Person name</label><input oninput="profileData.emergency.name=this.value" value="${e.name}" placeholder="Full name" style="${inp}"></div>` +
+        `<div><label style="${lbl}">Relationship</label><input oninput="profileData.emergency.relation=this.value" value="${e.relation}" placeholder="e.g. Father, Guardian" style="${inp}"></div>`) +
+      grid(2, `<div><label style="${lbl}">Contact number</label><input oninput="profileData.emergency.phone=this.value" value="${e.phone}" placeholder="+91 99999 99999" style="${inp}"></div>` +
+        `<div><label style="${lbl}">Email</label><input oninput="profileData.emergency.email=this.value" value="${e.email}" placeholder="name@example.com" style="${inp}"></div>`);
+  }
+
+  return `
+  ${pageHead('Home › Profile', 'My Profile', 'Build your student file — reused across applications, visa and counselling',
+    `<div style="display:flex;gap:8px;"><button class="btn btn-ghost btn-sm" onclick="clearProfile()">Clear profile</button><button class="btn btn-primary btn-sm" onclick="saveProfile()">Save profile</button></div>`)}
+
+  <div class="card" style="padding:16px 20px;margin-bottom:20px;">
+    <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px;"><span style="font-weight:600;color:var(--color-primary-600);">Profile completeness</span><span style="font-weight:700;color:var(--green);">${c}%</span></div>
+    <div style="height:7px;background:var(--nl-300);border-radius:var(--radius-full);overflow:hidden;"><div style="height:100%;width:${c}%;background:var(--g90);border-radius:var(--radius-full);transition:width .4s;"></div></div>
+  </div>
+
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;">
+    ${PROFILE_TABS.map(([k, label]) => `<button onclick="setProfileTab('${k}')" class="btn btn-sm ${profileTab === k ? 'btn-primary' : 'btn-ghost'}" style="font-size:12px;">${label}</button>`).join('')}
+  </div>
+
+  <div class="card" style="padding:24px;">${body}</div>`;
+}
+
 function viewCounselor() {
   return `
   ${pageHead('Home › Counsellor', 'My Counsellor', 'Your dedicated study abroad expert')}
