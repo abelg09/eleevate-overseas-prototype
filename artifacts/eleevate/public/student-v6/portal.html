@@ -1192,9 +1192,9 @@ input:focus, select:focus {
         <span style="color:rgba(255,255,255,.4);font-size:14px;">🔍</span>
         <input type="text" placeholder="Search universities, programs..." onkeydown="if(event.key==='Enter'){globalSearch(this.value); this.blur();}">
       </div>
-      <div class="topnav-icon" title="Notifications" style="cursor:pointer;" onclick="obToast('🔔 You have 3 new notifications')">
+      <div class="topnav-icon" title="Notifications" style="cursor:pointer;" onclick="toggleNotifications()">
         🔔
-        <div class="notif-badge">3</div>
+        <div class="notif-badge" id="notifBadge">3</div>
       </div>
       <div class="topnav-icon" title="Take a tour" onclick="startTour()" style="cursor:pointer;">❓</div>
       <div style="display:flex;align-items:center;gap:10px;">
@@ -1235,6 +1235,9 @@ input:focus, select:focus {
       <div class="sidebar-item" onclick="showView('documents')">
         <div class="sidebar-icon">📁</div> Documents
         <div class="sidebar-badge-dot"></div>
+      </div>
+      <div class="sidebar-item" onclick="showView('accommodation')">
+        <div class="sidebar-icon">🏠</div> Accommodation
       </div>
       <div class="sidebar-item" onclick="showView('finance')">
         <div class="sidebar-icon">💳</div> Finance & Services
@@ -1546,6 +1549,13 @@ input:focus, select:focus {
 <!-- ══════════ ONBOARDING: TOASTS ══════════ -->
 <div class="ob-toast-wrap" id="obToastWrap"></div>
 <div id="sidebarBackdrop" onclick="toggleSidebar()"></div>
+<div id="notifPanel" style="display:none;position:fixed;top:62px;right:20px;width:340px;max-width:calc(100vw - 32px);background:white;border-radius:var(--radius-lg);box-shadow:var(--shadow-xl);z-index:5500;overflow:hidden;">
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid var(--nl-300);">
+    <div style="font-family:var(--font-head);font-size:15px;font-weight:700;color:var(--color-primary-600);">Notifications</div>
+    <button onclick="markAllNotifsRead()" style="background:none;border:none;color:var(--blue);font-size:12px;font-weight:600;cursor:pointer;">Mark all read</button>
+  </div>
+  <div id="notifBody" style="max-height:360px;overflow-y:auto;"></div>
+</div>
 
 <script>
 // ═══════════════════════════════════════
@@ -1619,6 +1629,7 @@ function renderView(name) {
     loans:        viewLoans,
     finance:      viewFinance,
     upskilling:   viewUpskilling,
+    accommodation: viewAccommodation,
     counselor:    viewCounselor,
     tasks:        viewTasks,
     profile:      viewProfile,
@@ -1631,6 +1642,7 @@ function renderView(name) {
   el.innerHTML = fn();
   // GSAP entrance
   gsap.fromTo(el, { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: .35, ease: 'power2.out' });
+  if (name === 'finance' && typeof computeEMI === 'function') computeEMI();
 }
 
 /* ── Shared layout helpers ── */
@@ -2573,6 +2585,21 @@ function redeemReward(cost, label) {
   obToast('🎁 Redeemed: ' + label + ' (−' + cost + ' pts)');
 }
 function selectPackage(name) { selectedPackage = name; renderView('finance'); obToast('✓ Selected the ' + name + ' package'); }
+function computeEMI() {
+  const P = parseFloat(fval('emiAmount')) || 0;
+  const n = parseFloat(fval('emiTenure')) || 1;
+  const rate = parseFloat(fval('emiRate')) || 0;
+  const r = rate / 12 / 100;
+  const emi = r > 0 ? P * r * Math.pow(1 + r, n) / (Math.pow(1 + r, n) - 1) : P / n;
+  const total = emi * n;
+  const set = (id, val) => { const e = document.getElementById(id); if (e) e.textContent = val; };
+  set('emiAmountVal', '₹' + Math.round(P).toLocaleString('en-IN'));
+  set('emiTenureVal', n + ' mo');
+  set('emiRateVal', rate + '%');
+  set('emiResult', '₹' + Math.round(emi).toLocaleString('en-IN'));
+  set('emiInterest', '₹' + Math.round(total - P).toLocaleString('en-IN'));
+  set('emiTotal', '₹' + Math.round(total).toLocaleString('en-IN'));
+}
 
 function svcCard(icon, title, desc, btn, onclick) {
   return `
@@ -2606,6 +2633,24 @@ function viewFinance() {
       <div style="flex:1;min-width:160px;text-align:right;"><div style="font-size:11px;color:var(--n300);text-transform:uppercase;letter-spacing:.06em;">You pay (approx)</div><div id="fxResult" style="font-family:var(--font-head);font-size:26px;font-weight:700;color:var(--green);">₹10,60,000</div></div>
     </div>
     <div style="font-size:11px;color:var(--n300);margin-top:10px;">Indicative rates · GBP ₹106 · USD ₹83 · EUR ₹90 · AUD ₹55 · CAD ₹61</div>
+  </div>
+
+  <div class="card" style="padding:22px;margin-bottom:22px;">
+    <div style="font-family:var(--font-head);font-size:16px;font-weight:700;color:var(--color-primary-600);margin-bottom:4px;">🧮 EMI Calculator</div>
+    <div style="font-size:12.5px;color:var(--n300);margin-bottom:18px;">Estimate your monthly education-loan repayment.</div>
+    <div style="display:grid;grid-template-columns:1fr 260px;gap:24px;align-items:center;">
+      <div>
+        <div style="margin-bottom:16px;"><div style="display:flex;justify-content:space-between;font-size:12px;font-weight:600;color:var(--n500);margin-bottom:6px;"><span>Loan amount</span><span id="emiAmountVal" style="color:var(--color-primary-600);font-weight:700;">₹20,00,000</span></div><input id="emiAmount" type="range" min="100000" max="10000000" step="100000" value="2000000" oninput="computeEMI()" style="width:100%;accent-color:var(--green);"></div>
+        <div style="margin-bottom:16px;"><div style="display:flex;justify-content:space-between;font-size:12px;font-weight:600;color:var(--n500);margin-bottom:6px;"><span>Tenure (months)</span><span id="emiTenureVal" style="color:var(--color-primary-600);font-weight:700;">120 mo</span></div><input id="emiTenure" type="range" min="12" max="180" step="6" value="120" oninput="computeEMI()" style="width:100%;accent-color:var(--green);"></div>
+        <div><div style="display:flex;justify-content:space-between;font-size:12px;font-weight:600;color:var(--n500);margin-bottom:6px;"><span>Interest rate</span><span id="emiRateVal" style="color:var(--color-primary-600);font-weight:700;">10.5%</span></div><input id="emiRate" type="range" min="7" max="15" step="0.25" value="10.5" oninput="computeEMI()" style="width:100%;accent-color:var(--green);"></div>
+      </div>
+      <div style="background:var(--color-primary-0);border-radius:var(--radius-lg);padding:20px;text-align:center;">
+        <div style="font-size:11px;color:var(--n300);text-transform:uppercase;letter-spacing:.06em;">Monthly EMI</div>
+        <div id="emiResult" style="font-family:var(--font-head);font-size:30px;font-weight:800;color:var(--green);margin:4px 0 12px;">₹26,988</div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;padding:6px 0;border-top:1px solid var(--nl-300);"><span style="color:var(--n300);">Total interest</span><span id="emiInterest" style="font-weight:700;color:var(--color-primary-600);">₹12,38,560</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;padding:6px 0;border-top:1px solid var(--nl-300);"><span style="color:var(--n300);">Total payable</span><span id="emiTotal" style="font-weight:700;color:var(--color-primary-600);">₹32,38,560</span></div>
+      </div>
+    </div>
   </div>
 
   <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-bottom:22px;">
@@ -2655,6 +2700,7 @@ const JOBS = [
 const jobsApplied = new Set();
 let mockScore = null;
 function applyJob(i) { if (!JOBS[i]) return; jobsApplied.add(i); renderView('upskilling'); obToast('✓ Applied to ' + JOBS[i].role); }
+function openExamPrep() { window.open('https://eleevateoverseas.com/exam-prep/?shem=rimspwouohc', '_blank', 'noopener'); }
 function startMockTest(kind) {
   const band = kind === 'IELTS' ? (6 + Math.round(Math.random() * 4) / 2).toFixed(1) : String(300 + Math.floor(Math.random() * 41));
   mockScore = { kind, band };
@@ -2681,13 +2727,13 @@ function viewUpskilling() {
       <div style="font-family:var(--font-head);font-size:16px;font-weight:700;color:var(--color-primary-600);margin-bottom:6px;">📚 Test Prep</div>
       <div style="font-size:12.5px;color:var(--n500);margin-bottom:14px;">Structured IELTS, GRE & GMAT courses with AI feedback on writing & speaking.</div>
       ${[['IELTS','62% complete'],['GRE Verbal','20% complete']].map(([n,p])=>`<div style="display:flex;justify-content:space-between;font-size:12.5px;padding:7px 0;border-bottom:1px solid var(--nl-300);"><span style="font-weight:600;color:var(--color-primary-600);">${n}</span><span style="color:var(--n300);">${p}</span></div>`).join('')}
-      <button class="btn btn-ghost btn-sm" style="width:100%;justify-content:center;margin-top:12px;" onclick="obToast('📚 Resuming your IELTS course…')">Continue prep →</button>
+      <button class="btn btn-ghost btn-sm" style="width:100%;justify-content:center;margin-top:12px;" onclick="openExamPrep()">Open exam prep →</button>
     </div>
   </div>
 
   <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-bottom:22px;">
-    ${svcCard('🚀','Upskilling','Short courses in analytics, coding & communication to strengthen your profile.','Browse courses',"obToast('🚀 Opening the course catalogue…')")}
-    ${svcCard('🗣️','Language Lab','Live speaking practice & accent training with AI plus tutors.','Practice now',"obToast('🗣️ Starting a speaking session…')")}
+    ${svcCard('🚀','Upskilling','Short courses in analytics, coding & communication to strengthen your profile.','Browse programs',"openExamPrep()")}
+    ${svcCard('🗣️','Language Lab','Live speaking practice & accent training with AI plus tutors.','Practice now',"openExamPrep()")}
     ${svcCard('🎯','Careers','Explore career paths, salaries and PR pathways by country.','Explore paths',"obToast('🎯 Opening the career explorer…')")}
     ${svcCard('🎓','Alumni Network','Connect with Eleevate alumni at your target universities.','Find alumni',"obToast('🎓 Matching you with alumni…')")}
     ${svcCard('📰','News & Newsletter','Visa updates, deadlines and scholarships in your inbox.','Subscribe',"obToast('📰 Subscribed to the weekly newsletter')")}
@@ -2704,6 +2750,44 @@ function viewUpskilling() {
         ${jobsApplied.has(i)?`<span class="badge b-success">✓ Applied</span>`:`<button class="btn btn-primary btn-sm" onclick="applyJob(${i})">Apply</button>`}
       </div>`).join('')}
     </div>
+  </div>`;
+}
+
+/* ──────────────────────────────────────
+   VIEW: ACCOMMODATION
+────────────────────────────────────── */
+const ACCOM = [
+  { name:'Manchester Uni Halls — Whitworth Park', type:'University Hall', dist:'8 min walk', price:'£165/wk', tag:'Popular' },
+  { name:'Vita Student — First Street', type:'Private Studio', dist:'15 min walk', price:'£249/wk', tag:'Premium' },
+  { name:'Shared 4-bed Flat — Fallowfield', type:'Shared Flat', dist:'20 min bus', price:'£110/wk', tag:'Budget' },
+  { name:'Homestay — Didsbury', type:'Homestay · meals included', dist:'25 min bus', price:'£140/wk', tag:'With family' },
+];
+const accomSaved = new Set();
+function toggleAccom(i) { if (accomSaved.has(i)) accomSaved.delete(i); else accomSaved.add(i); renderView('accommodation'); obToast(accomSaved.has(i) ? '🏠 Saved ' + ACCOM[i].name : 'Removed from saved'); }
+function enquireAccom(i) { obToast('✉️ Enquiry sent for ' + ACCOM[i].name); }
+function viewAccommodation() {
+  return `
+  ${pageHead('Home › Accommodation', 'Accommodation', 'Student housing near your university — halls, studios, shared flats & homestays',
+    `<button class="btn btn-primary btn-sm" onclick="obToast('🤖 Elee is matching housing to your budget…')">🤖 Find my match</button>`)}
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:22px;">
+    ${statCard('🏠','Options near you','120+','University of Manchester')}
+    ${statCard('💷','From','£110/wk','Shared flats','var(--teal)')}
+    ${statCard('📍','Avg. distance','12 min','To campus','var(--blue)')}
+    ${statCard('❤️','Saved',String(accomSaved.size),'Your shortlist')}
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:18px;">
+    ${ACCOM.map((a, i) => `
+    <div class="card" style="padding:20px;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
+        <div><div style="font-family:var(--font-head);font-size:15px;font-weight:700;color:var(--color-primary-600);">${a.name}</div><div style="font-size:12px;color:var(--n300);margin-top:2px;">${a.type} · ${a.dist}</div></div>
+        <span class="badge b-info">${a.tag}</span>
+      </div>
+      <div style="font-size:20px;font-weight:800;color:var(--green);margin-bottom:14px;">${a.price}</div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-primary btn-sm" style="flex:1;justify-content:center;" onclick="enquireAccom(${i})">Enquire</button>
+        <button class="btn ${accomSaved.has(i) ? 'btn-navy' : 'btn-ghost'} btn-sm" style="justify-content:center;" onclick="toggleAccom(${i})">${accomSaved.has(i) ? '❤️' : '🤍'}</button>
+      </div>
+    </div>`).join('')}
   </div>`;
 }
 
@@ -2726,6 +2810,7 @@ const profileData = {
   work:      [],
   remarks:   '',
   emergency: { name:'', relation:'', phone:'', email:'' },
+  personal:  { studyLevel:'Masters', nationality:'Indian', intake:'Fall 2026', budget:35000, career:'', course:'MSc Computer Science', countries:['United Kingdom'] },
 };
 function fval(id) { const el = document.getElementById(id); return el ? el.value.trim() : ''; }
 function profileCompleteness() {
@@ -2736,7 +2821,8 @@ function profileCompleteness() {
   if (profileData.work.length) done++;
   if (profileData.remarks.trim()) done++;
   if (profileData.emergency.name && profileData.emergency.phone) done++;
-  return Math.round(done / 6 * 100);
+  if (profileData.personal.studyLevel && profileData.personal.countries.length) done++;
+  return Math.round(done / 7 * 100);
 }
 function setProfileTab(t) { profileTab = t; renderView('profile'); }
 function addEducation() {
@@ -2772,8 +2858,15 @@ function clearProfile() {
   renderView('profile'); obToast('Profile cleared');
 }
 
+function pfSetIntake(v) { profileData.personal.intake = v; renderView('profile'); }
+function pfToggleCountry(cty) { const a = profileData.personal.countries; const i = a.indexOf(cty); if (i >= 0) a.splice(i, 1); else a.push(cty); renderView('profile'); }
+function pfBudget(v) { profileData.personal.budget = +v; const el = document.getElementById('pfBudgetVal'); if (el) el.textContent = '$' + (+v).toLocaleString('en-US'); }
+
 function viewProfile() {
   const c = profileCompleteness();
+  const pp = profileData.personal;
+  const chip = (val, cur, fn) => `<button onclick="${fn}" class="btn btn-sm ${cur === val ? 'btn-primary' : 'btn-ghost'}" style="font-size:12px;">${val}</button>`;
+  const cchip = (cty) => `<button onclick="pfToggleCountry('${cty}')" class="btn btn-sm ${pp.countries.includes(cty) ? 'btn-primary' : 'btn-ghost'}" style="font-size:12px;">${cty}</button>`;
   const inp = 'width:100%;padding:9px 12px;border:1.5px solid var(--nl-400);border-radius:8px;font-size:13px;font-family:var(--font-body);color:var(--n700);outline:none;';
   const lbl = 'font-size:12px;font-weight:600;color:var(--n500);margin-bottom:6px;display:block;';
   const field = (label, id, ph, type = 'text') => `<div><label style="${lbl}">${label}</label><input id="${id}" type="${type}" placeholder="${ph}" style="${inp}"></div>`;
@@ -2846,6 +2939,22 @@ function viewProfile() {
   <div class="card" style="padding:16px 20px;margin-bottom:20px;">
     <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px;"><span style="font-weight:600;color:var(--color-primary-600);">Profile completeness</span><span style="font-weight:700;color:var(--green);">${c}%</span></div>
     <div style="height:7px;background:var(--nl-300);border-radius:var(--radius-full);overflow:hidden;"><div style="height:100%;width:${c}%;background:var(--g90);border-radius:var(--radius-full);transition:width .4s;"></div></div>
+  </div>
+
+  <div class="card" style="padding:24px;margin-bottom:20px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <div style="font-family:var(--font-head);font-size:16px;font-weight:700;color:var(--color-primary-600);">🤖 Tell Elee about you</div>
+      <span class="badge b-neutral" style="font-size:10px;">Used for recommendations</span>
+    </div>
+    ${grid(2,
+      `<div><label style="${lbl}">Study level interest</label><select onchange="profileData.personal.studyLevel=this.value" style="${inp}">${['Undergraduate', 'Masters', 'PhD', 'Diploma'].map(o => `<option ${pp.studyLevel === o ? 'selected' : ''}>${o}</option>`).join('')}</select></div>` +
+      `<div><label style="${lbl}">Nationality</label><input oninput="profileData.personal.nationality=this.value" value="${pp.nationality}" placeholder="e.g. Indian" style="${inp}"></div>`)}
+    <div style="margin-bottom:16px;"><label style="${lbl}">Preferred intake</label><div style="display:flex;gap:8px;flex-wrap:wrap;">${['Fall 2026', 'Spring 2027', 'Fall 2027', 'Spring 2028'].map(v => chip(v, pp.intake, `pfSetIntake('${v}')`)).join('')}</div></div>
+    <div style="margin-bottom:16px;"><label style="${lbl}">Budget range / year — <span id="pfBudgetVal" style="color:var(--green);font-weight:700;">$${pp.budget.toLocaleString('en-US')}</span></label><input type="range" min="5000" max="80000" step="5000" value="${pp.budget}" oninput="pfBudget(this.value)" style="width:100%;accent-color:var(--green);"></div>
+    ${grid(2,
+      `<div><label style="${lbl}">Career goal</label><input oninput="profileData.personal.career=this.value" value="${pp.career}" placeholder="e.g. AI product, finance analytics" style="${inp}"></div>` +
+      `<div><label style="${lbl}">Course goal</label><input oninput="profileData.personal.course=this.value" value="${pp.course}" placeholder="e.g. MSc Business Analytics" style="${inp}"></div>`)}
+    <div><label style="${lbl}">Target countries</label><div style="display:flex;gap:8px;flex-wrap:wrap;">${['United Kingdom', 'United States', 'Canada', 'Australia', 'Germany', 'Netherlands', 'Singapore', 'Ireland', 'New Zealand', 'United Arab Emirates'].map(cchip).join('')}</div></div>
   </div>
 
   <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;">
@@ -3438,6 +3547,43 @@ document.addEventListener('keydown', e => {
   if (ov && ov.classList.contains('show')) closeWelcome(false);
   else if (document.getElementById('tourLayer').classList.contains('show')) endTour();
 });
+let notifOpen = false;
+const NOTIFS = [
+  { icon:'🎓', text:'University of Manchester sent you an offer', time:'2h ago', read:false },
+  { icon:'🛂', text:'IHS payment due in 3 days', time:'5h ago', read:false },
+  { icon:'🏆', text:'New scholarship match: Chevening (£18,000)', time:'1d ago', read:false },
+  { icon:'💬', text:'Priya (your counsellor) replied to your message', time:'1d ago', read:true },
+];
+function renderNotifs() {
+  const body = document.getElementById('notifBody');
+  if (!body) return;
+  body.innerHTML = NOTIFS.map(n => `
+    <div style="display:flex;gap:12px;padding:12px 16px;border-bottom:1px solid var(--nl-300);background:${n.read ? 'white' : 'var(--color-primary-0)'};">
+      <div style="font-size:18px;line-height:1;">${n.icon}</div>
+      <div style="flex:1;"><div style="font-size:13px;color:var(--color-primary-600);font-weight:${n.read ? '500' : '600'};line-height:1.4;">${n.text}</div><div style="font-size:11px;color:var(--n300);margin-top:2px;">${n.time}</div></div>
+      ${n.read ? '' : '<div style="width:8px;height:8px;border-radius:50%;background:var(--blue);flex-shrink:0;margin-top:5px;"></div>'}
+    </div>`).join('');
+}
+function toggleNotifications() {
+  notifOpen = !notifOpen;
+  const p = document.getElementById('notifPanel');
+  if (p) p.style.display = notifOpen ? 'block' : 'none';
+  if (notifOpen) renderNotifs();
+}
+function markAllNotifsRead() {
+  NOTIFS.forEach(n => n.read = true);
+  renderNotifs();
+  const b = document.getElementById('notifBadge');
+  if (b) b.style.display = 'none';
+  obToast('✓ All notifications marked read');
+}
+document.addEventListener('click', e => {
+  if (!notifOpen) return;
+  const panel = document.getElementById('notifPanel');
+  const onBell = e.target.closest && e.target.closest('[title="Notifications"]');
+  if (panel && !panel.contains(e.target) && !onBell) { notifOpen = false; panel.style.display = 'none'; }
+});
+
 let sidebarOpen = false;
 function toggleSidebar() {
   sidebarOpen = !sidebarOpen;
