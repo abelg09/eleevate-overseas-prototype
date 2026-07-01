@@ -1175,6 +1175,7 @@ input:focus, select:focus {
   <!-- Top Nav -->
   <nav class="topnav">
     <div class="topnav-left">
+      <button class="mobile-menu-btn" onclick="toggleSidebar()" aria-label="Toggle menu">☰</button>
       <div class="topnav-brand">
         <div class="topnav-mark">E</div>
         <span class="topnav-name">Eleevate</span>
@@ -1471,6 +1472,31 @@ input:focus, select:focus {
 .ob-toast{background:var(--color-primary-600);color:#fff;padding:11px 18px;border-radius:var(--radius-full);font-size:13px;font-weight:500;box-shadow:var(--shadow-lg);}
 </style>
 
+<style>
+/* ══════════ MOBILE / RESPONSIVE PORTAL ══════════ */
+.mobile-menu-btn { display:none; background:rgba(255,255,255,.12); color:#fff; border:none; width:36px; height:36px; border-radius:8px; font-size:18px; cursor:pointer; align-items:center; justify-content:center; margin-right:8px; flex-shrink:0; }
+#sidebarBackdrop { display:none; }
+@media (max-width: 768px) {
+  .mobile-menu-btn { display:flex !important; }
+  .topnav-left { width:auto !important; padding:0 10px !important; border-right:none !important; }
+  .topnav-search, .topnav-user { display:none !important; }
+  .topnav-right { gap:10px !important; }
+  .sidebar.open { transform:translateX(0) !important; box-shadow:var(--shadow-xl); }
+  #sidebarBackdrop { position:fixed; inset:var(--topnav-h) 0 0 0; background:rgba(14,19,47,.45); z-index:95; }
+  [style*="grid-template-columns:repeat(2,1fr)"],
+  [style*="grid-template-columns:repeat(3,1fr)"],
+  [style*="grid-template-columns:repeat(4,1fr)"],
+  [style*="grid-template-columns:repeat(5,1fr)"],
+  [style*="grid-template-columns:1fr 380px"],
+  [style*="grid-template-columns:1fr 340px"],
+  [style*="grid-template-columns:340px 1fr"],
+  [style*="grid-template-columns:1fr 320px"],
+  [style*="grid-template-columns:1fr 1fr"] { grid-template-columns:1fr !important; }
+  .portal-content table { display:block; overflow-x:auto; white-space:nowrap; }
+  .page-head { flex-direction:column; align-items:flex-start !important; gap:12px; }
+}
+</style>
+
 <!-- ══════════ ONBOARDING: WELCOME MODAL ══════════ -->
 <div class="ob-overlay" id="welcomeOverlay" role="dialog" aria-modal="true" aria-labelledby="obTitle">
   <div class="ob-card" id="welcomeCard">
@@ -1513,6 +1539,7 @@ input:focus, select:focus {
 
 <!-- ══════════ ONBOARDING: TOASTS ══════════ -->
 <div class="ob-toast-wrap" id="obToastWrap"></div>
+<div id="sidebarBackdrop" onclick="toggleSidebar()"></div>
 
 <script>
 // ═══════════════════════════════════════
@@ -1568,6 +1595,7 @@ function showView(viewName) {
     }
   });
   renderView(viewName);
+  closeSidebar();
 }
 
 // ═══════════════════════════════════════
@@ -1622,7 +1650,34 @@ function statCard(icon, label, value, trend, trendColor='var(--teal)') {
 /* ──────────────────────────────────────
    VIEW: STUDENT DASHBOARD
 ────────────────────────────────────── */
+// ── Shared live metrics (used by dashboard + views) ──
+const FREE_LIMIT = 5;
+function visaProgress() {
+  const total = VISA_STEPS.length;
+  const done = VISA_STEPS.filter(s => s.status === 'done').length;
+  const prog = VISA_STEPS.filter(s => s.status === 'progress').length;
+  return { total, done, prog, pct: Math.round((done + prog * 0.5) / total * 100) };
+}
+function docStats() {
+  const total = DOCS.length;
+  const verified = DOCS.filter(d => d.status === 'verified').length;
+  return { total, verified, pending: total - verified, pct: Math.round(verified / total * 100) };
+}
+function dashboardAppList() {
+  const map = { applying:['Applying','warning'], submitted:['Under Review','info'], offer:['Offer Received','success'], visa:['Visa Stage','success'] };
+  const applied = UNIS.filter(u => uniApplied.has(u.id));
+  if (!applied.length) return `<div style="font-size:13px;color:var(--n300);padding:8px 4px;">No applications yet — <a onclick="showView('universities')" style="color:var(--blue);cursor:pointer;font-weight:600;">explore universities</a> to get started.</div>`;
+  return applied.slice(0, 3).map(u => {
+    const [label, type] = map[appStageById[u.id] || 'applying'] || ['Applying', 'warning'];
+    return appRow(u.flag, u.name, u.course, label, type, u.intake, u.fees);
+  }).join('');
+}
+
 function viewDashboard() {
+  const appsCount = uniApplied.size;
+  const ds = docStats();
+  const vp = visaProgress();
+  const scholCount = scholApplied.size;
   return `
   ${pageHead('Home', 'Welcome back, Arjun 👋', "Here's what's happening with your study abroad journey today.",
     `<button class="btn btn-primary btn-sm" onclick="showView('universities')">🎓 Explore Universities</button>`
@@ -1634,7 +1689,7 @@ function viewDashboard() {
       <div style="font-size:22px;">⚡</div>
       <div>
         <div style="font-weight:700;color:white;font-size:14px;">Upgrade to Pro — Unlock Unlimited Applications</div>
-        <div style="font-size:12px;color:rgba(255,255,255,.75);margin-top:2px;">You're on the Free plan · 3/3 university slots used · Elee auto-apply locked</div>
+        <div style="font-size:12px;color:rgba(255,255,255,.75);margin-top:2px;">You're on the Free plan · ${appsCount}/${FREE_LIMIT} application slots used · Elee auto-apply locked</div>
       </div>
     </div>
     <button class="btn btn-sm" style="background:white;color:var(--color-primary-600);font-weight:700;white-space:nowrap;flex-shrink:0;" onclick="obToast('⚡ Pro upgrade — secure checkout coming soon')">Upgrade ₹999/mo</button>
@@ -1642,10 +1697,10 @@ function viewDashboard() {
 
   <!-- Stat Cards -->
   <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;">
-    ${statCard('📋', 'Applications', '3', '↑ 1 this week')}
-    ${statCard('📁', 'Documents Ready', '8/11', '⚠ 3 pending', 'var(--yellow)')}
-    ${statCard('🛂', 'Visa Progress', '82%', '↑ 12% since last week')}
-    ${statCard('🏆', 'Scholarships Found', '₹36L', '4 matches available')}
+    ${statCard('📋', 'Applications', String(appsCount), appsCount + '/' + FREE_LIMIT + ' free slots used')}
+    ${statCard('📁', 'Documents Ready', ds.verified + '/' + ds.total, ds.pending ? '⚠ ' + ds.pending + ' pending' : '✓ all verified', 'var(--yellow)')}
+    ${statCard('🛂', 'Visa Progress', vp.pct + '%', vp.done + ' of ' + vp.total + ' steps done')}
+    ${statCard('🏆', 'Scholarships', scholCount + ' applied', '₹36L potential')}
   </div>
 
   <!-- Main Grid -->
@@ -1661,9 +1716,7 @@ function viewDashboard() {
           <button class="btn btn-sm btn-ghost" onclick="showView('applications')">View All →</button>
         </div>
         <div style="display:flex;flex-direction:column;gap:10px;">
-          ${appRow('🇬🇧','University of Manchester','MSc Computer Science','Offer Received','success','Sep 2026','£21,000/yr')}
-          ${appRow('🇬🇧','University College London','MSc Artificial Intelligence','Under Review','info','Sep 2026','£28,500/yr')}
-          ${appRow('🇬🇧','University of Edinburgh','MSc Data Science','Applying','warning','Sep 2026','£19,800/yr')}
+          ${dashboardAppList()}
         </div>
       </div>
 
@@ -1693,9 +1746,9 @@ function viewDashboard() {
         <div style="display:flex;flex-direction:column;gap:14px;">
           ${journeyStep('1','Profile Setup','Completed','success',100)}
           ${journeyStep('2','University Shortlist','Completed','success',100)}
-          ${journeyStep('3','Applications Submitted','In Progress','warning',66)}
+          ${journeyStep('3','Applications Submitted',appsCount >= 3 ? 'In Progress' : 'Started','warning',Math.min(100, appsCount * 20))}
           ${journeyStep('4','Offer & Acceptance','Pending','neutral',0)}
-          ${journeyStep('5','Visa Application','In Progress','warning',82)}
+          ${journeyStep('5','Visa Application','In Progress','warning',vp.pct)}
           ${journeyStep('6','Loan & Finance','In Progress','info',45)}
           ${journeyStep('7','Pre-Departure','Pending','neutral',0)}
         </div>
@@ -1731,23 +1784,16 @@ function viewDashboard() {
       <div class="card" style="padding:20px;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
           <div style="font-family:var(--font-head);font-size:15px;font-weight:700;color:var(--color-primary-600);">Documents</div>
-          <span class="badge b-warning"><span class="dot" style="background:var(--yellow)"></span>3 Pending</span>
+          <span class="badge ${ds.pending ? 'b-warning' : 'b-success'}"><span class="dot" style="background:${ds.pending ? 'var(--yellow)' : 'var(--teal)'}"></span>${ds.pending ? ds.pending + ' Pending' : 'All Ready'}</span>
         </div>
         <div style="margin-bottom:12px;">
-          <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--n300);margin-bottom:5px;"><span>8 of 11 complete</span><span>72%</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--n300);margin-bottom:5px;"><span>${ds.verified} of ${ds.total} complete</span><span>${ds.pct}%</span></div>
           <div style="height:5px;background:var(--nl-300);border-radius:var(--radius-full);overflow:hidden;">
-            <div style="height:100%;width:72%;background:var(--g90);border-radius:var(--radius-full);"></div>
+            <div style="height:100%;width:${ds.pct}%;background:var(--g90);border-radius:var(--radius-full);transition:width .4s;"></div>
           </div>
         </div>
         <div style="display:flex;flex-direction:column;gap:7px;">
-          ${docItem('✅','Passport Copy','Ready')}
-          ${docItem('✅','IELTS Score Card','Ready')}
-          ${docItem('✅','Degree Certificate','Ready')}
-          ${docItem('✅','Bank Statement','Ready')}
-          ${docItem('✅','SOP — Manchester','Ready')}
-          ${docItem('⚠️','Bank Statement (Updated)','Pending')}
-          ${docItem('⚠️','Health Surcharge Receipt','Pending')}
-          ${docItem('⚠️','Biometrics Appointment','Pending')}
+          ${DOCS.slice(0, 8).map(d => docItem(d.status === 'verified' ? '✅' : '⚠️', d.name, d.status === 'verified' ? 'Ready' : 'Pending')).join('')}
         </div>
         <button class="btn btn-navy btn-sm" style="width:100%;justify-content:center;margin-top:14px;" onclick="showView('documents')">Manage Documents →</button>
       </div>
@@ -1970,6 +2016,10 @@ function uniApplyFilters() {
 }
 
 function applyUni(id) {
+  if (!uniApplied.has(id) && uniApplied.size >= FREE_LIMIT) {
+    obToast('⚡ Free plan limit reached (' + FREE_LIMIT + ') — upgrade to Pro for unlimited applications');
+    return;
+  }
   uniApplied.add(id);
   uniShortlisted.delete(id);
   if (!appStageById[id]) appStageById[id] = 'applying';
@@ -2131,11 +2181,14 @@ function viewApplications() {
   <div class="card" style="padding:22px;margin-top:22px;">
     <div style="font-family:var(--font-head);font-size:17px;font-weight:700;color:var(--color-primary-600);margin-bottom:18px;">Application Timeline</div>
     <div style="display:flex;flex-direction:column;gap:0;">
-      ${timelineItem('Jun 12','Offer Received','University of Manchester confirmed your MSc CS application','success')}
-      ${timelineItem('Jun 10','Application Shortlisted','Added University of Bristol to shortlist','neutral')}
-      ${timelineItem('Jun 5','Application Submitted','Submitted to University College London','info')}
-      ${timelineItem('Jun 1','Application Submitted','Submitted to University of Toronto','info')}
-      ${timelineItem('May 28','Profile Completed','IELTS score and transcripts uploaded','success')}
+      ${(() => {
+        const out = [];
+        UNIS.filter(u => uniApplied.has(u.id) && appStageById[u.id] === 'offer').forEach(u => out.push(timelineItem('Recent', 'Offer Received', u.name + ' confirmed your ' + u.course + ' application', 'success')));
+        UNIS.filter(u => uniApplied.has(u.id) && appStageById[u.id] === 'submitted').forEach(u => out.push(timelineItem('Recent', 'Application Submitted', 'Submitted to ' + u.name, 'info')));
+        UNIS.filter(u => uniShortlisted.has(u.id)).forEach(u => out.push(timelineItem('Recent', 'Shortlisted', 'Added ' + u.name + ' to your shortlist', 'neutral')));
+        out.push(timelineItem('May 28', 'Profile Completed', 'IELTS score and transcripts uploaded', 'success'));
+        return out.join('');
+      })()}
     </div>
   </div>`;
 }
@@ -2270,8 +2323,9 @@ function eleeCompleteVisa() {
 
 function viewVisa() {
   const steps = VISA_STEPS;
-  const doneCount = steps.filter(s => s.status === 'done').length;
-  const pct = Math.round(doneCount / steps.length * 100);
+  const vp = visaProgress();
+  const doneCount = vp.done;
+  const pct = vp.pct;
   const icons = { done:'✅', progress:'🔄', locked:'🔒' };
   const colors = { done:'var(--teal)', progress:'var(--yellow)', locked:'var(--nl-600)' };
   const bgColors = { done:'var(--teal-l)', progress:'var(--yellow-l)', locked:'var(--nl-300)' };
@@ -2605,53 +2659,52 @@ function viewTasks() {
 /* ──────────────────────────────────────
    VIEW: CONSULTANT — CRM PIPELINE
 ────────────────────────────────────── */
-function viewCRM() {
-  const leads = [
-    { name:'Rahul Gupta', course:'MSc Finance, UK', score:'92', stage:'Offer', flag:'🇬🇧', source:'WhatsApp', tags:['Hot','Scholarship'] },
-    { name:'Anjali Patel', course:'MBA, Canada', score:'85', stage:'Applied', flag:'🇨🇦', source:'Referral', tags:['High Value'] },
-    { name:'Kiran Mehta', course:'BSc Nursing, Australia', score:'78', stage:'Profiling', flag:'🇦🇺', source:'Instagram', tags:['New'] },
-    { name:'Suresh Nair', course:'MSc CS, USA', score:'70', stage:'Lead', flag:'🇺🇸', source:'Website', tags:['Follow Up'] },
-    { name:'Divya Sharma', course:'MSc AI, UK', score:'88', stage:'Applied', flag:'🇬🇧', source:'Google', tags:['Hot'] },
-    { name:'Amit Joshi', course:'MIM, Germany', score:'65', stage:'Lead', flag:'🇩🇪', source:'Facebook', tags:['Cold'] },
-  ];
-  const stageColor = { Lead:'b-neutral', Profiling:'b-info', Applied:'b-warning', Offer:'b-success', Enrolled:'b-purple' };
-  return `
-  ${pageHead('Consultant › CRM', 'Lead Pipeline', `${leads.length} active leads · ₹2.4L commission this month`,
-    `<div style="display:flex;gap:8px;"><button class="btn btn-ghost btn-sm">📊 Reports</button><button class="btn btn-primary btn-sm">+ Add Lead</button></div>`)}
-
-  <!-- KPIs -->
-  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;">
-    ${statCard('👥','Active Leads','24','↑ 6 this week')}
-    ${statCard('🎓','Students Enrolled','8','This month','var(--teal)')}
-    ${statCard('💰','Commission Earned','₹2.4L','↑ ₹40K vs last month')}
-    ${statCard('⭐','Avg. Score','82','Profile quality','var(--blue)')}
-  </div>
-
-  <!-- Pipeline Stages -->
-  <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:22px;">
-    ${[['Lead','6','neutral'],['Profiling','4','info'],['Applied','8','warning'],['Offer','4','success'],['Enrolled','2','purple']].map(([s,n,t])=>`
-    <div class="card" style="padding:14px;text-align:center;border-top:3px solid ${t==='success'?'var(--teal)':t==='warning'?'var(--yellow)':t==='info'?'var(--blue)':t==='purple'?'var(--purple)':'var(--nl-600)'};">
-      <div style="font-family:var(--font-head);font-size:26px;font-weight:700;color:var(--color-primary-600);">${n}</div>
-      <span class="badge b-${t}" style="font-size:10px;">${s}</span>
-    </div>`).join('')}
-  </div>
-
-  <!-- Lead Table -->
-  <div class="card" style="overflow:hidden;">
-    <div style="padding:16px 22px;border-bottom:1px solid var(--nl-300);display:flex;align-items:center;justify-content:space-between;">
-      <div style="font-family:var(--font-head);font-size:16px;font-weight:700;color:var(--color-primary-600);">All Leads</div>
-      <input style="padding:7px 12px;border:1.5px solid var(--nl-400);border-radius:8px;font-size:12px;font-family:var(--font-body);outline:none;width:200px;" placeholder="🔍 Search leads...">
-    </div>
-    <table style="width:100%;border-collapse:collapse;">
-      <thead><tr style="background:var(--color-primary-0);">
-        ${['Student','Target','Score','Stage','Source','Tags','Actions'].map(h=>`<th style="padding:10px 16px;text-align:left;font-size:11px;font-weight:700;color:var(--color-primary-600);letter-spacing:.06em;text-transform:uppercase;">${h}</th>`).join('')}
-      </tr></thead>
-      <tbody>
-        ${leads.map((l,i)=>`
-        <tr style="border-bottom:1px solid var(--nl-300);${i%2===1?'background:var(--nl-100);':''}" onmouseover="this.style.background='var(--color-primary-0)'" onmouseout="this.style.background='${i%2===1?'var(--nl-100)':'white'}'">
+// ── Consultant CRM (interactive) ──
+const CRM_LEADS = [
+  { name:'Rahul Gupta', course:'MSc Finance, UK', score:'92', stage:'Offer', flag:'🇬🇧', source:'WhatsApp', tags:['Hot','Scholarship'] },
+  { name:'Anjali Patel', course:'MBA, Canada', score:'85', stage:'Applied', flag:'🇨🇦', source:'Referral', tags:['High Value'] },
+  { name:'Kiran Mehta', course:'BSc Nursing, Australia', score:'78', stage:'Profiling', flag:'🇦🇺', source:'Instagram', tags:['New'] },
+  { name:'Suresh Nair', course:'MSc CS, USA', score:'70', stage:'Lead', flag:'🇺🇸', source:'Website', tags:['Follow Up'] },
+  { name:'Divya Sharma', course:'MSc AI, UK', score:'88', stage:'Applied', flag:'🇬🇧', source:'Google', tags:['Hot'] },
+  { name:'Amit Joshi', course:'MIM, Germany', score:'65', stage:'Lead', flag:'🇩🇪', source:'Facebook', tags:['Cold'] },
+];
+const crmStageFlow = ['Lead', 'Profiling', 'Applied', 'Offer', 'Enrolled'];
+const crmStageColor = { Lead:'b-neutral', Profiling:'b-info', Applied:'b-warning', Offer:'b-success', Enrolled:'b-purple' };
+let crmSearch = '';
+function crmFilterLeads() {
+  const q = crmSearch.trim().toLowerCase();
+  return CRM_LEADS.filter(l => !q || l.name.toLowerCase().includes(q) || l.course.toLowerCase().includes(q));
+}
+function crmOnSearch(v) {
+  crmSearch = v;
+  const tb = document.getElementById('crmRows');
+  if (tb) tb.innerHTML = crmRowsHTML(crmFilterLeads());
+}
+function crmAdvanceLead(idx) {
+  const l = CRM_LEADS[idx];
+  if (!l) return;
+  const i = crmStageFlow.indexOf(l.stage);
+  if (i < crmStageFlow.length - 1) { l.stage = crmStageFlow[i + 1]; renderView('crm'); obToast('📈 ' + l.name + ' advanced to ' + l.stage); }
+  else obToast('🎉 ' + l.name + ' is already Enrolled');
+}
+function crmAddLead() {
+  const name = (typeof prompt === 'function') ? prompt('New lead name:') : '';
+  if (name && name.trim()) {
+    CRM_LEADS.unshift({ name: name.trim(), course:'New enquiry', score:'60', stage:'Lead', flag:'🌐', source:'Manual', tags:['New'] });
+    renderView('crm');
+    obToast('✓ Lead added: ' + name.trim());
+  }
+}
+function crmRowsHTML(list) {
+  if (!list.length) return `<tr><td colspan="7" style="padding:24px;text-align:center;color:var(--n300);font-size:13px;">No leads match your search.</td></tr>`;
+  return list.map(l => {
+    const i = CRM_LEADS.indexOf(l);
+    const odd = i % 2 === 1;
+    return `
+        <tr style="border-bottom:1px solid var(--nl-300);${odd ? 'background:var(--nl-100);' : ''}" onmouseover="this.style.background='var(--color-primary-0)'" onmouseout="this.style.background='${odd ? 'var(--nl-100)' : 'white'}'">
           <td style="padding:13px 16px;">
             <div style="display:flex;align-items:center;gap:10px;">
-              <div style="width:34px;height:34px;border-radius:50%;background:var(--g90);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:white;flex-shrink:0;">${l.name.split(' ').map(w=>w[0]).join('')}</div>
+              <div style="width:34px;height:34px;border-radius:50%;background:var(--g90);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:white;flex-shrink:0;">${l.name.split(' ').map(w => w[0]).join('')}</div>
               <div><div style="font-size:13px;font-weight:600;color:var(--color-primary-600);">${l.name}</div></div>
             </div>
           </td>
@@ -2662,17 +2715,54 @@ function viewCRM() {
               <span style="font-size:12px;font-weight:700;color:var(--color-primary-600);">${l.score}</span>
             </div>
           </td>
-          <td style="padding:13px 16px;"><span class="badge ${stageColor[l.stage]}">${l.stage}</span></td>
+          <td style="padding:13px 16px;"><span class="badge ${crmStageColor[l.stage]}">${l.stage}</span></td>
           <td style="padding:13px 16px;font-size:12px;color:var(--n300);">${l.source}</td>
-          <td style="padding:13px 16px;">${l.tags.map(t=>`<span class="badge b-neutral" style="font-size:10px;margin-right:3px;">${t}</span>`).join('')}</td>
+          <td style="padding:13px 16px;">${l.tags.map(t => `<span class="badge b-neutral" style="font-size:10px;margin-right:3px;">${t}</span>`).join('')}</td>
           <td style="padding:13px 16px;">
             <div style="display:flex;gap:5px;">
-              <button class="btn btn-ghost btn-sm" style="padding:4px 10px;">View</button>
-              <button class="btn btn-primary btn-sm" style="padding:4px 10px;">💬</button>
+              <button class="btn btn-primary btn-sm" style="padding:4px 10px;" onclick="crmAdvanceLead(${i})" title="Move to next stage">Advance →</button>
+              <button class="btn btn-ghost btn-sm" style="padding:4px 10px;" onclick="obToast('💬 Opening chat with ${l.name}…')">💬</button>
             </div>
           </td>
-        </tr>`).join('')}
-      </tbody>
+        </tr>`;
+  }).join('');
+}
+function viewCRM() {
+  const leads = CRM_LEADS;
+  const count = stage => leads.filter(l => l.stage === stage).length;
+  const avg = Math.round(leads.reduce((a, l) => a + parseInt(l.score, 10), 0) / (leads.length || 1));
+  return `
+  ${pageHead('Consultant › CRM', 'Lead Pipeline', `${leads.length} active leads · ₹2.4L commission this month`,
+    `<div style="display:flex;gap:8px;"><button class="btn btn-ghost btn-sm" onclick="obToast('📊 Generating pipeline report…')">📊 Reports</button><button class="btn btn-primary btn-sm" onclick="crmAddLead()">+ Add Lead</button></div>`)}
+
+  <!-- KPIs -->
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;">
+    ${statCard('👥','Active Leads',String(leads.length),'In your pipeline')}
+    ${statCard('🎓','Enrolled',String(count('Enrolled')),'Converted','var(--teal)')}
+    ${statCard('💰','Commission Earned','₹2.4L','↑ ₹40K vs last month')}
+    ${statCard('⭐','Avg. Score',String(avg),'Profile quality','var(--blue)')}
+  </div>
+
+  <!-- Pipeline Stages -->
+  <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:22px;">
+    ${[['Lead','neutral'],['Profiling','info'],['Applied','warning'],['Offer','success'],['Enrolled','purple']].map(([s,t])=>`
+    <div class="card" style="padding:14px;text-align:center;border-top:3px solid ${t==='success'?'var(--teal)':t==='warning'?'var(--yellow)':t==='info'?'var(--blue)':t==='purple'?'var(--purple)':'var(--nl-600)'};">
+      <div style="font-family:var(--font-head);font-size:26px;font-weight:700;color:var(--color-primary-600);">${count(s)}</div>
+      <span class="badge b-${t}" style="font-size:10px;">${s}</span>
+    </div>`).join('')}
+  </div>
+
+  <!-- Lead Table -->
+  <div class="card" style="overflow:hidden;">
+    <div style="padding:16px 22px;border-bottom:1px solid var(--nl-300);display:flex;align-items:center;justify-content:space-between;">
+      <div style="font-family:var(--font-head);font-size:16px;font-weight:700;color:var(--color-primary-600);">All Leads</div>
+      <input id="crmSearch" oninput="crmOnSearch(this.value)" style="padding:7px 12px;border:1.5px solid var(--nl-400);border-radius:8px;font-size:12px;font-family:var(--font-body);outline:none;width:200px;" placeholder="🔍 Search leads...">
+    </div>
+    <table style="width:100%;border-collapse:collapse;">
+      <thead><tr style="background:var(--color-primary-0);">
+        ${['Student','Target','Score','Stage','Source','Tags','Actions'].map(h=>`<th style="padding:10px 16px;text-align:left;font-size:11px;font-weight:700;color:var(--color-primary-600);letter-spacing:.06em;text-transform:uppercase;">${h}</th>`).join('')}
+      </tr></thead>
+      <tbody id="crmRows">${crmRowsHTML(crmFilterLeads())}</tbody>
     </table>
   </div>`;
 }
@@ -2696,7 +2786,7 @@ function viewStudents() {
       <div style="height:4px;background:var(--nl-300);border-radius:2px;overflow:hidden;margin-bottom:14px;">
         <div style="height:100%;width:${prog};background:var(--g90);border-radius:2px;"></div>
       </div>
-      <button class="btn btn-navy btn-sm" style="width:100%;justify-content:center;">View Profile →</button>
+      <button class="btn btn-navy btn-sm" style="width:100%;justify-content:center;" onclick="obToast('👤 Opening ${name}’s profile…')">View Profile →</button>
     </div>`).join('')}
   </div>`;
 }
@@ -2750,7 +2840,7 @@ function viewCommission() {
 function viewAnalytics() {
   return `
   ${pageHead('Admin › Analytics','Platform Analytics','Real-time overview of Eleevate Overseas — June 2026',
-    `<div style="display:flex;gap:8px;"><button class="btn btn-ghost btn-sm">📥 Export</button><button class="btn btn-teal btn-sm">🔴 Live</button></div>`)}
+    `<div style="display:flex;gap:8px;"><button class="btn btn-ghost btn-sm" onclick="obToast('📥 Exporting analytics to CSV…')">📥 Export</button><button class="btn btn-teal btn-sm" onclick="obToast('🔴 Live mode — data refreshes every 30s')">🔴 Live</button></div>`)}
 
   <!-- Platform KPIs -->
   <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;">
@@ -3037,6 +3127,20 @@ document.addEventListener('keydown', e => {
   if (ov && ov.classList.contains('show')) closeWelcome(false);
   else if (document.getElementById('tourLayer').classList.contains('show')) endTour();
 });
+let sidebarOpen = false;
+function toggleSidebar() {
+  sidebarOpen = !sidebarOpen;
+  document.querySelectorAll('.sidebar').forEach(s => s.classList.toggle('open', sidebarOpen));
+  const bd = document.getElementById('sidebarBackdrop');
+  if (bd) bd.style.display = sidebarOpen ? 'block' : 'none';
+}
+function closeSidebar() {
+  if (!sidebarOpen) return;
+  sidebarOpen = false;
+  document.querySelectorAll('.sidebar').forEach(s => s.classList.remove('open'));
+  const bd = document.getElementById('sidebarBackdrop');
+  if (bd) bd.style.display = 'none';
+}
 function globalSearch(q) {
   q = (q || '').trim();
   showView('universities');
