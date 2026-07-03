@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Eleevate — Dashboard (v2 concept)</title>
+<title>Eleevate — v2 concept (working)</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -13,7 +13,7 @@
   --ink:#1c1d1a; --muted:#75726a; --faint:#a6a49b;
   --paper:#f6f4ee; --surface:#ffffff; --sidebar:#f1efe8;
   --line:#e6e2d8; --line-soft:#efece4;
-  --accent:#1f6e4a; --accent-soft:#eef3ee;
+  --accent:#1f6e4a; --accent-hover:#1a5c3e; --accent-soft:#eef3ee;
   --amber:#a9772a; --radius:14px;
   --serif:'Fraunces',Georgia,serif; --sans:'Inter',system-ui,sans-serif;
 }
@@ -22,71 +22,87 @@ body{font-family:var(--sans);background:var(--paper);color:var(--ink);-webkit-fo
 .app{display:grid;grid-template-columns:248px 1fr;min-height:100vh}
 .over{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);font-weight:500}
 i{font-style:normal}
+button{font-family:var(--sans);cursor:pointer}
 
-/* Sidebar */
-.side{background:var(--sidebar);border-right:1px solid var(--line);padding:26px 18px;display:flex;flex-direction:column;gap:26px}
+.side{background:var(--sidebar);border-right:1px solid var(--line);padding:26px 18px;display:flex;flex-direction:column;gap:24px;position:sticky;top:0;height:100vh}
 .brand{display:flex;align-items:center;gap:10px;padding:0 8px}
 .mark{width:30px;height:30px;border-radius:8px;background:var(--ink);color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-weight:600;font-size:16px}
 .brand b{font-family:var(--serif);font-weight:600;font-size:19px;letter-spacing:-.01em}
 .nav{display:flex;flex-direction:column;gap:2px}
 .nav .lbl{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);padding:0 10px 8px;font-weight:500}
-.item{display:flex;align-items:center;gap:12px;padding:9px 10px;border-radius:9px;color:var(--muted);font-size:14px;cursor:pointer;transition:all .18s;text-decoration:none}
-.item i{font-size:19px;color:var(--faint);transition:color .18s}
+.item{display:flex;align-items:center;gap:12px;padding:9px 10px;border-radius:9px;color:var(--muted);font-size:14px;cursor:pointer;transition:all .16s;border:none;background:none;text-align:left;width:100%}
+.item i{font-size:19px;color:var(--faint);transition:color .16s}
 .item:hover{background:#eae7de;color:var(--ink)}
-.item:hover i{color:var(--muted)}
-.item.on{background:var(--surface);color:var(--ink);font-weight:500;box-shadow:0 1px 2px rgba(28,29,26,.04)}
+.item.on{background:var(--surface);color:var(--ink);font-weight:500;box-shadow:0 1px 2px rgba(28,29,26,.05)}
 .item.on i{color:var(--accent)}
-.side .foot{margin-top:auto;display:flex;align-items:center;gap:10px;padding:10px;border-top:1px solid var(--line);color:var(--muted);font-size:13px}
+.foot{margin-top:auto;display:flex;align-items:center;gap:10px;padding-top:14px;border-top:1px solid var(--line);color:var(--muted);font-size:13px}
 .ava{width:30px;height:30px;border-radius:50%;background:#e4e0d5;color:var(--ink);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600}
 
-/* Main */
-.main{padding:44px 56px 64px;max-width:1000px}
-.hello{font-family:var(--serif);font-weight:500;font-size:40px;letter-spacing:-.02em;line-height:1.05;margin:10px 0 8px}
-.sub{color:var(--muted);font-size:15.5px}
-.topline{display:flex;justify-content:space-between;align-items:flex-start}
-.ghost{display:inline-flex;align-items:center;gap:8px;background:none;border:1px solid var(--line);color:var(--ink);padding:9px 16px;border-radius:999px;font-family:var(--sans);font-size:13.5px;cursor:pointer;transition:all .18s}
+.main{padding:44px 56px 72px;max-width:1000px}
+.hello{font-family:var(--serif);font-weight:500;font-size:38px;letter-spacing:-.02em;line-height:1.06;margin:10px 0 8px}
+.h2{font-family:var(--serif);font-weight:500;font-size:30px;letter-spacing:-.02em;margin:6px 0 4px}
+.sub{color:var(--muted);font-size:15px}
+.topline{display:flex;justify-content:space-between;align-items:flex-start;gap:24px}
+.ghost{display:inline-flex;align-items:center;gap:8px;background:none;border:1px solid var(--line);color:var(--ink);padding:9px 16px;border-radius:999px;font-size:13.5px;transition:all .16s}
 .ghost:hover{border-color:var(--ink)}
+.cta{display:inline-flex;align-items:center;gap:9px;background:var(--accent);color:#fff;border:none;padding:12px 20px;border-radius:999px;font-size:14px;font-weight:500;white-space:nowrap;transition:transform .16s,background .16s}
+.cta:hover{background:var(--accent-hover);transform:translateY(-1px)}
+.cta.sm{padding:8px 15px;font-size:13px}
+.quiet{display:inline-flex;align-items:center;gap:7px;background:none;border:1px solid var(--line);color:var(--ink);padding:8px 15px;border-radius:999px;font-size:13px;transition:all .16s}
+.quiet:hover{border-color:var(--ink)}
+.quiet.act{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
 
-/* Next step */
-.next{margin:34px 0 8px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:26px 28px;display:flex;align-items:center;justify-content:space-between;gap:24px}
+.next{margin:32px 0 4px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:24px 26px;display:flex;align-items:center;justify-content:space-between;gap:24px}
 .next .k{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:9px}
-.next h3{font-family:var(--serif);font-weight:500;font-size:23px;letter-spacing:-.01em;margin-bottom:6px}
+.next h3{font-family:var(--serif);font-weight:500;font-size:22px;letter-spacing:-.01em;margin-bottom:6px}
 .next p{color:var(--muted);font-size:14px}
-.cta{display:inline-flex;align-items:center;gap:9px;background:var(--accent);color:#fff;border:none;padding:13px 22px;border-radius:999px;font-family:var(--sans);font-size:14.5px;font-weight:500;cursor:pointer;white-space:nowrap;transition:transform .18s,background .18s}
-.cta:hover{background:#1a5c3e;transform:translateY(-1px)}
 
-/* Metrics strip */
-.metrics{display:grid;grid-template-columns:repeat(4,1fr);margin:40px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
-.metric{padding:22px 24px 22px 0;border-right:1px solid var(--line-soft)}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);margin:36px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.metric{padding:20px 22px 20px 0;border-right:1px solid var(--line-soft)}
 .metric:last-child{border-right:none}
-.metric .n{font-family:var(--serif);font-weight:500;font-size:31px;letter-spacing:-.01em;line-height:1}
+.metric .n{font-family:var(--serif);font-weight:500;font-size:29px;letter-spacing:-.01em;line-height:1}
 .metric .l{color:var(--muted);font-size:13px;margin-top:7px}
 
-/* Two-col */
-.cols{display:grid;grid-template-columns:1.7fr 1fr;gap:52px;margin-top:8px}
-.sec-h{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
-.sec-h a{color:var(--muted);font-size:13px;text-decoration:none;border-bottom:1px solid transparent;transition:border .18s}
-.sec-h a:hover{border-color:var(--muted)}
+.cols{display:grid;grid-template-columns:1.7fr 1fr;gap:52px;margin-top:6px}
+.sec-h{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px}
+.link{color:var(--muted);font-size:13px;background:none;border:none;border-bottom:1px solid transparent;padding:0 0 1px}
+.link:hover{border-color:var(--muted);color:var(--ink)}
 
-.row{display:flex;align-items:center;gap:16px;padding:18px 0;border-bottom:1px solid var(--line-soft)}
+.row{display:flex;align-items:center;gap:16px;padding:16px 0;border-bottom:1px solid var(--line-soft)}
 .row:last-child{border-bottom:none}
-.flag{font-size:22px;width:26px;text-align:center;filter:saturate(.9)}
+.flag{font-size:21px;width:26px;text-align:center}
 .row .u{font-size:14.5px;font-weight:500}
 .row .c{color:var(--muted);font-size:13px;margin-top:2px}
-.row .right{margin-left:auto;text-align:right}
-.stat{display:inline-flex;align-items:center;gap:7px;font-size:13px;color:var(--muted)}
+.row .right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.stat{display:inline-flex;align-items:center;gap:7px;font-size:13px;color:var(--muted);white-space:nowrap}
 .dot{width:7px;height:7px;border-radius:50%;background:var(--faint)}
 .dot.g{background:var(--accent)}.dot.a{background:var(--amber)}
 
-.up{display:flex;gap:14px;padding:15px 0;border-bottom:1px solid var(--line-soft)}
+.up{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid var(--line-soft)}
 .up:last-child{border-bottom:none}
-.up .d{font-family:var(--serif);font-size:15px;font-weight:500;width:44px;flex-shrink:0;color:var(--ink)}
+.up .d{font-family:var(--serif);font-size:15px;font-weight:500;width:46px;flex-shrink:0}
 .up .t{font-size:13.5px;color:var(--muted);line-height:1.45}
 .elee{margin-top:26px;background:var(--accent-soft);border-radius:var(--radius);padding:20px}
 .elee .k{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
 .elee p{font-family:var(--serif);font-size:16px;font-weight:500;margin:8px 0 14px;line-height:1.4;color:#173a2a}
-.elee button{background:none;border:1px solid var(--accent);color:var(--accent);padding:8px 15px;border-radius:999px;font-family:var(--sans);font-size:13px;cursor:pointer;transition:all .18s}
+.elee button{background:none;border:1px solid var(--accent);color:var(--accent);padding:8px 15px;border-radius:999px;font-size:13px;transition:all .16s}
 .elee button:hover{background:var(--accent);color:#fff}
+
+.search{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:999px;padding:10px 18px;background:var(--surface);margin:24px 0 8px;max-width:420px}
+.search input{border:none;outline:none;font-family:var(--sans);font-size:14px;width:100%;background:none;color:var(--ink)}
+.search i{color:var(--faint);font-size:18px}
+
+.finrow{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin-bottom:6px}
+.slide{width:100%;accent-color:var(--accent);margin-bottom:18px}
+.emi-out{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:22px;text-align:center}
+.emi-out .big{font-family:var(--serif);font-size:30px;font-weight:500;color:var(--accent);margin:4px 0 12px}
+.emi-out .ln{display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-top:1px solid var(--line-soft)}
+
+#toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);display:flex;flex-direction:column;gap:8px;align-items:center;z-index:50}
+.tst{background:var(--ink);color:#fbfaf7;padding:11px 18px;border-radius:999px;font-size:13px;box-shadow:0 6px 20px rgba(28,29,26,.16);animation:pop .2s ease}
+@keyframes pop{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.fade{animation:fade .3s ease}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 </style>
 </head>
 <body>
@@ -95,81 +111,117 @@ i{font-style:normal}
     <div class="brand"><div class="mark">E</div><b>Eleevate</b></div>
     <nav class="nav">
       <div class="lbl">Journey</div>
-      <a class="item on"><i class="ti ti-layout-dashboard"></i> Dashboard</a>
-      <a class="item"><i class="ti ti-school"></i> Universities</a>
-      <a class="item"><i class="ti ti-files"></i> Applications</a>
-      <a class="item"><i class="ti ti-plane-departure"></i> Visa</a>
-      <a class="item"><i class="ti ti-folder"></i> Documents</a>
-    </nav>
-    <nav class="nav">
-      <div class="lbl">You</div>
-      <a class="item"><i class="ti ti-user"></i> Profile</a>
-      <a class="item"><i class="ti ti-wallet"></i> Finance</a>
-      <a class="item"><i class="ti ti-briefcase"></i> Career</a>
+      <button class="item on" data-v="dashboard" onclick="show('dashboard')"><i class="ti ti-layout-dashboard"></i> Dashboard</button>
+      <button class="item" data-v="universities" onclick="show('universities')"><i class="ti ti-school"></i> Universities</button>
+      <button class="item" data-v="applications" onclick="show('applications')"><i class="ti ti-files"></i> Applications</button>
+      <button class="item" data-v="finance" onclick="show('finance')"><i class="ti ti-wallet"></i> Finance</button>
     </nav>
     <div class="foot"><div class="ava">AS</div><div>Arjun Sharma<div style="color:var(--faint);font-size:12px">Free plan</div></div></div>
   </aside>
-
-  <main class="main">
-    <div class="topline">
-      <div>
-        <div class="over">Tuesday, 1 July</div>
-        <h1 class="hello">Good morning, Arjun.</h1>
-        <div class="sub">You're three steps from confirming your Manchester offer.</div>
-      </div>
-      <button class="ghost"><i class="ti ti-search" style="font-size:16px"></i> Search</button>
-    </div>
-
-    <section class="next">
-      <div>
-        <div class="k">Next step</div>
-        <h3>Pay your UK health surcharge</h3>
-        <p>£776 · due in 3 days · the last blocker on your visa</p>
-      </div>
-      <button class="cta">Pay now <i class="ti ti-arrow-right" style="font-size:17px"></i></button>
-    </section>
-
-    <div class="metrics">
-      <div class="metric"><div class="n">3</div><div class="l">Applications</div></div>
-      <div class="metric"><div class="n">82%</div><div class="l">Visa progress</div></div>
-      <div class="metric"><div class="n">8/11</div><div class="l">Documents ready</div></div>
-      <div class="metric"><div class="n">₹36L</div><div class="l">Scholarships found</div></div>
-    </div>
-
-    <div class="cols">
-      <div>
-        <div class="sec-h"><div class="over">Your applications</div><a href="#">View all</a></div>
-        <div class="row">
-          <div class="flag">🇬🇧</div>
-          <div><div class="u">University of Manchester</div><div class="c">MSc Computer Science</div></div>
-          <div class="right"><span class="stat"><span class="dot g"></span> Offer received</span></div>
-        </div>
-        <div class="row">
-          <div class="flag">🇬🇧</div>
-          <div><div class="u">University College London</div><div class="c">MSc Artificial Intelligence</div></div>
-          <div class="right"><span class="stat"><span class="dot a"></span> Under review</span></div>
-        </div>
-        <div class="row">
-          <div class="flag">🇨🇦</div>
-          <div><div class="u">University of Toronto</div><div class="c">MCS Computer Science</div></div>
-          <div class="right"><span class="stat"><span class="dot"></span> Applying</span></div>
-        </div>
-      </div>
-
-      <div>
-        <div class="sec-h"><div class="over">Upcoming</div></div>
-        <div class="up"><div class="d">Jul 4</div><div class="t">Health surcharge payment due</div></div>
-        <div class="up"><div class="d">Jul 12</div><div class="t">UCL application deadline</div></div>
-        <div class="up"><div class="d">Aug 1</div><div class="t">Chevening scholarship opens</div></div>
-
-        <div class="elee">
-          <div class="k">Elee</div>
-          <p>Want me to book your biometrics appointment after the surcharge clears?</p>
-          <button>Ask Elee</button>
-        </div>
-      </div>
-    </div>
-  </main>
+  <main class="main" id="view"></main>
 </div>
+<div id="toast"></div>
+<script>
+const UNIS=[
+ {id:0,flag:'🇬🇧',name:'University of Manchester',prog:'MSc Computer Science',fees:'£21,000/yr',match:94},
+ {id:1,flag:'🇬🇧',name:'University College London',prog:'MSc Artificial Intelligence',fees:'£28,500/yr',match:88},
+ {id:2,flag:'🇬🇧',name:'University of Edinburgh',prog:'MSc Data Science',fees:'£19,800/yr',match:91},
+ {id:3,flag:'🇨🇦',name:'University of Toronto',prog:'MCS Computer Science',fees:'CA$28,000/yr',match:85},
+ {id:4,flag:'🇦🇺',name:'University of Melbourne',prog:'Master of CS',fees:'AU$42,000/yr',match:89},
+ {id:5,flag:'🇺🇸',name:'Carnegie Mellon University',prog:'MSCS',fees:'US$58,000/yr',match:72},
+];
+const applied=new Set([0,1,3]), shortl=new Set([2]);
+const appStatus={0:'Offer received',1:'Under review',3:'Applying'};
+let uSearch='', current='dashboard';
+
+function toast(m){const w=document.getElementById('toast');const t=document.createElement('div');t.className='tst';t.textContent=m;w.appendChild(t);setTimeout(()=>{t.style.opacity='0';setTimeout(()=>t.remove(),250)},2200);}
+function show(v){current=v;document.querySelectorAll('.item').forEach(i=>i.classList.toggle('on',i.dataset.v===v));const el=document.getElementById('view');el.className='main fade';void el.offsetWidth;el.className='main';el.innerHTML=({dashboard:vDashboard,universities:vUniversities,applications:vApplications,finance:vFinance}[v])();el.classList.add('fade');if(v==='finance')computeEMI();}
+
+function applyU(id){applied.add(id);shortl.delete(id);if(!appStatus[id])appStatus[id]='Applying';uList();toast('Application started · '+UNIS[id].name);}
+function shortU(id){if(shortl.has(id))shortl.delete(id);else shortl.add(id);uList();toast(shortl.has(id)?'Saved · '+UNIS[id].name:'Removed from saved');}
+function uList(){const l=document.getElementById('ulist');if(!l)return;const q=uSearch.trim().toLowerCase();const list=UNIS.filter(u=>!q||u.name.toLowerCase().includes(q)||u.prog.toLowerCase().includes(q));
+ l.innerHTML=list.length?list.map(u=>{const ap=applied.has(u.id),sh=shortl.has(u.id);return `
+  <div class="row">
+    <div class="flag">${u.flag}</div>
+    <div><div class="u">${u.name}</div><div class="c">${u.prog} · ${u.fees} · ${u.match}% match</div></div>
+    <div class="right">
+      ${ap?`<span class="stat"><span class="dot g"></span> Applied</span>`:`<button class="cta sm" onclick="applyU(${u.id})">Apply</button>`}
+      <button class="quiet ${sh?'act':''}" onclick="shortU(${u.id})">${sh?'Saved':'Save'}</button>
+    </div>
+  </div>`;}).join(''):`<div style="padding:28px 0;color:var(--faint);font-size:14px">No matches. Try another search.</div>`;
+ const c=document.getElementById('ucount');if(c)c.textContent=list.length;}
+
+function vDashboard(){return `
+ <div class="topline"><div>
+   <div class="over">Tuesday, 1 July</div>
+   <h1 class="hello">Good morning, Arjun.</h1>
+   <div class="sub">You're three steps from confirming your Manchester offer.</div>
+ </div><button class="ghost" onclick="show('universities')"><i class="ti ti-search" style="font-size:16px"></i> Explore</button></div>
+
+ <section class="next">
+   <div><div class="k">Next step</div><h3>Pay your UK health surcharge</h3><p>£776 · due in 3 days · the last blocker on your visa</p></div>
+   <button class="cta" onclick="toast('Opening secure payment for £776…')">Pay now <i class="ti ti-arrow-right" style="font-size:17px"></i></button>
+ </section>
+
+ <div class="metrics">
+   <div class="metric"><div class="n">${applied.size}</div><div class="l">Applications</div></div>
+   <div class="metric"><div class="n">82%</div><div class="l">Visa progress</div></div>
+   <div class="metric"><div class="n">8/11</div><div class="l">Documents ready</div></div>
+   <div class="metric"><div class="n">₹36L</div><div class="l">Scholarships found</div></div>
+ </div>
+
+ <div class="cols">
+   <div>
+     <div class="sec-h"><div class="over">Your applications</div><button class="link" onclick="show('applications')">View all</button></div>
+     ${[...applied].slice(0,3).map(id=>{const u=UNIS[id];const st=appStatus[id]||'Applying';const d=st==='Offer received'?'g':st==='Under review'?'a':'';return `
+     <div class="row"><div class="flag">${u.flag}</div><div><div class="u">${u.name}</div><div class="c">${u.prog}</div></div><div class="right"><span class="stat"><span class="dot ${d}"></span> ${st}</span></div></div>`;}).join('')}
+   </div>
+   <div>
+     <div class="sec-h"><div class="over">Upcoming</div></div>
+     <div class="up"><div class="d">Jul 4</div><div class="t">Health surcharge payment due</div></div>
+     <div class="up"><div class="d">Jul 12</div><div class="t">UCL application deadline</div></div>
+     <div class="up"><div class="d">Aug 1</div><div class="t">Chevening scholarship opens</div></div>
+     <div class="elee"><div class="k">Elee</div><p>Want me to book your biometrics appointment after the surcharge clears?</p><button onclick="toast('Elee is finding the earliest biometrics slot…')">Ask Elee</button></div>
+   </div>
+ </div>`;}
+
+function vUniversities(){setTimeout(uList,0);return `
+ <div class="over">Discover</div><h1 class="h2">Universities</h1>
+ <div class="sub"><span id="ucount">${UNIS.length}</span> programmes matched to your profile</div>
+ <div class="search"><i class="ti ti-search"></i><input placeholder="Search a university or programme" oninput="uSearch=this.value;uList()"></div>
+ <div id="ulist"></div>`;}
+
+function vApplications(){const cols=[['Applying','Applying'],['Under review','Submitted'],['Offer received','Offer']];return `
+ <div class="over">Track</div><h1 class="h2">Applications</h1>
+ <div class="sub">${applied.size} live · ${shortl.size} saved</div>
+ <div style="margin-top:26px">
+ ${[...applied].map(id=>{const u=UNIS[id];const st=appStatus[id]||'Applying';const d=st==='Offer received'?'g':st==='Under review'?'a':'';return `
+   <div class="row"><div class="flag">${u.flag}</div><div><div class="u">${u.name}</div><div class="c">${u.prog}</div></div>
+   <div class="right"><span class="stat"><span class="dot ${d}"></span> ${st}</span><button class="quiet" onclick="toast('Opening ${u.name}…')">View</button></div></div>`;}).join('')}
+ </div>
+ ${shortl.size?`<div class="over" style="margin-top:34px">Saved</div>${[...shortl].map(id=>{const u=UNIS[id];return `<div class="row"><div class="flag">${u.flag}</div><div><div class="u">${u.name}</div><div class="c">${u.prog}</div></div><div class="right"><button class="cta sm" onclick="applyU(${id});show('applications')">Apply</button></div></div>`;}).join('')}`:''}`;}
+
+function vFinance(){return `
+ <div class="over">Plan</div><h1 class="h2">Finance</h1>
+ <div class="sub">Estimate your education-loan repayment</div>
+ <div class="cols" style="grid-template-columns:1.5fr 1fr;margin-top:28px">
+  <div>
+    <div class="finrow"><span>Loan amount</span><span id="emiA" style="color:var(--ink);font-weight:500">₹20,00,000</span></div>
+    <input class="slide" id="ea" type="range" min="100000" max="10000000" step="100000" value="2000000" oninput="computeEMI()">
+    <div class="finrow"><span>Tenure</span><span id="emiT" style="color:var(--ink);font-weight:500">120 months</span></div>
+    <input class="slide" id="et" type="range" min="12" max="180" step="6" value="120" oninput="computeEMI()">
+    <div class="finrow"><span>Interest rate</span><span id="emiR" style="color:var(--ink);font-weight:500">10.5%</span></div>
+    <input class="slide" id="er" type="range" min="7" max="15" step="0.25" value="10.5" oninput="computeEMI()">
+  </div>
+  <div class="emi-out"><div class="over">Monthly EMI</div><div class="big" id="emiOut">₹26,987</div>
+    <div class="ln"><span style="color:var(--muted)">Total interest</span><span id="emiI">₹12.4L</span></div>
+    <div class="ln"><span style="color:var(--muted)">Total payable</span><span id="emiTp">₹32.4L</span></div>
+  </div>
+ </div>`;}
+
+function computeEMI(){const P=+(document.getElementById('ea')||{}).value||2000000,n=+(document.getElementById('et')||{}).value||120,rt=+(document.getElementById('er')||{}).value||10.5;const r=rt/1200,e=r>0?P*r*Math.pow(1+r,n)/(Math.pow(1+r,n)-1):P/n,tot=e*n;const S=(id,v)=>{const x=document.getElementById(id);if(x)x.textContent=v};S('emiA','₹'+Math.round(P).toLocaleString('en-IN'));S('emiT',n+' months');S('emiR',rt+'%');S('emiOut','₹'+Math.round(e).toLocaleString('en-IN'));S('emiI','₹'+Math.round(tot-P).toLocaleString('en-IN'));S('emiTp','₹'+Math.round(tot).toLocaleString('en-IN'));}
+
+show('dashboard');
+</script>
 </body>
 </html>
