@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eleevate — v3 concept (fintech)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.7.0/dist/tabler-icons.min.css">
+<style>
+:root{
+  --ink:#0b0d12; --muted:#5b6572; --faint:#9aa3af;
+  --bg:#f6f7f9; --surface:#ffffff; --side:#0e1116; --side-line:#1e232d;
+  --line:#e6e8ec; --line-soft:#eef0f3;
+  --accent:#4f46e5; --accent-ink:#3a32c9; --accent-soft:#eef0fe;
+  --pos:#0f9d6b; --pos-bg:#e7f6ef; --warn:#b47814; --warn-bg:#fbf1de; --neu-bg:#eef0f3;
+  --sans:'Inter',system-ui,sans-serif; --mono:'JetBrains Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;line-height:1.5}
+.app{display:grid;grid-template-columns:236px 1fr;min-height:100vh}
+i{font-style:normal}
+button{font-family:var(--sans);cursor:pointer}
+.num{font-family:var(--mono);font-feature-settings:"tnum";letter-spacing:-.02em}
+.over{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--faint);font-weight:600}
+
+.side{background:var(--side);padding:22px 16px;display:flex;flex-direction:column;gap:22px;position:sticky;top:0;height:100vh}
+.brand{display:flex;align-items:center;gap:10px;padding:0 8px}
+.mark{width:30px;height:30px;border-radius:8px;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px}
+.brand b{color:#fff;font-size:17px;font-weight:600;letter-spacing:-.01em}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav .lbl{font-size:10px;letter-spacing:.11em;text-transform:uppercase;color:#5a6472;padding:6px 10px;font-weight:600}
+.item{display:flex;align-items:center;gap:11px;padding:9px 11px;border-radius:8px;color:#a9b1bd;font-size:13.5px;font-weight:500;border:none;background:none;text-align:left;width:100%;transition:all .15s;border-left:2px solid transparent}
+.item i{font-size:18px;color:#6b7482;transition:color .15s}
+.item:hover{background:#171b23;color:#e7eaef}
+.item.on{background:#171b23;color:#fff;border-left-color:var(--accent)}
+.item.on i{color:#fff}
+.foot{margin-top:auto;display:flex;align-items:center;gap:10px;padding-top:14px;border-top:1px solid var(--side-line);color:#a9b1bd;font-size:13px}
+.ava{width:30px;height:30px;border-radius:8px;background:#232834;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600}
+
+.main{padding:30px 40px 60px;max-width:1040px}
+.crumb{font-size:12px;color:var(--faint);margin-bottom:4px}
+.h1{font-size:25px;font-weight:600;letter-spacing:-.02em}
+.sub{color:var(--muted);font-size:14px;margin-top:3px}
+.topline{display:flex;justify-content:space-between;align-items:flex-start;gap:20px}
+.btn{display:inline-flex;align-items:center;gap:7px;border-radius:8px;font-size:13px;font-weight:500;padding:9px 14px;border:1px solid var(--line);background:var(--surface);color:var(--ink);transition:all .15s}
+.btn:hover{border-color:#cfd3da}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.pri:hover{background:var(--accent-ink);border-color:var(--accent-ink)}
+.btn.sm{padding:6px 11px;font-size:12.5px}
+.btn.act{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:24px 0}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:15px 16px}
+.tile .l{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px}
+.tile .l i{font-size:15px;color:var(--faint)}
+.tile .v{font-size:23px;font-weight:600;margin-top:9px}
+.chip{display:inline-block;font-size:11px;font-weight:600;padding:2px 7px;border-radius:6px;margin-top:8px;background:var(--pos-bg);color:var(--pos)}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px}
+.next{margin:0 0 22px;padding:20px 22px;display:flex;align-items:center;justify-content:space-between;gap:20px;border-left:3px solid var(--accent)}
+.next .k{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:7px}
+.next h3{font-size:17px;font-weight:600;margin-bottom:4px}
+.next p{color:var(--muted);font-size:13px}
+
+.cols{display:grid;grid-template-columns:1.7fr 1fr;gap:22px}
+.panel{padding:6px 18px}
+.phead{display:flex;justify-content:space-between;align-items:center;padding:14px 0 10px;border-bottom:1px solid var(--line)}
+.phead .t{font-size:14px;font-weight:600}
+.link{color:var(--accent);font-size:12.5px;font-weight:500;background:none;border:none}
+.row{display:flex;align-items:center;gap:13px;padding:13px 0;border-bottom:1px solid var(--line-soft)}
+.row:last-child{border-bottom:none}
+.flag{font-size:19px;width:24px;text-align:center}
+.row .u{font-size:13.5px;font-weight:500}
+.row .c{color:var(--muted);font-size:12.5px;margin-top:1px}
+.row .right{margin-left:auto;display:flex;align-items:center;gap:9px}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:500;padding:4px 10px;border-radius:999px;background:var(--neu-bg);color:var(--muted);white-space:nowrap}
+.pill.g{background:var(--pos-bg);color:var(--pos)}.pill.a{background:var(--warn-bg);color:var(--warn)}
+
+.up{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--line-soft)}
+.up:last-child{border-bottom:none}
+.up .d{font-size:12px;font-weight:600;color:var(--muted);width:44px;flex-shrink:0}
+.up .x{font-size:13px;color:var(--muted)}
+.elee{margin-top:16px;padding:16px;background:#0e1116;border-radius:10px;color:#e7eaef}
+.elee .k{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:#a9b1bd;font-weight:600}
+.elee p{font-size:14px;margin:8px 0 12px;line-height:1.45}
+.elee button{background:var(--accent);border:none;color:#fff;padding:8px 14px;border-radius:8px;font-size:12.5px;font-weight:500}
+
+.search{display:flex;align-items:center;gap:9px;border:1px solid var(--line);border-radius:9px;padding:9px 14px;background:var(--surface);margin:20px 0 6px;max-width:400px}
+.search input{border:none;outline:none;font-family:var(--sans);font-size:13.5px;width:100%;background:none;color:var(--ink)}
+.search i{color:var(--faint);font-size:17px}
+
+.frow{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin-bottom:7px}
+.frow b{color:var(--ink);font-weight:600}
+.slide{width:100%;accent-color:var(--accent);margin-bottom:18px}
+.emi{padding:20px;text-align:center}
+.emi .big{font-size:28px;font-weight:600;color:var(--accent);margin:6px 0 14px}
+.emi .ln{display:flex;justify-content:space-between;font-size:12.5px;padding:7px 0;border-top:1px solid var(--line-soft)}
+
+#toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);display:flex;flex-direction:column;gap:8px;align-items:center;z-index:50}
+.tst{background:var(--ink);color:#fff;padding:10px 16px;border-radius:9px;font-size:13px;box-shadow:0 8px 24px rgba(11,13,18,.22);animation:pop .18s ease}
+@keyframes pop{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.fade{animation:fade .28s ease}@keyframes fade{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <div class="brand"><div class="mark">E</div><b>Eleevate</b></div>
+    <nav class="nav">
+      <div class="lbl">Journey</div>
+      <button class="item on" data-v="dashboard" onclick="show('dashboard')"><i class="ti ti-layout-dashboard"></i> Dashboard</button>
+      <button class="item" data-v="universities" onclick="show('universities')"><i class="ti ti-school"></i> Universities</button>
+      <button class="item" data-v="applications" onclick="show('applications')"><i class="ti ti-files"></i> Applications</button>
+      <button class="item" data-v="finance" onclick="show('finance')"><i class="ti ti-wallet"></i> Finance</button>
+    </nav>
+    <div class="foot"><div class="ava">AS</div><div>Arjun Sharma<div style="color:#6b7482;font-size:12px">Free plan</div></div></div>
+  </aside>
+  <main class="main" id="view"></main>
+</div>
+<div id="toast"></div>
+<script>
+const UNIS=[
+ {id:0,flag:'🇬🇧',name:'University of Manchester',prog:'MSc Computer Science',fees:'£21,000/yr',match:94},
+ {id:1,flag:'🇬🇧',name:'University College London',prog:'MSc Artificial Intelligence',fees:'£28,500/yr',match:88},
+ {id:2,flag:'🇬🇧',name:'University of Edinburgh',prog:'MSc Data Science',fees:'£19,800/yr',match:91},
+ {id:3,flag:'🇨🇦',name:'University of Toronto',prog:'MCS Computer Science',fees:'CA$28,000/yr',match:85},
+ {id:4,flag:'🇦🇺',name:'University of Melbourne',prog:'Master of CS',fees:'AU$42,000/yr',match:89},
+ {id:5,flag:'🇺🇸',name:'Carnegie Mellon University',prog:'MSCS',fees:'US$58,000/yr',match:72},
+];
+const applied=new Set([0,1,3]), shortl=new Set([2]);
+const appStatus={0:'Offer received',1:'Under review',3:'Applying'};
+let uSearch='', current='dashboard';
+
+function toast(m){const w=document.getElementById('toast');const t=document.createElement('div');t.className='tst';t.textContent=m;w.appendChild(t);setTimeout(()=>{t.style.opacity='0';setTimeout(()=>t.remove(),250)},2200);}
+function show(v){current=v;document.querySelectorAll('.item').forEach(i=>i.classList.toggle('on',i.dataset.v===v));const el=document.getElementById('view');el.innerHTML=({dashboard:vDashboard,universities:vUniversities,applications:vApplications,finance:vFinance}[v])();el.classList.remove('fade');void el.offsetWidth;el.classList.add('fade');if(v==='finance')computeEMI();}
+const pillClass=st=>st==='Offer received'?'g':st==='Under review'?'a':'';
+
+function applyU(id){applied.add(id);shortl.delete(id);if(!appStatus[id])appStatus[id]='Applying';uList();toast('Application started · '+UNIS[id].name);}
+function shortU(id){if(shortl.has(id))shortl.delete(id);else shortl.add(id);uList();toast(shortl.has(id)?'Saved · '+UNIS[id].name:'Removed from saved');}
+function uList(){const l=document.getElementById('ulist');if(!l)return;const q=uSearch.trim().toLowerCase();const list=UNIS.filter(u=>!q||u.name.toLowerCase().includes(q)||u.prog.toLowerCase().includes(q));
+ l.innerHTML=list.length?list.map(u=>{const ap=applied.has(u.id),sh=shortl.has(u.id);return `
+  <div class="row"><div class="flag">${u.flag}</div>
+   <div><div class="u">${u.name}</div><div class="c">${u.prog} · ${u.fees} · <span class="num">${u.match}%</span> match</div></div>
+   <div class="right">
+    ${ap?`<span class="pill g"><i class="ti ti-check" style="font-size:14px"></i> Applied</span>`:`<button class="btn pri sm" onclick="applyU(${u.id})">Apply</button>`}
+    <button class="btn sm ${sh?'act':''}" onclick="shortU(${u.id})">${sh?'Saved':'Save'}</button>
+   </div></div>`;}).join(''):`<div style="padding:26px 0;color:var(--faint);font-size:13.5px">No matches. Try another search.</div>`;
+ const c=document.getElementById('ucount');if(c)c.textContent=list.length;}
+
+function vDashboard(){return `
+ <div class="topline"><div>
+   <div class="crumb">Home / Dashboard</div>
+   <div class="h1">Dashboard</div>
+   <div class="sub">You're three steps from confirming your Manchester offer.</div>
+ </div><button class="btn" onclick="show('universities')"><i class="ti ti-search" style="font-size:15px"></i> Explore</button></div>
+
+ <div class="tiles">
+   <div class="tile"><div class="l"><i class="ti ti-files"></i> Applications</div><div class="v num">${applied.size}</div><span class="chip">+1 this week</span></div>
+   <div class="tile"><div class="l"><i class="ti ti-plane-departure"></i> Visa progress</div><div class="v num">82%</div><span class="chip">on track</span></div>
+   <div class="tile"><div class="l"><i class="ti ti-folder"></i> Documents</div><div class="v num">8/11</div><span class="chip" style="background:var(--warn-bg);color:var(--warn)">3 pending</span></div>
+   <div class="tile"><div class="l"><i class="ti ti-award"></i> Scholarships</div><div class="v num">₹36L</div><span class="chip">4 matches</span></div>
+ </div>
+
+ <div class="card next"><div><div class="k">Next step</div><h3>Pay your UK health surcharge</h3><p>£776 · due in 3 days · the last blocker on your visa</p></div>
+   <button class="btn pri" onclick="toast('Opening secure payment for £776…')">Pay now <i class="ti ti-arrow-right" style="font-size:16px"></i></button></div>
+
+ <div class="cols">
+   <div class="card panel">
+     <div class="phead"><div class="t">Your applications</div><button class="link" onclick="show('applications')">View all</button></div>
+     ${[...applied].slice(0,3).map(id=>{const u=UNIS[id];const st=appStatus[id]||'Applying';return `
+     <div class="row"><div class="flag">${u.flag}</div><div><div class="u">${u.name}</div><div class="c">${u.prog}</div></div><div class="right"><span class="pill ${pillClass(st)}">${st}</span></div></div>`;}).join('')}
+   </div>
+   <div>
+     <div class="card panel"><div class="phead"><div class="t">Upcoming</div></div>
+       <div class="up"><div class="d num">Jul 4</div><div class="x">Health surcharge due</div></div>
+       <div class="up"><div class="d num">Jul 12</div><div class="x">UCL application deadline</div></div>
+       <div class="up"><div class="d num">Aug 1</div><div class="x">Chevening opens</div></div>
+     </div>
+     <div class="elee"><div class="k">Elee</div><p>Book your biometrics after the surcharge clears?</p><button onclick="toast('Elee is finding the earliest biometrics slot…')">Ask Elee</button></div>
+   </div>
+ </div>`;}
+
+function vUniversities(){setTimeout(uList,0);return `
+ <div class="crumb">Home / Universities</div><div class="h1">Universities</div>
+ <div class="sub"><span id="ucount" class="num">${UNIS.length}</span> programmes matched to your profile</div>
+ <div class="search"><i class="ti ti-search"></i><input placeholder="Search a university or programme" oninput="uSearch=this.value;uList()"></div>
+ <div class="card panel" style="margin-top:12px"><div id="ulist"></div></div>`;}
+
+function vApplications(){return `
+ <div class="crumb">Home / Applications</div><div class="h1">Applications</div>
+ <div class="sub"><span class="num">${applied.size}</span> live · <span class="num">${shortl.size}</span> saved</div>
+ <div class="card panel" style="margin-top:16px">
+ ${[...applied].map(id=>{const u=UNIS[id];const st=appStatus[id]||'Applying';return `
+   <div class="row"><div class="flag">${u.flag}</div><div><div class="u">${u.name}</div><div class="c">${u.prog}</div></div>
+   <div class="right"><span class="pill ${pillClass(st)}">${st}</span><button class="btn sm" onclick="toast('Opening ${u.name}…')">View</button></div></div>`;}).join('')}
+ </div>
+ ${shortl.size?`<div class="over" style="margin:22px 0 4px">Saved</div><div class="card panel">${[...shortl].map(id=>{const u=UNIS[id];return `<div class="row"><div class="flag">${u.flag}</div><div><div class="u">${u.name}</div><div class="c">${u.prog}</div></div><div class="right"><button class="btn pri sm" onclick="applyU(${id});show('applications')">Apply</button></div></div>`;}).join('')}</div>`:''}`;}
+
+function vFinance(){return `
+ <div class="crumb">Home / Finance</div><div class="h1">Finance</div>
+ <div class="sub">Estimate your education-loan repayment</div>
+ <div class="cols" style="grid-template-columns:1.5fr 1fr;margin-top:22px">
+  <div class="card" style="padding:22px">
+    <div class="frow"><span>Loan amount</span><b class="num" id="emiA">₹20,00,000</b></div><input class="slide" id="ea" type="range" min="100000" max="10000000" step="100000" value="2000000" oninput="computeEMI()">
+    <div class="frow"><span>Tenure</span><b class="num" id="emiT">120 months</b></div><input class="slide" id="et" type="range" min="12" max="180" step="6" value="120" oninput="computeEMI()">
+    <div class="frow"><span>Interest rate</span><b class="num" id="emiR">10.5%</b></div><input class="slide" id="er" type="range" min="7" max="15" step="0.25" value="10.5" oninput="computeEMI()">
+  </div>
+  <div class="card emi"><div class="over">Monthly EMI</div><div class="big num" id="emiOut">₹26,987</div>
+    <div class="ln"><span style="color:var(--muted)">Total interest</span><b class="num" id="emiI">₹12.4L</b></div>
+    <div class="ln"><span style="color:var(--muted)">Total payable</span><b class="num" id="emiTp">₹32.4L</b></div>
+  </div>
+ </div>`;}
+function computeEMI(){const P=+(document.getElementById('ea')||{}).value||2000000,n=+(document.getElementById('et')||{}).value||120,rt=+(document.getElementById('er')||{}).value||10.5;const r=rt/1200,e=r>0?P*r*Math.pow(1+r,n)/(Math.pow(1+r,n)-1):P/n,tot=e*n;const S=(id,v)=>{const x=document.getElementById(id);if(x)x.textContent=v};S('emiA','₹'+Math.round(P).toLocaleString('en-IN'));S('emiT',n+' months');S('emiR',rt+'%');S('emiOut','₹'+Math.round(e).toLocaleString('en-IN'));S('emiI','₹'+Math.round(tot-P).toLocaleString('en-IN'));S('emiTp','₹'+Math.round(tot).toLocaleString('en-IN'));}
+
+show('dashboard');
+</script>
+</body>
+</html>
