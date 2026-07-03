@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eleevate — Dashboard (v2 concept)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.7.0/dist/tabler-icons.min.css">
+<style>
+:root{
+  --ink:#1c1d1a; --muted:#75726a; --faint:#a6a49b;
+  --paper:#f6f4ee; --surface:#ffffff; --sidebar:#f1efe8;
+  --line:#e6e2d8; --line-soft:#efece4;
+  --accent:#1f6e4a; --accent-soft:#eef3ee;
+  --amber:#a9772a; --radius:14px;
+  --serif:'Fraunces',Georgia,serif; --sans:'Inter',system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);background:var(--paper);color:var(--ink);-webkit-font-smoothing:antialiased;line-height:1.5}
+.app{display:grid;grid-template-columns:248px 1fr;min-height:100vh}
+.over{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);font-weight:500}
+i{font-style:normal}
+
+/* Sidebar */
+.side{background:var(--sidebar);border-right:1px solid var(--line);padding:26px 18px;display:flex;flex-direction:column;gap:26px}
+.brand{display:flex;align-items:center;gap:10px;padding:0 8px}
+.mark{width:30px;height:30px;border-radius:8px;background:var(--ink);color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-weight:600;font-size:16px}
+.brand b{font-family:var(--serif);font-weight:600;font-size:19px;letter-spacing:-.01em}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav .lbl{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);padding:0 10px 8px;font-weight:500}
+.item{display:flex;align-items:center;gap:12px;padding:9px 10px;border-radius:9px;color:var(--muted);font-size:14px;cursor:pointer;transition:all .18s;text-decoration:none}
+.item i{font-size:19px;color:var(--faint);transition:color .18s}
+.item:hover{background:#eae7de;color:var(--ink)}
+.item:hover i{color:var(--muted)}
+.item.on{background:var(--surface);color:var(--ink);font-weight:500;box-shadow:0 1px 2px rgba(28,29,26,.04)}
+.item.on i{color:var(--accent)}
+.side .foot{margin-top:auto;display:flex;align-items:center;gap:10px;padding:10px;border-top:1px solid var(--line);color:var(--muted);font-size:13px}
+.ava{width:30px;height:30px;border-radius:50%;background:#e4e0d5;color:var(--ink);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600}
+
+/* Main */
+.main{padding:44px 56px 64px;max-width:1000px}
+.hello{font-family:var(--serif);font-weight:500;font-size:40px;letter-spacing:-.02em;line-height:1.05;margin:10px 0 8px}
+.sub{color:var(--muted);font-size:15.5px}
+.topline{display:flex;justify-content:space-between;align-items:flex-start}
+.ghost{display:inline-flex;align-items:center;gap:8px;background:none;border:1px solid var(--line);color:var(--ink);padding:9px 16px;border-radius:999px;font-family:var(--sans);font-size:13.5px;cursor:pointer;transition:all .18s}
+.ghost:hover{border-color:var(--ink)}
+
+/* Next step */
+.next{margin:34px 0 8px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:26px 28px;display:flex;align-items:center;justify-content:space-between;gap:24px}
+.next .k{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:9px}
+.next h3{font-family:var(--serif);font-weight:500;font-size:23px;letter-spacing:-.01em;margin-bottom:6px}
+.next p{color:var(--muted);font-size:14px}
+.cta{display:inline-flex;align-items:center;gap:9px;background:var(--accent);color:#fff;border:none;padding:13px 22px;border-radius:999px;font-family:var(--sans);font-size:14.5px;font-weight:500;cursor:pointer;white-space:nowrap;transition:transform .18s,background .18s}
+.cta:hover{background:#1a5c3e;transform:translateY(-1px)}
+
+/* Metrics strip */
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);margin:40px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.metric{padding:22px 24px 22px 0;border-right:1px solid var(--line-soft)}
+.metric:last-child{border-right:none}
+.metric .n{font-family:var(--serif);font-weight:500;font-size:31px;letter-spacing:-.01em;line-height:1}
+.metric .l{color:var(--muted);font-size:13px;margin-top:7px}
+
+/* Two-col */
+.cols{display:grid;grid-template-columns:1.7fr 1fr;gap:52px;margin-top:8px}
+.sec-h{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
+.sec-h a{color:var(--muted);font-size:13px;text-decoration:none;border-bottom:1px solid transparent;transition:border .18s}
+.sec-h a:hover{border-color:var(--muted)}
+
+.row{display:flex;align-items:center;gap:16px;padding:18px 0;border-bottom:1px solid var(--line-soft)}
+.row:last-child{border-bottom:none}
+.flag{font-size:22px;width:26px;text-align:center;filter:saturate(.9)}
+.row .u{font-size:14.5px;font-weight:500}
+.row .c{color:var(--muted);font-size:13px;margin-top:2px}
+.row .right{margin-left:auto;text-align:right}
+.stat{display:inline-flex;align-items:center;gap:7px;font-size:13px;color:var(--muted)}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--faint)}
+.dot.g{background:var(--accent)}.dot.a{background:var(--amber)}
+
+.up{display:flex;gap:14px;padding:15px 0;border-bottom:1px solid var(--line-soft)}
+.up:last-child{border-bottom:none}
+.up .d{font-family:var(--serif);font-size:15px;font-weight:500;width:44px;flex-shrink:0;color:var(--ink)}
+.up .t{font-size:13.5px;color:var(--muted);line-height:1.45}
+.elee{margin-top:26px;background:var(--accent-soft);border-radius:var(--radius);padding:20px}
+.elee .k{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+.elee p{font-family:var(--serif);font-size:16px;font-weight:500;margin:8px 0 14px;line-height:1.4;color:#173a2a}
+.elee button{background:none;border:1px solid var(--accent);color:var(--accent);padding:8px 15px;border-radius:999px;font-family:var(--sans);font-size:13px;cursor:pointer;transition:all .18s}
+.elee button:hover{background:var(--accent);color:#fff}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <div class="brand"><div class="mark">E</div><b>Eleevate</b></div>
+    <nav class="nav">
+      <div class="lbl">Journey</div>
+      <a class="item on"><i class="ti ti-layout-dashboard"></i> Dashboard</a>
+      <a class="item"><i class="ti ti-school"></i> Universities</a>
+      <a class="item"><i class="ti ti-files"></i> Applications</a>
+      <a class="item"><i class="ti ti-plane-departure"></i> Visa</a>
+      <a class="item"><i class="ti ti-folder"></i> Documents</a>
+    </nav>
+    <nav class="nav">
+      <div class="lbl">You</div>
+      <a class="item"><i class="ti ti-user"></i> Profile</a>
+      <a class="item"><i class="ti ti-wallet"></i> Finance</a>
+      <a class="item"><i class="ti ti-briefcase"></i> Career</a>
+    </nav>
+    <div class="foot"><div class="ava">AS</div><div>Arjun Sharma<div style="color:var(--faint);font-size:12px">Free plan</div></div></div>
+  </aside>
+
+  <main class="main">
+    <div class="topline">
+      <div>
+        <div class="over">Tuesday, 1 July</div>
+        <h1 class="hello">Good morning, Arjun.</h1>
+        <div class="sub">You're three steps from confirming your Manchester offer.</div>
+      </div>
+      <button class="ghost"><i class="ti ti-search" style="font-size:16px"></i> Search</button>
+    </div>
+
+    <section class="next">
+      <div>
+        <div class="k">Next step</div>
+        <h3>Pay your UK health surcharge</h3>
+        <p>£776 · due in 3 days · the last blocker on your visa</p>
+      </div>
+      <button class="cta">Pay now <i class="ti ti-arrow-right" style="font-size:17px"></i></button>
+    </section>
+
+    <div class="metrics">
+      <div class="metric"><div class="n">3</div><div class="l">Applications</div></div>
+      <div class="metric"><div class="n">82%</div><div class="l">Visa progress</div></div>
+      <div class="metric"><div class="n">8/11</div><div class="l">Documents ready</div></div>
+      <div class="metric"><div class="n">₹36L</div><div class="l">Scholarships found</div></div>
+    </div>
+
+    <div class="cols">
+      <div>
+        <div class="sec-h"><div class="over">Your applications</div><a href="#">View all</a></div>
+        <div class="row">
+          <div class="flag">🇬🇧</div>
+          <div><div class="u">University of Manchester</div><div class="c">MSc Computer Science</div></div>
+          <div class="right"><span class="stat"><span class="dot g"></span> Offer received</span></div>
+        </div>
+        <div class="row">
+          <div class="flag">🇬🇧</div>
+          <div><div class="u">University College London</div><div class="c">MSc Artificial Intelligence</div></div>
+          <div class="right"><span class="stat"><span class="dot a"></span> Under review</span></div>
+        </div>
+        <div class="row">
+          <div class="flag">🇨🇦</div>
+          <div><div class="u">University of Toronto</div><div class="c">MCS Computer Science</div></div>
+          <div class="right"><span class="stat"><span class="dot"></span> Applying</span></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="sec-h"><div class="over">Upcoming</div></div>
+        <div class="up"><div class="d">Jul 4</div><div class="t">Health surcharge payment due</div></div>
+        <div class="up"><div class="d">Jul 12</div><div class="t">UCL application deadline</div></div>
+        <div class="up"><div class="d">Aug 1</div><div class="t">Chevening scholarship opens</div></div>
+
+        <div class="elee">
+          <div class="k">Elee</div>
+          <p>Want me to book your biometrics appointment after the surcharge clears?</p>
+          <button>Ask Elee</button>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>
