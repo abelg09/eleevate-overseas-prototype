@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Eleevate — Dashboard</title>
+<style>
+  html,body{margin:0;padding:0;height:100%;background:#F5F5F5}
+  .frame{border:0;width:100vw;height:100vh;height:100dvh;display:block}
+  #mob{display:none}
+  @media (max-width:760px){
+    #desk{display:none}
+    #mob{display:block}
+  }
+</style>
+</head>
+<body>
+  <iframe id="desk" class="frame" src="desktop.html" title="Eleevate Dashboard"></iframe>
+  <iframe id="mob" class="frame" src="mobile.html" title="Eleevate Dashboard (mobile)"></iframe>
+</body>
+</html>

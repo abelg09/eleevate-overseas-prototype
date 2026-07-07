@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eleevate — Mobile App Preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--cp6:#1C2442;--cp7:#141B38;--g90:linear-gradient(90deg,#3AAA35,#009FE3);--teal:#00A699;--teal2:#0e7a77;--yel:#F7A707;--red:#E30A22;--blue:#009FE3;--grn:#3AAA35;--org:#F25011;--pur:#7C3AED;--ind:#4F46E5;--n7:#333;--n5:#555;--n3:#888;--nl1:#FAFAFA;--nl2:#F5F5F5;--nl3:#EEEEEE;--nl4:#E5E5E5;--fh:'Exo 2',system-ui,sans-serif;--fb:'Poppins',system-ui,sans-serif;--sh-sm:0 1px 4px rgba(28,36,66,.06)}
+*{box-sizing:border-box;margin:0;padding:0} body{font-family:var(--fb);color:var(--n7);font-size:13px;line-height:1.45;background:#DCDFE6;display:flex;flex-direction:column;align-items:center;padding:36px 12px;min-height:100vh}
+a{text-decoration:none;color:inherit} button{font-family:var(--fb);cursor:pointer}
+.capt{font-family:var(--fh);font-size:13px;font-weight:600;color:#5B6478;margin-bottom:16px;letter-spacing:.02em}
+
+/* Phone chrome */
+.phone{width:390px;background:#0B0D12;border-radius:46px;padding:12px;box-shadow:0 24px 60px rgba(0,0,0,.35)}
+.screen{background:var(--nl2);border-radius:34px;overflow:hidden;height:844px;display:flex;flex-direction:column;position:relative}
+.statusbar{height:44px;flex-shrink:0;background:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 26px;font-size:13px;font-weight:700;color:var(--cp6)}
+.island{position:absolute;top:10px;left:50%;transform:translateX(-50%);width:110px;height:24px;background:#000;border-radius:14px;z-index:20}
+
+/* App top bar */
+.apptop{background:#fff;padding:10px 16px 12px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--nl3);flex-shrink:0}
+.apptop-l{display:flex;align-items:center;gap:9px}
+.av{width:38px;height:38px;border-radius:50%;background:var(--g90);display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:13px;flex-shrink:0}
+.hi{font-family:var(--fh);font-size:14.5px;font-weight:700;color:var(--cp6)}
+.hi-sub{font-size:9.5px;color:var(--n3);margin-top:1px}
+.apptop-r{display:flex;align-items:center;gap:8px}
+.icbtn{width:34px;height:34px;border-radius:50%;background:var(--nl1);border:1px solid var(--nl3);display:flex;align-items:center;justify-content:center;font-size:15px;position:relative}
+.icbtn.ref{background:var(--g90);border:none;box-shadow:0 0 0 2px rgba(58,170,53,.25)}
+.dot{position:absolute;top:-2px;right:-2px;width:9px;height:9px;border-radius:50%;background:var(--red);border:1.5px solid #fff}
+
+/* Rich header with photo profile card */
+.apphdr2{background:var(--cp7);padding:calc(12px + env(safe-area-inset-top)) 16px 16px;flex-shrink:0}
+.apphdr2-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:2px}
+.brandmark{font-family:var(--fh);font-weight:800;font-size:19px;color:#fff;display:flex;align-items:center}
+.bm-check{color:var(--grn);font-weight:900;margin:0 1px}
+.brandtag{font-size:9px;letter-spacing:.24em;color:rgba(255,255,255,.5);font-weight:600;margin-bottom:12px}
+.apphdr2-r{display:flex;gap:8px}
+.profcard{background:#fff;border-radius:18px;padding:15px 15px 13px;box-shadow:0 10px 26px rgba(0,0,0,.16)}
+.profcard-top{display:flex;align-items:flex-start;gap:11px;margin-bottom:13px}
+.profcard-av{width:58px;height:58px;border-radius:50%;padding:2px;background:var(--g90);flex-shrink:0}
+.profcard-av img{width:100%;height:100%;border-radius:50%;object-fit:cover;border:2px solid #fff;display:block}
+.profcard-info{flex:1;min-width:0}
+.profcard-nm{font-family:var(--fh);font-size:15px;font-weight:700;color:var(--cp6)}
+.profcard-id{font-size:10.5px;color:var(--n5);margin-top:3px;display:flex;align-items:center;gap:5px}
+.copyic{color:var(--n3);font-size:10px}
+.profcard-loc{font-size:10px;color:var(--n3);margin-top:4px}
+.profcard-badge{font-size:9px;font-weight:600;color:var(--grn);background:#EAFBEA;border:1px solid #CFEFCF;border-radius:9px;padding:6px 8px;text-align:center;line-height:1.35;flex-shrink:0;max-width:96px}
+.profcard-plbl{font-size:10.5px;font-weight:600;color:var(--cp6);margin-bottom:7px}
+.profcard-prow{display:flex;align-items:center;gap:10px}
+.profcard-pbar{flex:1;height:9px;background:var(--nl3);border-radius:999px;overflow:hidden}
+.profcard-pfill{height:100%;background:var(--g90);border-radius:999px}
+.profcard-ppct{font-family:var(--fh);font-size:16px;font-weight:800;color:var(--blue);flex-shrink:0}
+.profcard-pnote{font-size:9.5px;color:var(--n3);margin-top:7px}
+
+/* Scrollable app body */
+.appbody{flex:1;overflow-y:auto;padding:12px 12px 84px;background:var(--nl2)}
+.appbody::-webkit-scrollbar{width:0}
+
+.card{background:#fff;border:1px solid var(--nl3);border-radius:14px;box-shadow:var(--sh-sm);margin-bottom:10px}
+.cb{padding:12px 13px}
+.cb strong{font-size:12.5px;color:var(--cp6);display:block;margin-bottom:8px}
+
+.ub{background:var(--g90);color:#fff;padding:10px 12px;border-radius:14px;margin-bottom:10px;font-size:11.5px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.ub-txt{flex:1;min-width:0}
+.ub-txt b{display:block;font-size:12px;margin-bottom:2px}
+.ub-btn{background:#fff;color:var(--cp6);border:none;border-radius:8px;padding:7px 11px;font-size:10.5px;font-weight:700;flex-shrink:0;white-space:nowrap}
+.nud{background:#FEF3C7;border:1px solid #FDE68A;padding:9px 12px;border-radius:14px;margin-bottom:10px;font-size:11.5px;color:#7c4a03}
+.nud button{margin-top:7px;background:#fff;border:1px solid #FDE68A;border-radius:8px;padding:5px 10px;font-size:11px;font-weight:600;color:#7c4a03}
+
+/* Journey — same horizontal scroll pattern as desktop */
+.jc{padding:12px 13px 4px}
+.jch{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.jct{font-family:var(--fh);font-size:12.5px;font-weight:700;color:var(--cp6)}
+.jcp{font-size:10.5px;font-weight:700;color:var(--grn)}
+.jsw{overflow-x:auto;padding-bottom:10px;margin:0 -13px;padding-left:13px}
+.jss{display:flex;position:relative;min-width:max-content}
+.jss:before{content:'';position:absolute;left:34px;right:34px;top:16px;height:2px;background:#DADADA;z-index:0}
+.js{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;text-align:center;width:82px;flex-shrink:0}
+.jci{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-family:var(--fh);margin-bottom:6px;border:2px solid transparent;background:#fff;font-size:12px}
+.jci.d{background:#E8F8E8;border-color:var(--grn);color:var(--grn)}
+.jci.a{background:var(--g90);color:#fff}
+.jci.p{background:#F0F0F0;border-color:#E0E0E0;color:#8C8C8C}
+.jl{font-size:9.5px;font-weight:700;line-height:1.2;color:#4B5563}
+.jl.a{color:var(--blue)}.jl.d{color:var(--grn)}
+.jsu{font-size:8.5px;color:var(--n3);margin-top:3px}
+
+.kg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.kc{background:#fff;border:1px solid var(--nl3);border-radius:12px;padding:10px 11px;box-shadow:var(--sh-sm)}
+.kc>div:first-child{font-size:9.5px;color:var(--n5)}
+.kv{font-family:var(--fh);font-size:18px;font-weight:800;color:var(--cp6);margin-top:2px}
+.ks{font-size:9px;margin-top:3px}
+
+.ai{display:flex;gap:9px;background:var(--nl1);border-left:3px solid;padding:9px 10px;border-radius:10px;margin-bottom:7px}
+.ai:last-child{margin-bottom:0}
+.ur{border-color:var(--red)}.wa{border-color:var(--yel)}.in{border-color:var(--blue)}
+.ai strong{font-size:11.5px;display:block;margin-bottom:2px;color:var(--n7)}
+.ai div div{font-size:9.5px;color:var(--n3)}
+
+.ar2{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--nl3);padding:9px 0;gap:8px;font-size:11.5px}
+.ar2:last-child{border-bottom:none;padding-bottom:0}
+.bdg{font-size:9px;font-weight:700;padding:3px 8px;border-radius:999px;white-space:nowrap}
+.bg2{background:#D1FAE5;color:#047857}.br2{background:#FFEAE3;color:#830334}.bb2{background:#DBEAFE;color:#1D4ED8}
+
+.pr2{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:11px}
+.pr2:last-child{margin-bottom:0}
+.pr2 span{width:76px;flex-shrink:0}
+.pb{height:5px;background:var(--nl3);border-radius:999px;overflow:hidden;flex:1}
+.pf{height:100%}
+
+.ccc-h{background:linear-gradient(135deg,var(--cp7),#1a4080);color:#fff;padding:11px 13px;border-radius:14px 14px 0 0}
+.ccc-h b{font-size:9.5px;opacity:.8;text-transform:uppercase;display:block}
+.ccc-h .d{font-size:15px;font-weight:700;margin-top:2px}
+.ccc-h .t{font-size:10.5px;opacity:.85;margin-top:2px}
+.ccc-b{padding:11px 13px}
+.ccst{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin:10px 0}
+.ccsv{background:var(--nl1);border:1px solid var(--nl3);border-radius:8px;padding:8px;text-align:center}
+.ccsv strong{font-size:12px}
+.ccsv div{font-size:8.5px;color:var(--n3);margin-top:1px}
+.ccbs{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.ccbj{background:var(--g90);color:#fff;border:none;border-radius:8px;padding:9px;font-size:11.5px;font-weight:600}
+.ccbm{background:#fff;border:1px solid var(--nl4);border-radius:8px;padding:9px;font-size:11.5px;font-weight:600}
+
+.dr{display:flex;justify-content:space-between;align-items:center;background:var(--nl1);border:1px solid var(--nl3);padding:8px 10px;border-radius:10px;margin-bottom:7px;font-size:11.5px}
+.dr:last-child{margin-bottom:0}
+.dl-hot{border:1px solid rgba(230,10,34,.3);background:linear-gradient(180deg,rgba(230,10,34,.05),#fff 50%)}
+.dl-hot .cb strong{color:var(--red)}
+
+.pc-prom{border:1px solid rgba(0,166,153,.4);border-radius:14px;overflow:hidden;margin-bottom:10px}
+.pch{background:linear-gradient(135deg,var(--teal2),var(--teal));color:#fff;padding:11px 13px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.pch strong{font-size:12.5px}
+.pc-badge{font-size:8.5px;background:rgba(255,255,255,.2);padding:3px 7px;border-radius:999px;white-space:nowrap;flex-shrink:0}
+.pcb{padding:11px 13px}
+.pcr{display:flex;align-items:flex-start;gap:8px;font-size:11px;margin-bottom:8px}
+.pcr:last-child{margin-bottom:0}
+
+.sring{width:74px;height:74px;border-radius:50%;background:conic-gradient(#3AAA35 0 78%,var(--nl3) 78% 100%);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sri{width:54px;height:54px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;flex-direction:column}
+.sp{font-family:var(--fh);font-weight:800;color:var(--cp6);font-size:19px}
+.ri{background:var(--nl1);border:1px solid var(--nl3);border-radius:8px;padding:8px}
+.rg{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:10px}
+
+.fhmh{background:linear-gradient(90deg,#0B4F6C,#13795B);color:#fff;padding:11px 13px;border-radius:14px 14px 0 0}
+.fhmh strong{font-size:12.5px;display:block}
+.fhmh div{font-size:10px;opacity:.85;margin-top:2px}
+.fhm{border:1px solid var(--nl3);border-radius:14px;overflow:hidden;margin-bottom:10px;background:#fff}
+.fhmb{padding:12px 13px;display:flex;flex-direction:column;gap:11px}
+.fhm-score-card{background:var(--nl1);border:1px solid var(--nl3);border-radius:12px;padding:11px}
+.fhm-score{font-family:var(--fh);font-size:24px;font-weight:800;color:var(--cp6);line-height:1}
+.fhm-score small{display:block;font-size:11px;color:var(--n5);font-weight:500;margin-top:4px}
+.fhmgb{height:10px;background:var(--nl3);border-radius:999px;overflow:hidden;margin-top:8px}
+.fhmgf{height:100%;width:72%;background:linear-gradient(90deg,var(--grn),#0EA5E9)}
+.fhm-stats{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.fhm-stat{background:var(--nl1);border:1px solid var(--nl3);border-radius:10px;padding:9px}
+.fhm-stat .l{font-size:10px;color:var(--n5);margin-bottom:3px}
+.fhm-stat .v{font-family:var(--fh);font-size:14.5px;font-weight:700;color:var(--cp6)}
+.fhm-stat .s{font-size:9.5px;color:var(--n5);margin-top:2px}
+.fhm-note{background:#FFF7ED;border:1px solid #FDE68A;border-radius:10px;padding:10px 11px;font-size:11.5px;line-height:1.5;color:#7c3a00;margin-top:14px}
+.bdgtag{font-size:9.5px;font-weight:700;padding:3px 9px;border-radius:999px;background:#FFEAE3;color:#830334;white-space:nowrap;flex-shrink:0}
+.fhm-break{background:var(--nl1);border:1px solid var(--nl3);border-radius:10px;padding:12px;margin-top:14px}
+.fhm-break h4{font-family:var(--fh);font-size:12px;color:var(--cp6);margin-bottom:10px}
+.fhmbr{display:flex;align-items:center;gap:8px;margin-bottom:9px;font-size:10.5px}
+.fhmbr:last-child{margin-bottom:0}
+.fhmbr span{width:92px;flex-shrink:0;color:var(--n5)}
+.fhmbrb{flex:1;height:6px;background:var(--nl3);border-radius:999px;overflow:hidden}
+.fhmbrf{height:100%;border-radius:999px}
+.fhmbr strong{width:56px;text-align:right;font-size:11px;color:var(--cp6);flex-shrink:0}
+
+/* Bottom tab bar + FAB */
+.tabbar{flex-shrink:0;height:66px;background:#fff;border-top:1px solid var(--nl3);display:flex;align-items:center;justify-content:space-around;padding-bottom:8px}
+.tabitem{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:9px;color:var(--n3)}
+.tabitem.act{color:var(--grn);font-weight:700}
+.tabicon{font-size:19px}
+.fab{position:absolute;right:16px;bottom:80px;width:50px;height:50px;border-radius:50%;background:var(--g90);display:flex;align-items:center;justify-content:center;box-shadow:0 6px 16px rgba(0,159,227,.4);font-size:21px;z-index:5}
+</style>
+<style id="fill-override">
+@media (max-width:760px){
+  html,body{height:auto}
+  body{background:var(--nl2);padding:0;align-items:stretch;min-height:100dvh}
+  .capt{display:none}
+  .statusbar,.island{display:none}
+  .phone{width:100%;max-width:100%;background:none;border-radius:0;padding:0;box-shadow:none}
+  .screen{height:100dvh;min-height:100dvh;border-radius:0}
+}
+</style>
+</head>
+<body>
+<div class="capt">📱 Eleevate — Student App Preview</div>
+<div class="phone">
+  <div class="screen">
+    <div class="island"></div>
+    <div class="statusbar"><span>9:41</span><span>📶 🔋</span></div>
+
+    <div class="apphdr2">
+      <div class="apphdr2-top">
+        <div class="brandmark">Eleev<span class="bm-check">✓</span>ate</div>
+        <div class="apphdr2-r"><div class="icbtn ref">🎁</div><div class="icbtn">🔔<span class="dot"></span></div></div>
+      </div>
+      <div class="brandtag">OVERSEAS</div>
+
+      <div class="profcard">
+        <div class="profcard-top">
+          <div class="profcard-av"><img src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=160&h=160&fit=crop&crop=faces" alt="Arjun Sharma"></div>
+          <div class="profcard-info">
+            <div class="profcard-nm">Arjun Sharma</div>
+            <div class="profcard-id">ELV-2026-04817 <span class="copyic">⧉</span></div>
+            <div class="profcard-loc">📍 Gurugram, Haryana</div>
+          </div>
+          <div class="profcard-badge">Aspiring MSc in<br>Computer Science</div>
+        </div>
+        <div class="profcard-plbl">Your Study Abroad Journey Progress</div>
+        <div class="profcard-prow">
+          <div class="profcard-pbar"><div class="profcard-pfill" style="width:45%"></div></div>
+          <div class="profcard-ppct">45%</div>
+        </div>
+        <div class="profcard-pnote">Keep going, Arjun! You're doing great. 🚀</div>
+      </div>
+    </div>
+
+    <div class="appbody">
+
+      <div class="ub"><div class="ub-txt"><b>Upgrade to Pro</b>Free plan · 3/5 slots used</div><button class="ub-btn">Upgrade ₹999/mo</button></div>
+
+      <div class="nud">
+        <div><strong style="display:inline">Elee suggests:</strong> Upload your IELTS scorecard — UCL deadline in <strong>5 days</strong>.</div>
+        <button>Do it now →</button>
+      </div>
+
+      <div class="card jc">
+        <div class="jch"><div class="jct">📍 Journey — 10 Steps</div><div class="jcp">45%</div></div>
+        <div class="jsw">
+          <div class="jss">
+            <div class="js"><div class="jci d">✓</div><div class="jl d">Profile Setup</div><div class="jsu">Done</div></div>
+            <div class="js"><div class="jci d">✓</div><div class="jl d">Uni Shortlist</div><div class="jsu">Psych Test</div></div>
+            <div class="js"><div class="jci a">3</div><div class="jl a">Applications</div><div class="jsu">In progress</div></div>
+            <div class="js"><div class="jci a">4</div><div class="jl a">Loan &amp; Finance</div><div class="jsu">In progress</div></div>
+            <div class="js"><div class="jci d">✓</div><div class="jl d">Test Prep</div><div class="jsu">Done</div></div>
+            <div class="js"><div class="jci p">6</div><div class="jl">Offer &amp; Accept</div><div class="jsu">Pending</div></div>
+            <div class="js"><div class="jci p">7</div><div class="jl">Deposit &amp; Fee</div><div class="jsu">Pending</div></div>
+            <div class="js"><div class="jci p">8</div><div class="jl">Accommodation</div><div class="jsu">Pending</div></div>
+            <div class="js"><div class="jci a">9</div><div class="jl a">Visa Apply</div><div class="jsu">In progress</div></div>
+            <div class="js"><div class="jci p">10</div><div class="jl">Pre-Departure</div><div class="jsu">Pending</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="kg">
+        <div class="kc"><div>Applications</div><div class="kv">3</div><div class="ks" style="color:#059669">3/5 · 1 offer</div></div>
+        <div class="kc"><div>Documents</div><div class="kv">8/11</div><div class="ks" style="color:var(--org)">3 pending</div></div>
+        <div class="kc"><div>Visa Progress</div><div class="kv">50%</div><div class="ks" style="color:#2563EB">4 of 8 steps</div></div>
+        <div class="kc"><div>Scholarships</div><div class="kv">1</div><div class="ks" style="color:#DB2777">₹36L potential</div></div>
+      </div>
+
+      <div class="card"><div class="cb"><strong style="display:flex;justify-content:space-between;align-items:center">⚡ Next Actions <span class="bdgtag">3 Urgent</span></strong>
+        <div class="ai ur"><div><strong>Upload missing docs for UCL</strong><div>Bank statement &amp; IELTS · due in 5 days</div></div></div>
+        <div class="ai wa"><div><strong>Finalise SOP for Edinburgh</strong><div>Review Elee's draft before submission</div></div></div>
+        <div class="ai in"><div><strong>Complete loan pre-approval</strong><div>ITR &amp; bank docs pending</div></div></div>
+      </div></div>
+
+      <div class="card" style="padding:0;overflow:hidden">
+        <div class="ccc-h"><b>Counsellor Connect</b><div class="d">Thu, 19 Jun</div><div class="t">3:00 PM IST · 45 min · Video</div></div>
+        <div class="ccc-b">
+          <div style="display:flex;align-items:center;gap:8px"><div class="profcard-av" style="width:32px;height:32px"><img src="https://images.unsplash.com/photo-1765005204058-10418f5123c5?w=140&h=140&fit=crop&crop=faces" alt="Priya Kapoor"></div><div><strong style="font-size:11.5px">Priya Kapoor</strong><div style="font-size:9.5px;color:var(--n3)">Senior Counsellor · UK Specialist</div></div></div>
+          <div class="ccst"><div class="ccsv"><strong>12</strong><div>Sessions</div></div><div class="ccsv"><strong>3</strong><div>Tasks</div></div><div class="ccsv"><strong>4.9★</strong><div>Rating</div></div></div>
+          <div class="ccbs"><button class="ccbj">Join Call</button><button class="ccbm">Message</button></div>
+        </div>
+      </div>
+
+      <div class="card dl-hot"><div class="cb"><strong>⏰ Upcoming Deadlines</strong>
+        <div class="dr"><span>UCL Application</span><span class="bdg br2">5 days</span></div>
+        <div class="dr"><span>Edinburgh Offer Accept</span><span class="bdg" style="background:#FFF9E1;color:#7a5200">18 days</span></div>
+        <div class="dr"><span>HDFC Credila Loan Docs</span><span class="bdg bb2">30 days</span></div>
+      </div></div>
+
+      <div class="card"><div class="cb"><strong>📋 My Applications</strong>
+        <div class="ar2"><span>Manchester</span><span class="bdg bg2">Offer</span></div>
+        <div class="ar2"><span>UCL</span><span class="bdg br2">Docs Missing</span></div>
+        <div class="ar2"><span>Toronto</span><span class="bdg bb2">Under Review</span></div>
+      </div></div>
+
+      <div class="card"><div class="cb"><strong>📈 Module Progress</strong>
+        <div class="pr2"><span>Profile</span><div class="pb"><div class="pf" style="width:100%;background:var(--grn)"></div></div><strong>100%</strong></div>
+        <div class="pr2"><span>Applications</span><div class="pb"><div class="pf" style="width:60%;background:var(--blue)"></div></div><strong>60%</strong></div>
+        <div class="pr2"><span>Documents</span><div class="pb"><div class="pf" style="width:73%;background:var(--yel)"></div></div><strong>73%</strong></div>
+        <div class="pr2"><span>Visa</span><div class="pb"><div class="pf" style="width:50%;background:var(--ind)"></div></div><strong>50%</strong></div>
+      </div></div>
+
+      <div class="pc-prom">
+        <div class="pch"><strong>👨‍👩‍👦 For Arjun's Parents</strong><span class="pc-badge">👁 Visible</span></div>
+        <div class="pcb">
+          <div class="pcr"><span>🎯</span><div><strong>Target:</strong> MSc CS/AI, UK &amp; Canada, Sept 2026</div></div>
+          <div class="pcr"><span>💰</span><div><strong>Funding:</strong> Loan ₹40L pre-approved + ₹14.2L scholarship</div></div>
+          <div class="pcr"><span>📈</span><div><strong>Status:</strong> On track · Visa 50% · 1 offer received</div></div>
+          <div class="pcr"><span>⚠</span><div><strong>Action:</strong> UCL documents due in 5 days</div></div>
+        </div>
+      </div>
+
+      <div class="card"><div class="cb"><strong>📊 Profile Strength &amp; ROI</strong>
+        <div style="font-size:9.5px;color:var(--n3);text-transform:uppercase;font-weight:600;letter-spacing:.03em;margin-bottom:8px">Profile Strength</div>
+        <div style="display:flex;gap:14px;align-items:center;margin-bottom:14px">
+          <div class="sring"><div class="sri"><div class="sp">78%</div></div></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px 12px;flex:1">
+            <div><div style="font-size:9.5px;color:var(--n3)">Academic</div><strong style="font-size:13px;color:var(--grn)">90%</strong></div>
+            <div><div style="font-size:9.5px;color:var(--n3)">Test Scores</div><strong style="font-size:13px;color:var(--blue)">85%</strong></div>
+            <div><div style="font-size:9.5px;color:var(--n3)">SOP &amp; LOR</div><strong style="font-size:13px;color:var(--org)">70%</strong></div>
+            <div><div style="font-size:9.5px;color:var(--n3)">Work/Projects</div><strong style="font-size:13px;color:var(--yel)">65%</strong></div>
+          </div>
+        </div>
+        <div style="font-size:9.5px;color:var(--n3);text-transform:uppercase;font-weight:600;letter-spacing:.03em;margin-bottom:8px">Projected ROI</div>
+        <div class="rg">
+          <div class="ri"><div style="font-size:9px;color:var(--n3)">Avg. Salary (UK)</div><div style="font-family:var(--fh);font-size:13.5px;font-weight:700;margin-top:2px">£42,000</div><div style="font-size:9px;color:var(--teal);margin-top:2px">≈ ₹44L/yr</div></div>
+          <div class="ri"><div style="font-size:9px;color:var(--n3)">Loan Payback</div><div style="font-family:var(--fh);font-size:13.5px;font-weight:700;margin-top:2px">3.2 yrs</div><div style="font-size:9px;color:var(--teal);margin-top:2px">After joining</div></div>
+          <div class="ri"><div style="font-size:9px;color:var(--n3)">5-yr Net Gain</div><div style="font-family:var(--fh);font-size:13.5px;font-weight:700;margin-top:2px">₹1.4 Cr</div><div style="font-size:9px;color:var(--blue);margin-top:2px">After all costs</div></div>
+          <div class="ri"><div style="font-size:9px;color:var(--n3)">Admit Chance</div><div style="font-family:var(--fh);font-size:13.5px;font-weight:700;margin-top:2px">74%</div><div style="font-size:9px;color:var(--pur);margin-top:2px">Top shortlist</div></div>
+        </div>
+      </div></div>
+
+      <div class="fhm">
+        <div class="fhmh"><strong>💰 Financial Health Meter</strong><div>Parent-ready visibility</div></div>
+        <div class="fhmb">
+          <div class="fhm-score-card">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start"><div class="fhm-score">72/100<small>Financial readiness</small></div><div style="font-size:10px;font-weight:700;padding:4px 9px;border-radius:999px;background:#ECFDF5;color:#047857">On Track</div></div>
+            <div class="fhmgb"><div class="fhmgf"></div></div>
+          </div>
+          <div class="fhm-stats">
+            <div class="fhm-stat"><div class="l">Total Cost</div><div class="v">₹92L</div><div class="s">2 yrs est.</div></div>
+            <div class="fhm-stat"><div class="l">Loan Sanctioned</div><div class="v" style="color:var(--grn)">₹40L</div><div class="s">HDFC Credila</div></div>
+            <div class="fhm-stat"><div class="l">Scholarship</div><div class="v" style="color:var(--blue)">₹14.2L</div><div class="s">Chevening</div></div>
+            <div class="fhm-stat"><div class="l">Remaining Gap</div><div class="v" style="color:var(--org)">₹37.8L</div><div class="s">To arrange</div></div>
+          </div>
+          <div class="fhm-break">
+            <h4>Funding Breakdown</h4>
+            <div class="fhmbr"><span>Tuition (2 yrs)</span><div class="fhmbrb"><div class="fhmbrf" style="width:62%;background:var(--blue)"></div></div><strong>₹57L</strong></div>
+            <div class="fhmbr"><span>Living Costs</span><div class="fhmbrb"><div class="fhmbrf" style="width:28%;background:var(--pur)"></div></div><strong>₹26L</strong></div>
+            <div class="fhmbr"><span>Loan Coverage</span><div class="fhmbrb"><div class="fhmbrf" style="width:43%;background:var(--grn)"></div></div><strong>₹40L</strong></div>
+            <div class="fhmbr"><span>Remaining Gap</span><div class="fhmbrb"><div class="fhmbrf" style="width:30%;background:var(--org)"></div></div><strong style="color:var(--org)">₹37.8L</strong></div>
+          </div>
+          <div class="fhm-note">⚠ <strong>Action needed:</strong> Submit ITR, bank statements &amp; co-applicant proof within 30 days.</div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="fab">🤖</div>
+
+    <div class="tabbar">
+      <div class="tabitem act"><span class="tabicon">🏠</span>Home</div>
+      <div class="tabitem"><span class="tabicon">📋</span>Application</div>
+      <div class="tabitem"><span class="tabicon">📁</span>Docs</div>
+      <div class="tabitem"><span class="tabicon">💬</span>Counsellor</div>
+      <div class="tabitem"><span class="tabicon">☰</span>More</div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
