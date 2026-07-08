@@ -1,0 +1,26 @@
+<svg width="250" height="112" viewBox="0 0 250 112" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="logoTitle logoDesc">
+  <title id="logoTitle">Eleevate Overseas</title>
+  <desc id="logoDesc">Eleevate Overseas wordmark with Write Your Future tagline.</desc>
+  <rect x="1" y="1" width="248" height="110" rx="18" fill="white" fill-opacity="0"/>
+  <g fill="#FFFFFF" font-family="Arial, Helvetica, sans-serif" font-weight="800">
+    <text x="14" y="35" font-size="24" letter-spacing="4.2">ELEEVATE</text>
+    <text x="14" y="72" font-size="24" letter-spacing="3.1">OVERSEAS</text>
+  </g>
+  <path d="M178.2 20L195.8 63.2H187.6L178.2 39.6L168.9 63.2H160.7L178.2 20Z" fill="url(#a)" />
+  <path d="M178.3 48.8L192.7 83.7H184.5L178.3 67.7L172.1 83.7H163.9L178.3 48.8Z" fill="url(#b)" />
+  <circle cx="199.3" cy="65.1" r="4.5" fill="#3AAA35" />
+  <text x="209" y="56" fill="#FFFFFF" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700">®</text>
+  <text x="14" y="91" fill="#FFFFFF" font-family="Arial, Helvetica, sans-serif" font-size="10.5" font-weight="700" letter-spacing="1.25">Write Your Future</text>
+  <rect x="14" y="98" width="196" height="9" rx="4.5" fill="#FFFFFF" />
+  <text x="23" y="105.4" fill="white" font-family="Arial, Helvetica, sans-serif" font-size="7.2" font-weight="800" letter-spacing=".45">Eleevate Study Abroad Pvt. Ltd.</text>
+  <defs>
+    <linearGradient id="a" x1="178.2" y1="20" x2="178.2" y2="63.2" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#009FE3"/>
+      <stop offset="1" stop-color="#35B659"/>
+    </linearGradient>
+    <linearGradient id="b" x1="178.3" y1="48.8" x2="178.3" y2="83.7" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#009FE3"/>
+      <stop offset="1" stop-color="#35B659"/>
+    </linearGradient>
+  </defs>
+</svg>
